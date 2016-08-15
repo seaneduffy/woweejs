@@ -1,0 +1,15 @@
+{
+  "name": "woweejs-dev",
+  "version": "0.0.1",
+  "description": "Dev for WoweeJS",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sean E. Duffy",
+  "license": "MIT",
+  "devDependencies": {
+    "express": "^1.4.28"
+  }
+}
