@@ -14,34 +14,28 @@ function Sprite() {
 Sprite.prototype = Object.create(DisplayObject.prototype, {
 	'x': {
 		get: function(){
-			if(!!this._x)
-				return this._x;
-			return this.x = 0;
+			return Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'x').get.call(this);
 		},
 		set: function(a){
-			this._x = a;
+			Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'x').set.call(this, a);
 			this._graphics.setXPosition(a);
 		}
 	},
 	'y': {
 		get: function(){
-			if(!!this._y)
-				return this._y;
-			return this.y = 0;
+			return Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'y').get.call(this);
 		},
 		set: function(a){
-			this._y = a;
+			Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'x').set.call(this, a);
 			this._graphics.setYPosition(a);
 		}
 	},
 	'z': {
 		get: function(){
-			if(!!this._z)
-				return this._z;
-			return this.z = 0;
+			return Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'z').get.call(this);
 		},
 		set: function(a){
-			this._z = a;
+			return Object.getOwnPropertyDescriptor(DisplayObject.prototype, 'z').set.call(this, a);
 			this._graphics.setZPosition(a);
 		}
 	},

@@ -10,6 +10,6 @@
   "author": "Sean E. Duffy",
   "license": "MIT",
   "devDependencies": {
-    "express": "^1.4.28"
+    "express": "^4.14.0"
   }
 }

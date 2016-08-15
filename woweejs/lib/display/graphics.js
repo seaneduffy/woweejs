@@ -8,7 +8,6 @@ function Graphics() {
 	this._canvas.style.zIndex = 0;
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
-	this._canvas.style.transition = 'transform 10ms linear';
 	this._context = this._canvas.getContext('2d');
 }
 
@@ -17,7 +16,7 @@ Graphics.prototype = Object.create(DisplayObject.prototype, {
 		value: function(a) {
 			let t = this._canvas.style.transform;
 			//console.log(t);
-			t = t.replace(/translateX(d+px)/, '') + ' translateX(' + a + 'px)';
+			t = t.replace(/translateX(.+)/, '') + ' translateX(' + a + 'px)';
 			//console.log(t);
 			this._canvas.style.transform = t.trim();
 		}
@@ -25,7 +24,7 @@ Graphics.prototype = Object.create(DisplayObject.prototype, {
 	'setYPosition': {
 		value: function(a) {
 			let t = this._canvas.style.transform;
-			t = t.replace(/translateY(d+px)/, '') + ' translateY(' + a + 'px)';
+			t = t.replace(/translateY(.+)/, '') + ' translateY(' + a + 'px)';
 			this._canvas.style.transform = t.trim();
 		}
 	},
