@@ -21,8 +21,6 @@ window.wowee = (function(){
 
 		let camera = new Camera();
 		
-		console.log(camera.view);
-		
 		return {
 			
 			createSprite: function() {
@@ -39,6 +37,12 @@ window.wowee = (function(){
 			
 			triangle: function(x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 				return new Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3);
+			},
+
+			toDisplay: function(shape) {
+				return shape.map(function(vertex){
+					return camera.vec3toVec2(vertex);
+				});
 			}
 			
 		}

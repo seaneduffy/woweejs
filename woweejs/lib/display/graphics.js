@@ -60,9 +60,24 @@ Graphics.prototype = Object.create(DisplayObject.prototype, {
 				this._canvas.height);
 		}
 	},
-	'fillStyle': {
+	'fill': {
 		set: function(a) {
 			this._context.fillStyle = a;
+		}
+	},
+	'draw': {
+		value: function(vertices) {
+			this._context.beginPath();
+			vertices.forEach(function(vertex, index){
+				if(index === 0) {
+					this._context.moveTo(vertex[0], vertex[1]);
+				} else {
+					this._context.lineTo(vertex[0], vertex[1]);
+				}
+			}.bind(this));
+			this._context.lineTo(vertices[0][0], vertices[0][1]);
+			this._context.closePath();
+			this._context.fill();
 		}
 	},
 	'drawRect': {

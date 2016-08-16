@@ -1,6 +1,7 @@
 'use strict';
 
 let SceneNode = require('./sceneNode'),
+	vec2 = require('gl-matrix-vec2'),
 	vec3 = require('gl-matrix-vec3'),
 	mat4 = require('gl-matrix-mat4'),
 	
@@ -26,6 +27,13 @@ function Camera() {
 	SceneNode.prototype.constructor.call(this);
 	this.setPosition(0, 0, 3);
 	this.target = vec3.fromValues(0, 0, 0);
+	this.createFrustum( 10, 1, 5, 100);
+
+	let nt = vec3.create();
+	vec3.rotateY(nt, this.target, this.position, Math.PI / 180 * 40);
+	vec3.rotateX(nt, this.target, this.position, Math.PI / 180 * 40);
+	this.target = nt;
+
 }
 
 Camera.prototype = Object.create(SceneNode.prototype, {
@@ -82,6 +90,28 @@ Camera.prototype = Object.create(SceneNode.prototype, {
 			if(!!this.target) {
 				createDirection.call(this);
 			}
+		}
+	},
+	'createFrustum': {
+		value: function(fov, aspectRatio, near, far) {
+			this.frustum = this.frustum || mat4.create();
+			mat4.perspective(fov, aspectRatio, near, far);
+		}
+	},
+	'frustum': {
+		get: function() {
+			return this._frustum;
+		},
+		set: function(f) {
+			this._frustum = f;
+		}
+	},
+	'vec3toVec2': {
+		value: function(v3) {
+			let out = vec3.create();
+			vec3.transformMat4(out, v3, this.view);
+			vec3.transformMat4(out, out, this.frustum);
+			return out;
 		}
 	}
 });
