@@ -7,8 +7,7 @@ window.wowee = (function(){
 		viewport = null,
 		cycle = require('./lib/cycle'),
 		tween = require('./lib/tween'),
-		Point3D = require('./lib/geom/point3D'),
-		Camera = require('./lib/camera/camera');
+		Camera = require('./lib/3d/scene/camera');
 	
 	return function(config) {
 		var root_element = config.root || document.body,
@@ -19,13 +18,7 @@ window.wowee = (function(){
 		cycle.setFrameRate(30);
 		cycle.start();
 
-		let p1 = new Point3D(100,100,100);
 		let camera = new Camera();
-		camera.focalLength = 10;
-		camera.x = camera.y = camera.z = 0;
-		camera.rotationX = 0;
-		camera.rotationY = 0;
-		camera.convertPoint3D(p1);
 		
 		return {
 			
