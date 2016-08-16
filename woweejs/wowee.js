@@ -7,7 +7,8 @@ window.wowee = (function(){
 		viewport = null,
 		cycle = require('./lib/cycle'),
 		tween = require('./lib/tween'),
-		Camera = require('./lib/3d/scene/camera');
+		Camera = require('./lib/3d/scene/camera'),
+		Triangle = require('./lib/3d/primitive/triangle');
 	
 	return function(config) {
 		var root_element = config.root || document.body,
@@ -19,6 +20,8 @@ window.wowee = (function(){
 		cycle.start();
 
 		let camera = new Camera();
+		
+		console.log(camera.view);
 		
 		return {
 			
@@ -32,6 +35,10 @@ window.wowee = (function(){
 
 			tween: function(obj, props, time, ease) {
 				tween(obj, props, time, ease);
+			},
+			
+			triangle: function(x1, y1, z1, x2, y2, z2, x3, y3, z3) {
+				return new Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3);
 			}
 			
 		}

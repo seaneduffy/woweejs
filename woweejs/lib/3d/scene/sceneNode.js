@@ -9,7 +9,7 @@ function SceneNode() {
 Object.defineProperties(SceneNode.prototype, {
 	'position': {
 		get: function(){
-			return this._position || new vec3();
+			return this._position;
 		},
 		set: function(p){
 			this._position = p;
@@ -19,10 +19,10 @@ Object.defineProperties(SceneNode.prototype, {
 		value: function(x, y, z){
 			this._position = vec3.fromValues(x, y, z);
 		}
-	}
+	},
 	'transform': {
 		get: function(){
-			return this._transform || new mat4();
+			return this._transform;
 		},
 		set: function(t){
 			this._transform = t;
