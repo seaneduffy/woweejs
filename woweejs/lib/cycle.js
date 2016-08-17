@@ -59,8 +59,9 @@ module.exports = {
 		frameRate = rate / 1000;
 	},
 	add: function(func, rate ) {
-		if(!!rate)
+		if(!!rate) {
 			rate = rate / 1000;
+		}
 		cycleFunctions.push({
 			func: func,
 			dTime: 0,

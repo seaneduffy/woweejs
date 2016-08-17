@@ -1,3 +1,5 @@
+'use strict';
+
 var gulp = require('gulp'),
 	uglify = require('gulp-uglify'),
 	watchify = require('watchify'),
@@ -6,7 +8,8 @@ var gulp = require('gulp'),
 	sourcemaps = require('gulp-sourcemaps'),
 	rename = require('gulp-rename'),
 	babelify = require('babelify'),
-	buffer = require('vinyl-buffer');
+	buffer = require('vinyl-buffer'),
+	jshint = require('gulp-jshint');
 
 
 gulp.task('prod', function(){
@@ -68,4 +71,10 @@ gulp.task('watch', function(){
 	});
 
   return rebundle();
+});
+
+gulp.task( 'lint', function() {
+	return gulp.src( './lib/**/*.js' )
+	   .pipe( jshint() )
+	   .pipe( jshint.reporter( 'default' ) );
 });

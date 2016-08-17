@@ -1,7 +1,6 @@
 'use strict';
 
-let SceneNode = require('./sceneNode'),
-	vec2 = require('gl-matrix-vec2'),
+let vec2 = require('gl-matrix-vec2'),
 	vec3 = require('gl-matrix-vec3'),
 	mat4 = require('gl-matrix-mat4'),
 	
@@ -24,19 +23,12 @@ function createDirection() {
 }
 
 function Camera() {
-	SceneNode.prototype.constructor.call(this);
-	this.setPosition(0, 0, 3);
+	this.position = vec3.fromValues(0, 0, 3);
 	this.target = vec3.fromValues(0, 0, 0);
 	this.createFrustum( 10, 1, 5, 100);
-
-	let nt = vec3.create();
-	vec3.rotateY(nt, this.target, this.position, Math.PI / 180 * 40);
-	vec3.rotateX(nt, this.target, this.position, Math.PI / 180 * 40);
-	this.target = nt;
-
 }
 
-Camera.prototype = Object.create(SceneNode.prototype, {
+Object.defineProperties(Camera.prototype, {
 	'direction': {
 		get: function() {
 			return this._direction;
@@ -83,10 +75,10 @@ Camera.prototype = Object.create(SceneNode.prototype, {
 	},
 	'position': {
 		get: function() {
-			return Object.getOwnPropertyDescriptor(SceneNode.prototype, 'position').get.call(this);
+			return this._position;
 		},
 		set: function(p) {
-			Object.getOwnPropertyDescriptor(SceneNode.prototype, 'position').set.call(this, p);
+			this._position = p;
 			if(!!this.target) {
 				createDirection.call(this);
 			}
@@ -107,9 +99,11 @@ Camera.prototype = Object.create(SceneNode.prototype, {
 		}
 	},
 	'vec3toVec2': {
-		value: function(v3) {
+		value: function(v3, local) {
+			console.log(v3, local);
 			let out = vec3.create();
-			vec3.transformMat4(out, v3, this.view);
+			vec3.transformMat4(out, v3, local);
+			vec3.transformMat4(out, out, this.view);
 			vec3.transformMat4(out, out, this.frustum);
 			return out;
 		}
