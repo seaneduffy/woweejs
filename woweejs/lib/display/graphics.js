@@ -106,7 +106,6 @@ Object.defineProperties(Graphics.prototype, {
 	},
 	'draw': {
 		value: function(vertices) {
-			this._context.clearRect(0, 0, this.width, this.height);
 			this._context.beginPath();
 			vertices.forEach(function(vertex, index){
 				if(index === 0) {
@@ -120,11 +119,17 @@ Object.defineProperties(Graphics.prototype, {
 			this._context.fill();
 		}
 	},
+	'clear': {
+		value: function(){
+			this._context.clearRect(0, 0, this.width, this.height);
+		}
+	},
 	'drawRect': {
 		value: function(a, b, c, d) {
 			this._context.fillRect(a, b, c, d);
 		}
 	}
 });
+var c = 0;
 
 module.exports = Graphics;

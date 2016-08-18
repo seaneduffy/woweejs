@@ -1,10 +1,30 @@
 <!doctype html>
 <html>
 	<head>
+		<style>
+		#console {
+			position: absolute;
+			font-family: Arial, sans-serif;
+			font-size: 11px;
+			right: 10px;
+			bottom: 10px;
+		}
+		#console p {
+			padding: 0;
+			margin: 0;
+		}
+		</style>
 		<script src="/wowee.js"></script>
 	</head>
 	<body>
 		<div id="game"></div>
+		<div id="console">
+			<h1>Camera</h1>
+			<p id="camera-position">Position <span class="x"></span> 
+				<span class="y"></span> <span class="z"></span></p>
+			<p id="camera-front">Front <span class="x"></span> 
+				<span class="y"></span> <span class="z"></span></p>
+		</div>
 		<script src="/dev.js"></script>
 	</body>
 </html>

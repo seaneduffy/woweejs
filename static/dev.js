@@ -7,20 +7,89 @@ let game = wowee({
 	background: "black"
 });
 
-let camera = new Camera();
-camera.position = vec3.set(camera.position, 0, 0, 1);
-camera.target = vec3.set(camera.target, 0, 0, 0);
+function loadData(uri, cb) {
+	let xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', uri, true);   
+	xobj.onreadystatechange = function () {
+		if (xobj.readyState == 4 && xobj.status == "200") {
+			cb(JSON.parse(xobj.responseText));
+		}
+	}
+	xobj.send(null);
+}
 
-let t = new Triangle(-100, 100, 0, 0, 0, 0, 100, 100, 0);
+let camera = new Camera();
+
+loadData('/sphere1.json', function(data){
+	var triangleCounter = 0,
+		valueCounter = 0,
+		triangle,
+		triangles = [];
+		console.log(data);
+		var max = 0,
+			count = 0;
+	for(var i=0; i<data.vertexPositionIndices.length; i+=3) {
+		triangles.push([data.vertexPositionIndices[i],
+			data.vertexPositionIndices[i+1],
+			data.vertexPositionIndices[i+2]]);
+	}
+	triangles.forEach()
+	data.vertexPositionIndices.forEach(function(index){
+		if(index > max)
+			max = index;
+	});
+	console.log(max);
+	console.log(triangles);
+	/*data.vertex.forEach( function(value, index){
+		
+		if(triangleCounter === 0 && valueCounter === 0) {
+			triangle = new Triangle(0,0,0,0,0,0,0,0,0);
+		}
+		if(valueCounter === 0) {
+			triangle[triangleCounter] = vec3.create();
+		}
+		
+		triangle[triangleCounter][valueCounter] = value;
+		
+		valueCounter++;
+		if(valueCounter > 2) {
+			valueCounter = 0;
+			triangleCounter++;
+			if(triangleCounter > 2) {
+				triangleCounter = 0;
+				triangles.push(triangle);
+			}
+		}
+	} );
+	triangles.forEach(function(t){
+		var t = new Triangle();
+			t[0][0] = triangle[0][0];
+			t[0][1] = triangle[0][1];
+			t[0][2] = triangle[0][2];
+			t[1][0] = triangle[1][0];
+			t[1][1] = triangle[1][1];
+			t[1][2] = triangle[1][2];
+			t[2][0] = triangle[2][0];
+			t[2][1] = triangle[2][1];
+			t[2][2] = triangle[2][2];
+	
+		var s = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(100, 100, 100));
+	
+		vec3.transformMat4(t[0], t[0], s);
+		vec3.transformMat4(t[1], t[1], s);
+		vec3.transformMat4(t[2], t[2], s);
+	
+		obj.model.shapes.push(t);
+	})*/
+});
+
+//let t = new Triangle(-100, 100, 0, 0, 0, 0, 100, 100, 0);
 let obj = new DisplayObject3D();
 obj.model = new Model();
-obj.model.shapes.push(t);
-obj.position = vec3.fromValues(80, 50, -300);
+//obj.model.shapes.push(t);
+obj.position = vec3.fromValues(0, 0, 0);
 viewport.camera = camera;
 viewport.addChild(obj);
 camera.rotationY = Math.PI / 180 * 90;
-//obj.rotationY = Math.PI / 180 * -50;
-//new Tween(obj, {'z': -600}, 2, 'easeInQuad');
-//new Tween(obj, {'rotationY': Math.PI / 180 * 45}, 2, 'easeInQuad');
-//new Tween(obj, {'rotationZ': Math.PI / 180 * 45}, 2, 'easeInQuad');
-//new Tween(camera, {'rotationY': Math.PI / 180 * 40}, 2, 'linear');
+//new Tween(camera, {'rotationY': Math.PI / 180 * 1}, 2, 'linear');

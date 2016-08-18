@@ -9,8 +9,12 @@ var gulp = require('gulp'),
 	rename = require('gulp-rename'),
 	babelify = require('babelify'),
 	buffer = require('vinyl-buffer'),
-	jshint = require('gulp-jshint');
-
+	jshint = require('gulp-jshint'),
+	parseDae = require('collada-dae-parser'),
+	vfs = require('vinyl-fs'),
+	map = require('map-stream'),
+	bufferJson = require('buffer-json-stream'),
+	stream = require('stream');
 
 gulp.task('prod', function(){
 
@@ -77,4 +81,24 @@ gulp.task( 'lint', function() {
 	return gulp.src( './lib/**/*.js' )
 	   .pipe( jshint() )
 	   .pipe( jshint.reporter( 'default' ) );
+});
+
+gulp.task( 'collada', function() {
+	var filename;
+	return vfs.src('./src/collada/*.dae')
+	.pipe(map(function(file, cb){
+		
+		//var arr = file.path.split('/');
+		//filename = arr[arr.length-1].replace('.dae', '.json');
+		//console.log(filename);
+		var str = JSON.stringify(parseDae(file.contents));
+		file.contents = new stream.Readable();
+		file.contents._read = function noop() {};
+		file.contents.push(str);
+		cb(null, file);
+	}))
+	.pipe(rename({
+		extname: '.json'
+	}))
+	.pipe(vfs.dest('./src/collada/json/'));
 });

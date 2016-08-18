@@ -22,6 +22,7 @@ window.wowee = (function(){
 		window.Tween = require('./lib/animation/tween/tween');
 		window.Graphics = require('./lib/display/graphics');
 		window.vec3 = require('gl-matrix-vec3');
+		window.mat4 = require('gl-matrix-mat4');
 		window.Model = require('./lib/3d/display/model');
 		Graphics.setRoot(root_element);
 		Graphics.setDefaultWidth(stage_width);
