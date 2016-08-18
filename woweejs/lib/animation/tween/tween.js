@@ -1,7 +1,8 @@
 'use strict';
 
-let cycle = require('../../cycle'),
-	easing = require('./easing');
+let cycle = require('../cycle'),
+	easing = require('./easing'),
+	geom = require('../../geom');
 
 function update(dTime){
 	
@@ -31,8 +32,14 @@ function Tween(obj, props, time, ease) {
 	for(key in props) {
 		this.props[key] = {
 			start : obj[key],
-			end : props[key],
-			delta : props[key] - obj[key]
+			end : props[key]
+		}
+		if(key.match(/rotation/)) {
+			console.log(obj[key]);
+			this.props[key].delta = geom.angleDifference(obj[key], props[key]);
+			console.log(this.props[key].delta * 180 / Math.PI);
+		} else {
+			this.props[key].delta = props[key] - obj[key];	
 		}
 	}
 	

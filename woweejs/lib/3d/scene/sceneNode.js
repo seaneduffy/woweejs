@@ -8,6 +8,7 @@ function SceneNode() {
 }
 
 Object.defineProperties(SceneNode.prototype, {
+
 	'rotationX': {
 		get: function(){
 			if(!!this._rotationX) {
@@ -29,7 +30,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationY = 0;
 		},
 		set: function(rad){
-			mat4.rotateY(this.transform, this.transform, -this._rotationY);
+			mat4.rotateY(this.transform, this.transform, -this.rotationY);
 			mat4.rotateY(this.transform, this.transform, rad);
 			this._rotationY = rad;
 		}
@@ -45,6 +46,42 @@ Object.defineProperties(SceneNode.prototype, {
 			mat4.rotateZ(this.transform, this.transform, -this._rotationZ);
 			mat4.rotateZ(this.transform, this.transform, rad);
 			this._rotationZ = rad;
+		}
+	},
+	'x': {
+		get: function(){
+			if(!!this._x) {
+				return this._x;
+			}
+			return this._x = 0;
+		},
+		set: function(x){
+			this.position = vec3.fromValues(x, this.y, this.z);
+			this._x = x;
+		}
+	},
+	'y': {
+		get: function(){
+			if(!!this._y) {
+				return this._y;
+			}
+			return this._y = 0;
+		},
+		set: function(y){
+			this.position = vec3.fromValues(this.x, y, this.z);
+			this._y = y;
+		}
+	},
+	'z': {
+		get: function(){
+			if(!!this._z) {
+				return this._z;
+			}
+			return this._z = 0;
+		},
+		set: function(z){
+			this.position = vec3.fromValues(this.x, this.y, z);
+			this._z = z;
 		}
 	},
 	'children': {
@@ -74,7 +111,12 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._position = vec3.create();
 		},
 		set: function(p){
+			mat4.translate(this.transform, this.transform, vec3.negate(vec3.create(), this.position));
 			this._position = p;
+			this._x = p[0];
+			this._y = p[1];
+			this._z = p[2];
+			mat4.translate(this.transform, this.transform, this.position);
 		}
 	},
 	'transform': {

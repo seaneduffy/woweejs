@@ -24,7 +24,9 @@ function Graphics() {
 	this._canvas.style.transform = 'translate(0, 0)';
 	this._context = this._canvas.getContext('2d');
 	this.width = defaultWidth;
+	this.halfWidth = this.width / 2;
 	this.height = defaultHeight;
+	this.halfHeight = this.height / 2;
 	root.appendChild(this._canvas);
 }
 
@@ -67,15 +69,17 @@ Object.defineProperties(Graphics.prototype, {
 		set: function(width) {
 			this._width = width;
 			this._canvas.setAttribute('width', width + 'px');
+			this.halfWidth = this.width / 2;
 		}
 	},
-	'setHeight': {
+	'height': {
 		get: function() {
 			return this._height;
 		},
 		set: function(height) {
 			this._height = height;
 			this._canvas.setAttribute('height', height + 'px');
+			this.halfHeight = this.height / 2;
 		}
 	},
 	'drawImage': {
@@ -102,17 +106,16 @@ Object.defineProperties(Graphics.prototype, {
 	},
 	'draw': {
 		value: function(vertices) {
-			//console.log(this.width, this.height);
 			this._context.clearRect(0, 0, this.width, this.height);
 			this._context.beginPath();
 			vertices.forEach(function(vertex, index){
 				if(index === 0) {
-					this._context.moveTo(vertex[0], vertex[1]);
+					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
 				} else {
-					this._context.lineTo(vertex[0], vertex[1]);
+					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
 				}
 			}.bind(this));
-			this._context.lineTo(vertices[0][0], vertices[0][1]);
+			this._context.lineTo(vertices[0][0] + this.halfWidth, vertices[0][1] + this.halfHeight);
 			this._context.closePath();
 			this._context.fill();
 		}

@@ -28,8 +28,7 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 
 DisplayObject3D.prototype.render = function(camera){
 	if(!!this.model) {
-		this.graphics.fill = 'red';
-		this.graphics.draw(camera.toDisplay(this.model, this.transform));
+		this.model.render(this.graphics, camera, this.transform);
 	}
 	this.children.forEach(function(displayObject3D){
 		displayObject3D.render(camera);
