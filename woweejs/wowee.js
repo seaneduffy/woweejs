@@ -35,7 +35,7 @@ window.wowee = (function(){
 		let cycle = require('./lib/animation/cycle');
 		
 		cycle.setFrameRate(30);
-		cycle.start();
+		//cycle.start();
 		cycle.add(viewport.render.bind(viewport));
 		
 		

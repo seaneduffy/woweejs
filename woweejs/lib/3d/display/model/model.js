@@ -18,10 +18,6 @@ Model.prototype.render = function(graphics, camera, transform) {
 	graphics.fill = 'red';
 	graphics.clear();
 	this.shapes.forEach(function(shape) {
-		if(c < 10) {
-			//console.log(shape);
-			c++;
-		}
 		graphics.draw(camera.toDisplay(shape, transform));
 	});
 };

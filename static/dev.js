@@ -24,23 +24,34 @@ let camera = new Camera();
 loadData('/sphere1.json', function(data){
 	var triangleCounter = 0,
 		valueCounter = 0,
+		v,
 		triangle,
 		triangles = [];
 		console.log(data);
+		var s = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(100, 100, 100));
 		var max = 0,
 			count = 0;
-	for(var i=0; i<data.vertexPositionIndices.length; i+=3) {
-		triangles.push([data.vertexPositionIndices[i],
-			data.vertexPositionIndices[i+1],
-			data.vertexPositionIndices[i+2]]);
-	}
-	triangles.forEach()
 	data.vertexPositionIndices.forEach(function(index){
-		if(index > max)
-			max = index;
+		if(valueCounter === 0 && triangleCounter === 0) {
+			triangle = new Triangle();
+		}
+		if(valueCounter === 0) {
+			v = vec3.create();
+		}
+		v[valueCounter] = data.vertexPositions[index];
+		valueCounter++;
+		if(valueCounter >= 3) {
+			valueCounter = 0;
+			v = vec3.transformMat4(vec3.create(), v, s);
+			triangle[triangleCounter] = v;
+			triangleCounter++;
+			if(triangleCounter >= 3) {
+				triangleCounter = 0;
+				obj.model.shapes.push(triangle);
+			}
+		}
 	});
-	console.log(max);
-	console.log(triangles);
+	viewport.render();
 	/*data.vertex.forEach( function(value, index){
 		
 		if(triangleCounter === 0 && valueCounter === 0) {
@@ -74,7 +85,7 @@ loadData('/sphere1.json', function(data){
 			t[2][1] = triangle[2][1];
 			t[2][2] = triangle[2][2];
 	
-		var s = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(100, 100, 100));
+		var s = dmat4.scale(mat4.create(), mat4.create(), vec3.fromValues(100, 100, 100));
 	
 		vec3.transformMat4(t[0], t[0], s);
 		vec3.transformMat4(t[1], t[1], s);
@@ -91,5 +102,6 @@ obj.model = new Model();
 obj.position = vec3.fromValues(0, 0, 0);
 viewport.camera = camera;
 viewport.addChild(obj);
+
 camera.rotationY = Math.PI / 180 * 90;
 //new Tween(camera, {'rotationY': Math.PI / 180 * 1}, 2, 'linear');

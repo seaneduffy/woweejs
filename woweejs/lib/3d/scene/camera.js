@@ -25,7 +25,7 @@ function Camera(){
 	SceneNode.prototype.constructor.call(this);
 	vec3.set(this.front, 0, 0, -1);
 	vec3.set(this.position, 0, 0, 3);
-	mat4.perspective(this.frustum, 40, 1, 0.1, 100);
+	mat4.perspective(this.frustum, 20, 1, 0.1, 100);
 	this.setView();
 }
 
@@ -134,7 +134,6 @@ Camera.prototype.vec3toVec2 = function(v3, local) {
 	vec3.transformMat4(out, v3, local);
 	vec3.transformMat4(out, out, this.view);
 	vec3.transformMat4(out, out, this.frustum);
-
 	return out;
 };
 
