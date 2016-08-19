@@ -104,7 +104,27 @@ Object.defineProperties(Graphics.prototype, {
 			this._context.fillStyle = a;
 		}
 	},
-	'draw': {
+	'stroke': {
+		set: function(a) {
+			this._context.strokeStyle = a;
+		}
+	},
+	'renderLines': {
+		value: function(vertices) {
+			this._context.beginPath();
+			vertices.forEach(function(vertex, index){
+				if(index === 0) {
+					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+				} else {
+					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+				}
+			}.bind(this));
+			this._context.lineTo(vertices[0][0] + this.halfWidth, vertices[0][1] + this.halfHeight);
+			this._context.closePath();
+			this._context.stroke();
+		}
+	},
+	'renderSolid': {
 		value: function(vertices) {
 			this._context.beginPath();
 			vertices.forEach(function(vertex, index){
@@ -119,6 +139,33 @@ Object.defineProperties(Graphics.prototype, {
 			this._context.fill();
 		}
 	},
+	'renderTriangle': {
+		value: function(triangle, transform){
+			this._context.save();
+			this.pathTriangle(triangle);
+			this._context.clip();
+			this._context.drawImage(img, this.halfWidth, this.halfHeight);
+			this._context.restore();
+		}
+	},
+	'pathTriangle': {
+		value: function(triangle){
+		    this._context.save();
+			// transform
+		    //this.context.translate(part.x,part.y);
+		    this._context.beginPath();
+		    this._context.moveTo(triangle[0][0], triangle[0][1]);
+			triangle.forEach(function(vertex, index){
+				if(index === 0) {
+					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+				} else {
+					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+				}
+			}.bind(this));
+		    this._context.closePath();
+		    this._context.restore();
+		}
+	},
 	'clear': {
 		value: function(){
 			this._context.clearRect(0, 0, this.width, this.height);
@@ -130,6 +177,12 @@ Object.defineProperties(Graphics.prototype, {
 		}
 	}
 });
-var c = 0;
+
+var img=new Image();
+img.onload=function(){
+}
+img.src="/tie_body_1.png";
+
+
 
 module.exports = Graphics;

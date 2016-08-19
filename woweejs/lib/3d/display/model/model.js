@@ -15,10 +15,12 @@ Object.defineProperties(Model.prototype, {
 });
 
 Model.prototype.render = function(graphics, camera, transform) {
-	graphics.fill = 'red';
 	graphics.clear();
 	this.shapes.forEach(function(shape) {
-		graphics.draw(camera.toDisplay(shape, transform));
+		graphics.fill = 'red';
+		graphics.stroke = 'blue';
+		graphics.renderSolid(camera.toDisplay(shape, transform));
+		graphics.renderLines(camera.toDisplay(shape, transform));
 	});
 };
 

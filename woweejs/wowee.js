@@ -15,15 +15,15 @@ window.wowee = (function(){
 		root_element.style.background = config.background || 'white';
 			
 		window.DisplayObject3D = require('./lib/3d/display/displayObject3D');
-		window.Triangle = require('./lib/3d/shape/triangle');
-		window.Rectangle = require('./lib/3d/shape/rectangle');
+		window.Triangle = require('./lib/3d/display/model/triangle');
+		window.Rectangle = require('./lib/3d/display/model/rectangle');
 		window.Camera = require('./lib/3d/scene/camera');
 		window.Sprite = require('./lib/display/sprite');
 		window.Tween = require('./lib/animation/tween/tween');
 		window.Graphics = require('./lib/display/graphics');
 		window.vec3 = require('gl-matrix-vec3');
 		window.mat4 = require('gl-matrix-mat4');
-		window.Model = require('./lib/3d/display/model');
+		window.Model = require('./lib/3d/display/model/model');
 		Graphics.setRoot(root_element);
 		Graphics.setDefaultWidth(stage_width);
 		Graphics.setDefaultHeight(stage_height);
@@ -35,7 +35,7 @@ window.wowee = (function(){
 		let cycle = require('./lib/animation/cycle');
 		
 		cycle.setFrameRate(30);
-		//cycle.start();
+		cycle.start();
 		cycle.add(viewport.render.bind(viewport));
 		
 		

@@ -23,7 +23,7 @@ function update(dTime){
 
 }
 
-function Tween(obj, props, time, ease) {
+function Tween(obj, props, time, ease, direction) {
 	
 	let key = null;
 	
@@ -35,7 +35,7 @@ function Tween(obj, props, time, ease) {
 			end : props[key]
 		}
 		if(key.match(/rotation/)) {
-			this.props[key].delta = geom.angleDifference(obj[key], props[key]);
+			this.props[key].delta = geom.angleDifference(obj[key], props[key], direction);
 		} else {
 			this.props[key].delta = props[key] - obj[key];	
 		}
