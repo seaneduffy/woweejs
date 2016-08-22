@@ -10,7 +10,6 @@ var gulp = require('gulp'),
 	babelify = require('babelify'),
 	buffer = require('vinyl-buffer'),
 	jshint = require('gulp-jshint'),
-	parseDae = require('collada-dae-parser'),
 	vfs = require('vinyl-fs'),
 	map = require('map-stream'),
 	bufferJson = require('buffer-json-stream'),
@@ -84,92 +83,96 @@ gulp.task( 'lint', function() {
 	   .pipe( jshint.reporter( 'default' ) );
 });
 
-gulp.task( 'collada', function() {
-	var filename;
-	return vfs.src('./src/collada/*.dae')
+gulp.task( 'wavefront', function(done) {
+	
+	var materialObj = {},
+		materialProps;
+	
+	vfs.src('./src/wavefront/'+argv.m+'.mtl')
 	.pipe(map(function(file, cb){
-		var str = JSON.stringify(parseDae(file.contents));
-		file.contents = new stream.Readable();
-		file.contents._read = function noop() {};
-		file.contents.push(str);
-		cb(null, file);
-	}))
-	.pipe(rename({
-		extname: '.json'
-	}))
-	.pipe(vfs.dest('./src/collada/json/'));
-});
-
-gulp.task( 'wavefront', function() {
-	return vfs.src('./src/wavefront/'+argv.m+'.obj')
-	.pipe(map(function(file, cb){
-		var out = {
-			vertices : [],
-			normals : [],
-			textures: [],
-			faces : []
-		};
 		file.contents.toString().split('\n').forEach(
-			function(line){
+			function(line) {
 				var lineArr = line.split(' '),
 					id = lineArr[0];
-				if(id === 'v') {
-					out.vertices.push([
-						lineArr[1] * 1,
-						lineArr[2] * 1,
-						lineArr[3] * 1,
-					]);
-				} else if(id === 'vn') {
-					out.normals.push([
-						lineArr[1] * 1,
-						lineArr[2] * 1,
-						lineArr[3] * 1,
-					]);
-				} else if(id === 'vt') {
-					out.textures.push([
-						lineArr[1] * 1,
-						lineArr[2] * 1,
-						lineArr[3] * 1,
-					]);
-				} else if(id === 'f') {
-					var vertices = [],
-						vertexValues,
-						vertex;
-					lineArr.forEach(function(vertexArr, index){
-						if(index !== 0) {
-							vertexValues = vertexArr.split('/');
-							vertex = {
-								vertex : vertexValues[0] * 1 - 1,
-								normal : vertexValues[2] * 1 - 1
-							}
-							if(vertexValues[1] !== ''){
-								vertex.texture = vertexValues[1] * 1 - 1;
-							}
-							vertices.push(vertex);
-						}
-					});
-					out.faces.push(vertices);
+				if(id === 'newmtl') {
+					materialProps = {};
+					materialObj[lineArr[1]] = materialProps;
+				} else if(id === 'map_Kd') {
+					var a = lineArr[lineArr.length-1].split('/');
+					materialProps.filename = a[a.length-1];
 				}
 			}
 		);
-		out.faces.forEach(function(face){
-			
-			face.forEach(function(v) {
-				v.vertex = out.vertices[v.vertex];
-				v.normal = out.normals[v.normal];
-				if(!!v.texture) {
-					v.texture = out.textures[v.texture];
+		return vfs.src('./src/wavefront/'+argv.m+'.obj')
+		.pipe(map(function(file, cb){
+	
+			var meshes = [],
+				mesh;
+			file.contents.toString().split('\n').forEach(
+				function(line){
+					var lineArr = line.split(' '),
+						id = lineArr[0],
+						v;
+					if(id === 'o') {
+						mesh = {
+							vertices : [],
+							normals : [],
+							texels: [],
+							faces : [],
+							material: ''
+						};
+						meshes.push(mesh);
+					} else if(id === 'v') {
+						v = new Array(3);
+						v[0] = lineArr[1] * 1;
+						v[1] = lineArr[2] * 1;
+						v[2] = lineArr[3] * 1;
+						mesh.vertices.push(v);
+					} else if(id === 'vn') {
+						v = new Array(3);
+						v[0] = lineArr[1] * 1;
+						v[1] = lineArr[2] * 1;
+						v[2] = lineArr[3] * 1;
+						mesh.normals.push(v);
+					} else if(id === 'vt') {
+						v = new Array(2);
+						v[0] = lineArr[1] * 1;
+						v[1] = lineArr[2] * 1;
+						mesh.texels.push(v);
+					} else if(id === 'f') {
+						var vertices = [],
+							vertexValues,
+							vertex;
+						lineArr.forEach(function(vertexArr, index){
+							if(index !== 0) {
+								vertexValues = vertexArr.split('/');
+								vertex = {
+									vertex : vertexValues[0] * 1 - 1,
+									texels : vertexValues[1] * 1 - 1,
+									normal : vertexValues[2] * 1 - 1
+								}
+								vertices.push(vertex);
+							}
+						});
+						mesh.faces.push(vertices);
+					} else if(id === 'usemtl') {
+						mesh.material = materialObj[lineArr[1]];
+					}
 				}
-			});
+			);
+			
+			var str = JSON.stringify(meshes);
+			file.contents = new stream.Readable();
+			file.contents._read = function noop() {};
+			file.contents.push(str);
+			cb(null, file);
+		}))
+		.pipe(rename({
+			extname: '.json'
+		}))
+		.pipe(vfs.dest('./src/3d/'))
+		.on('end', function(){
+			done();
 		});
-		var str = JSON.stringify(out);
-		file.contents = new stream.Readable();
-		file.contents._read = function noop() {};
-		file.contents.push(str);
-		cb(null, file);
 	}))
-	.pipe(rename({
-		extname: '.json'
-	}))
-	.pipe(vfs.dest('./src/3d/'));
 });

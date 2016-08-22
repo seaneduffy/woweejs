@@ -24,6 +24,4 @@ Model.prototype.render = function(graphics, camera, transform) {
 	});
 };
 
-var c = 0;
-
 module.exports = Model;

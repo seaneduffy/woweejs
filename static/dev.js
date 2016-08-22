@@ -1,11 +1,6 @@
 'use strict';
 
-let game = wowee({
-	root: document.getElementById("game"), 
-	width: 500, 
-	height: 500,
-	background: "black"
-});
+let obj = null;
 
 function loadData(uri, cb) {
 	let xobj = new XMLHttpRequest();
@@ -19,36 +14,43 @@ function loadData(uri, cb) {
 	xobj.send(null);
 }
 
-let camera = new Camera();
+function onDataLoaded(data) {
+	console.log(data);
+	/*let mesh = new Mesh();
+	mesh.data = data;
+	mesh.addTextureImage('tie_body_1.png');
+	obj.addMesh(mesh);
+	start();*/
+}
 
-loadData('/tie1.json', function(data){
-	var triangleCounter = 0,
-		valueCounter = 0,
-		v,
-		triangle,
-		triangles = [];
-		console.log(data);
-		var s = mat4.scale(mat4.create(), mat4.create(), vec3.fromValues(10, 10, 10));
-		var max = 0,
-			count = 0;
-	data.faces.forEach(function(vertices){
-		var triangle = new Triangle();
-		vertices.forEach(function(vertex, index){
-			v = vertex.vertex;
-			//triangle[index] = vec3.transformMat4(vec3.create(), vec3.fromValues(v[2], v[1], v[0]), s);
-			triangle[index] = vec3.fromValues(v[2], v[1], v[0]);
-		});
-		obj.model.shapes.push(triangle);
+function init() {
+	let game = wowee({
+		root: document.getElementById("game"), 
+		width: 1080, 
+		height: 720,
+		frame_rate: 10,
+		background: "black"
 	});
-});
+	
+	obj = new DisplayObject3D();
+	
+	loadData('/tie1.json', onDataLoaded);
+}
 
-//let t = new Triangle(-100, 100, 0, 0, 0, 0, 100, 100, 0);
-let obj = new DisplayObject3D();
-obj.model = new Model();
-//obj.model.shapes.push(t);
-obj.position = vec3.fromValues(0, 0, 0);
-viewport.camera = camera;
-viewport.addChild(obj);
-obj.z = .9;
-//camera.rotationY = Math.PI / 180 * 90;
-new Tween(obj, {'z': .6, 'y': 20, 'rotationY': Math.PI / 180 * 80}, 4, 'linear', '+');
+function start() {
+	/*
+	obj.rotationY = Math.PI / 180 * 180;
+	obj.rotationX = Math.PI / 180 * 90;
+	obj.rotationZ = Math.PI / 180 * 0;
+	obj.position = [0, 0, -35];
+	viewport.addChild(obj);
+	let camera = new Camera(1080, 720);
+	viewport.camera = camera;
+	
+	camera.rotationY = 0;
+	camera.rotationX = 0;
+	camera.rotationZ = 0;
+	viewport.render();
+	//new Tween(obj, {'z': -40, 'x': -40}, 1, 'easeOutQuad', '+');
+	//new Tween(camera, {'rotationY':Math.PI / 180 * 82}, 1, 'easeOutSine', '+');*/
+}

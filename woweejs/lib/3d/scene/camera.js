@@ -2,9 +2,11 @@
 
 let SceneNode = require('./sceneNode'),
 	geom = require('../../geom'),
-	vec2 = require('gl-matrix-vec2'),
-	vec3 = require('gl-matrix-vec3'),
-	mat4 = require('gl-matrix-mat4');
+	glm = require('gl-matrix'),
+	vec2 = glm.vec2,
+	vec3 = glm.vec3,
+	mat4 = glm.mat4,
+	createOrbitCamera = require('orbit-camera');
 
 const UP = vec3.fromValues(0, 1, 0);
 let LOG_CAMERA_POSITION_X = document.querySelector('#camera-position .x'),
@@ -15,53 +17,28 @@ let LOG_CAMERA_POSITION_X = document.querySelector('#camera-position .x'),
 	LOG_CAMERA_FRONT_Z = document.querySelector('#camera-front .z');
 
 function Camera(){
-	LOG_CAMERA_POSITION_X = document.querySelector('#camera-position .x');
-	LOG_CAMERA_POSITION_Y = document.querySelector('#camera-position .y');
-	LOG_CAMERA_POSITION_Z = document.querySelector('#camera-position .z');
-	LOG_CAMERA_FRONT_X = document.querySelector('#camera-front .x');
-	LOG_CAMERA_FRONT_Y = document.querySelector('#camera-front .y');
-	LOG_CAMERA_FRONT_Z = document.querySelector('#camera-front .z');
 	
 	SceneNode.prototype.constructor.call(this);
-	vec3.set(this.front, 0, 0, -1);
+
+	this.up = vec3.fromValues(0, 1, 0);
 	vec3.set(this.position, 0, 0, 3);
-	console.log(this.frustum);
-	mat4.perspective(this.frustum, .5, 1, .1, 100);
-	console.log(this.frustum);
-	this.setView();
+	this.front = vec3.fromValues(0, 0, -1);
+	this.projection = new Float32Array(16);
+	this.view = new Float32Array(16);
+	this.pvMatrix = new Float32Array(16);
+	this.v2 = new Float32Array(2);
+	
 }
 
 Camera.prototype = Object.create(SceneNode, {
-	'view': {
-		get: function(){
-			if(!!this._view) {
-				return this._view;
-			}
-			return this._view = mat4.create();
-		}
-	},
-	'frustum': {
-		get: function(){
-			if(!!this._frustum) {
-				return this._frustum;
-			}
-			return this._frustum = mat4.create();
-		}
-	},
-	'target': {
-		get: function(){
-			if(!!this._target) {
-				return this._target;
-			}
-			return this._target = vec3.create();
-		}
-	},
-	'front': {
-		get: function(){
-			if(!!this._front) {
-				return this._front;
-			}
-			return this._front = vec3.create();
+	'viewport': {
+		set: function(viewport) {
+			this._viewport = viewport;
+			mat4.perspective(this.projection, Math.PI / 4, viewport.width / viewport.height, 0.00001, 10000);
+			this.setView();
+		},
+		get: function() {
+			return this._viewport;
 		}
 	},
 	'position': {
@@ -80,12 +57,9 @@ Camera.prototype = Object.create(SceneNode, {
 			return this._rotationX = 0;
 		},
 		set: function(rad){
-			vec3.copy(this.target, this.position);
-			let v1 = vec3.fromValues(0, Math.sin(rad), Math.cos(rad)),
-				v2 = vec3.create();
-			vec3.add(v2, this.target, v3);
-			this.target = v2;
+			
 			this._rotationX = rad;
+			this.transformRotation();
 		}
 	},
 	'rotationY': {
@@ -109,12 +83,9 @@ Camera.prototype = Object.create(SceneNode, {
 			return this._rotationZ = 0;
 		},
 		set: function(rad){
-			vec3.copy(this.target, this.position);
-			let v1 = vec3.fromValues(Math.cos(rad), Math.sin(rad), 0),
-				v2 = vec3.create();
-			vec3.add(v2, this.target, v3);
-			this.target = v2;
+			
 			this._rotationZ = rad;
+			this.transformRotation();
 		}
 	}
 });
@@ -125,18 +96,43 @@ Camera.prototype = Object.create(SceneNode, {
 
 ****************************************/
 
-Camera.prototype.toDisplay = function(shape, transform) {
-	return shape.map(function(vertex){
-		return this.vec3toVec2(vertex, transform);
-	}.bind(this));
+Camera.prototype.setView = function() {
+	this.orbitCam = createOrbitCamera(this.position, this.front, this.up);
+	this.orbitCam.view(this.view);
+	mat4.mul(this.pvMatrix, this.projection, this.view);
+}
+
+Camera.prototype.project = function(v2d, v3d, m) {
+	var ix = v3d[0]
+	var iy = v3d[1]
+	var iz = v3d[2]
+
+	var ox = m[0] * ix + m[4] * iy + m[8] * iz + m[12]
+	var oy = m[1] * ix + m[5] * iy + m[9] * iz + m[13]
+	var ow = m[3] * ix + m[7] * iy + m[11] * iz + m[15]
+
+	v2d[0] =     (ox / ow + 1) / 2;
+	v2d[1] = 1 - (oy / ow + 1) / 2;
+	
+	return v2d
 };
 
-Camera.prototype.vec3toVec2 = function(v3, local) {
-	let out = vec3.create();
-	vec3.transformMat4(out, v3, this.frustum);
-	vec3.transformMat4(out, out, this.view);
-	vec3.transformMat4(out, out, local);
-	return out;
+
+//UNDER CONSTRUCTION
+Camera.prototype.unproject = function(v2d, v3d, m) {
+	var ix = v3d[0]
+	var iy = v3d[1]
+	var iz = 0;
+
+	var ox = m[0] * ix + m[4] * iy + m[8] * iz + m[12]
+	var oy = m[1] * ix + m[5] * iy + m[9] * iz + m[13]
+	var ow = m[3] * ix + m[7] * iy + m[11] * iz + m[15]
+
+	//2 * v2d[0] - 1 = ox / ow;
+		
+	//oy / ow = 3 - 2 * v2d[1];
+	
+	return v2d
 };
 
 Camera.prototype.transformRotation = function() {
@@ -151,14 +147,14 @@ Camera.prototype.transformRotation = function() {
 	);
 
 	this.setView();
-}
+};
 
 /****************************************
 
 	Protected methods
 
 ****************************************/
-
+/*
 Camera.prototype.setView = function() {
 	LOG_CAMERA_POSITION_X.innerHTML = this.position[0];
 	LOG_CAMERA_POSITION_Y.innerHTML = this.position[1];
@@ -170,6 +166,6 @@ Camera.prototype.setView = function() {
 		this.position, 
 		vec3.add(vec3.create(), this.position, this.front),
 		UP);
-};
+};*/
 
 module.exports = Camera;

@@ -2,6 +2,10 @@
 <html>
 	<head>
 		<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
 		#console {
 			position: absolute;
 			font-family: Arial, sans-serif;
@@ -16,7 +20,7 @@
 		</style>
 		<script src="/wowee.js"></script>
 	</head>
-	<body>
+	<body onload="init();">
 		<div id="game"></div>
 		<div id="console">
 			<h1>Camera</h1>

@@ -18,16 +18,22 @@ Graphics.setDefaultHeight = function(height){
 
 
 function Graphics() {
+	this.counter = 0;
+	
 	this._canvas = document.createElement('canvas');
 	this._canvas.style.zIndex = 0;
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
 	this._context = this._canvas.getContext('2d');
+	this._drawCanvas = document.createElement('canvas');
+	this._drawCanvas.style.zIndex = 0;
+	this._drawCanvas.style.position = 'absolute';
+	this._drawCanvas.style.transform = 'translate(-0, 0)';
+	this._drawContext = this._drawCanvas.getContext('2d');
 	this.width = defaultWidth;
-	this.halfWidth = this.width / 2;
 	this.height = defaultHeight;
-	this.halfHeight = this.height / 2;
 	root.appendChild(this._canvas);
+	root.appendChild(this._drawCanvas);
 }
 
 Object.defineProperties(Graphics.prototype, {
@@ -69,7 +75,7 @@ Object.defineProperties(Graphics.prototype, {
 		set: function(width) {
 			this._width = width;
 			this._canvas.setAttribute('width', width + 'px');
-			this.halfWidth = this.width / 2;
+			this._drawCanvas.setAttribute('width', width + 'px');
 		}
 	},
 	'height': {
@@ -79,7 +85,7 @@ Object.defineProperties(Graphics.prototype, {
 		set: function(height) {
 			this._height = height;
 			this._canvas.setAttribute('height', height + 'px');
-			this.halfHeight = this.height / 2;
+			this._drawCanvas.setAttribute('height', height + 'px');
 		}
 	},
 	'drawImage': {
@@ -110,60 +116,112 @@ Object.defineProperties(Graphics.prototype, {
 		}
 	},
 	'renderLines': {
-		value: function(vertices) {
+		value: function(face) {
 			this._context.beginPath();
-			vertices.forEach(function(vertex, index){
+			face.forEach(function(v, index){
+				let vertex = v[6];
 				if(index === 0) {
-					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._context.moveTo(vertex[0] * this.width, vertex[1] * this.height);
 				} else {
-					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._context.lineTo(vertex[0] * this.width, vertex[1] * this.height);
+				}
+				if(index === face.length-1){
+					this._context.lineTo(face[0][6][0] * this.width, face[0][6][1] * this.height);
 				}
 			}.bind(this));
-			this._context.lineTo(vertices[0][0] + this.halfWidth, vertices[0][1] + this.halfHeight);
 			this._context.closePath();
 			this._context.stroke();
 		}
 	},
 	'renderSolid': {
-		value: function(vertices) {
+		value: function(face) {
 			this._context.beginPath();
-			vertices.forEach(function(vertex, index){
+			face.forEach(function(v, index){
+				let vertex = v[6];
 				if(index === 0) {
-					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._context.moveTo(vertex[0] * this.width, vertex[1] * this.height);
 				} else {
-					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._context.lineTo(vertex[0] * this.width, vertex[1] * this.height);
+				}
+				if(index === face.length-1){
+					this._context.lineTo(face[0][6][0] * this.width, face[0][6][1] * this.height);
 				}
 			}.bind(this));
-			this._context.lineTo(vertices[0][0] + this.halfWidth, vertices[0][1] + this.halfHeight);
 			this._context.closePath();
 			this._context.fill();
 		}
 	},
-	'renderTriangle': {
-		value: function(triangle, transform){
-			this._context.save();
-			this.pathTriangle(triangle);
-			this._context.clip();
-			this._context.drawImage(img, this.halfWidth, this.halfHeight);
-			this._context.restore();
-		}
-	},
-	'pathTriangle': {
-		value: function(triangle){
-		    this._context.save();
-			// transform
-		    //this.context.translate(part.x,part.y);
-		    this._context.beginPath();
-		    this._context.moveTo(triangle[0][0], triangle[0][1]);
-			triangle.forEach(function(vertex, index){
+	'render': {
+		value: function(face, image, transform){
+
+			if(!face[0][4]) {
+				//this.renderSolid(face);
+				//this.renderLines(face);
+				return;
+			}
+			this._drawContext.clearRect(0,0,this.width, this.height);
+			this._drawContext.save();
+		    this._drawContext.beginPath();
+			let minX = -1,
+				maxX = -1,
+				minY = -1,
+				maxY = -1,
+				minTX = -1,
+				minTY = -1,
+				maxTX = -1,
+				maxTY = -1;
+			face.forEach(function(v, index){
+				let vertex = v[6],
+					x = vertex[0] * this.width,
+					y = vertex[1] * this.height,
+					tx =  v[4][0] * image.width,
+					ty = v[4][1] * image.height;
+				
 				if(index === 0) {
-					this._context.moveTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._drawContext.moveTo(tx, ty);
 				} else {
-					this._context.lineTo(vertex[0] + this.halfWidth, vertex[1] + this.halfHeight);
+					this._drawContext.lineTo(tx, ty);
+				}
+				if(index === face.length-1){
+					this._drawContext.lineTo(face[0][4][0] * this.width, face[0][4][1] * this.height);
+				}
+				if(minX === -1 || minX > x) {
+					minX = x;
+				}
+				if(maxX === -1 || maxX < x) {
+					maxX = x;
+				}
+				if(minY === -1 || minY > y) {
+					minY = y;
+				}
+				if(maxY === -1 || maxY < y) {
+					maxY = y;
+				}
+				if(minTX === -1 || minTX > tx) {
+					minTX = tx;
+				}
+				if(maxTX === -1 || maxTX < tx) {
+					maxTX = tx;
+				}
+				if(minTY === -1 || minTY > ty) {
+					minTY = ty;
+				}
+				if(maxTY === -1 || maxTY < ty) {
+					maxTY = ty;
 				}
 			}.bind(this));
-		    this._context.closePath();
-		    this._context.restore();
+		    
+			this._drawContext.closePath();
+			
+			//this._drawContext.clip();
+			
+
+			console.log(minX, minY);
+			this._drawContext.drawImage(image, minX, minY, maxX - minX, maxY - minY, 0, 0, maxX - minX, maxY - minY);
+			//this._drawContext.setTransform(transform[0],transform[1],transform[4],transform[5],transform[12],transform[13]);
+			//minTX, minTY, maxTX - minTX, maxTY-minTY, minX, minY, maxX - minX, maxY - minY);
+			//this._context.drawImage(this._drawCanvas, 0, 0);
+			this._drawContext.restore();
 		}
 	},
 	'clear': {
@@ -177,11 +235,6 @@ Object.defineProperties(Graphics.prototype, {
 		}
 	}
 });
-
-var img=new Image();
-img.onload=function(){
-}
-img.src="/tie_body_1.png";
 
 
 

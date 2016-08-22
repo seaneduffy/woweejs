@@ -14,7 +14,6 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "buffer-json-stream": "^0.1.6",
-    "collada-dae-parser": "^0.8.0",
     "gl-matrix-mat3": "^2.2.1-npm",
     "gl-matrix-mat4": "^2.2.1-npm",
     "gl-matrix-vec2": "^2.2.1-npm",
@@ -32,5 +31,9 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0",
     "yargs": "^5.0.0"
+  },
+  "dependencies": {
+    "gl-matrix": "^2.3.2",
+    "orbit-camera": "^1.0.0"
   }
 }

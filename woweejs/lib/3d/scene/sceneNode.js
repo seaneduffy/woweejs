@@ -1,7 +1,8 @@
 'use strict';
 
-let vec3 = require('gl-matrix-vec3'),
-	mat4 = require('gl-matrix-mat4');
+let glm = require('gl-matrix'),
+	vec3 = glm.vec3,
+	mat4 = glm.mat4;
 
 function SceneNode() {
 	
@@ -17,9 +18,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationX = 0;
 		},
 		set: function(rad){
-			mat4.rotateX(this.transform, this.transform, -this._rotationX);
-			mat4.rotateX(this.transform, this.transform, rad);
 			this._rotationX = rad;
+			this.updateTransform();
 		}
 	},
 	'rotationY': {
@@ -30,9 +30,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationY = 0;
 		},
 		set: function(rad){
-			mat4.rotateY(this.transform, this.transform, -this.rotationY);
-			mat4.rotateY(this.transform, this.transform, rad);
 			this._rotationY = rad;
+			this.updateTransform();
 		}
 	},
 	'rotationZ': {
@@ -43,9 +42,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationZ = 0;
 		},
 		set: function(rad){
-			mat4.rotateZ(this.transform, this.transform, -this._rotationZ);
-			mat4.rotateZ(this.transform, this.transform, rad);
 			this._rotationZ = rad;
+			this.updateTransform();
 		}
 	},
 	'x': {
@@ -111,12 +109,14 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._position = vec3.create();
 		},
 		set: function(p){
-			mat4.translate(this.transform, this.transform, vec3.negate(vec3.create(), this.position));
+			
 			this._position = p;
 			this._x = p[0];
 			this._y = p[1];
 			this._z = p[2];
-			mat4.translate(this.transform, this.transform, this.position);
+			
+			this.updateTransform();
+			
 		}
 	},
 	'transform': {
@@ -126,14 +126,24 @@ Object.defineProperties(SceneNode.prototype, {
 			}
 			return this._transform = mat4.create();
 		},
-		set: function(t){
-			this._transform = t;
+		set: function(transform){
+			this._transform = transform;
+			this.mesh.transform = transform;
 		}
 	}
 });
 
+SceneNode.prototype.updateTransform = function() {
+	mat4.identity(this.transform);
+	mat4.translate(this.transform, this.transform, this.position);
+	mat4.rotateX(this.transform, this.transform, this.rotationX);
+	mat4.rotateY(this.transform, this.transform, this.rotationY);
+	mat4.rotateZ(this.transform, this.transform, this.rotationZ);
+	this.mesh.transform = this.transform;
+};
+
 SceneNode.prototype.setPosition = function(x, y, z){
-	this._position = vec3.fromValues(x, y, z);
+	vec3.set(this.position, x, y, z);
 };
 
 SceneNode.prototype.addChild = function(sceneNode){
