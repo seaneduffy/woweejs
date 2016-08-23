@@ -31,7 +31,8 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 		},
 		set: function(width){
 			this._width = width;
-			this._canvas.setAttribute('width', this.width + 'px');
+			
+		this._canvas.width = this.width;
 		}
 	},
 	'height': {
@@ -40,7 +41,7 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 		},
 		set: function(height){
 			this._height = height;
-			this._canvas.setAttribute('height', this.height + 'px');
+			this._canvas.height = this.height;
 		}
 	},
 	'root': {
@@ -89,10 +90,11 @@ Viewport.prototype.addChild = function(childNode) {
 }
 
 Viewport.prototype.render = function(){
-	/*this._context.clearRect(0, 0, this.width, this.height);
+	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+	
 	this.children.forEach( childNode => {
 		childNode.render(this.camera);
-	});*/
+	});
 }
 
 Viewport.prototype.renderFace = function(canvas, t){

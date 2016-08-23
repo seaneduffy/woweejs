@@ -2,8 +2,9 @@
 
 let glm = require('gl-matrix'),
 	mat4 = glm.mat4,
-	SceneNode = require('../scene/sceneNode'),
-	Mesh = require('./mesh/mesh');
+	load = require('../../async/load'),
+	SceneNode = require('../../3d/scene/sceneNode'),
+	Mesh = require('../../3d/display/mesh/mesh');
 
 function DisplayObject3D() {
 	SceneNode.prototype.constructor.call(this);
@@ -30,7 +31,7 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 	'viewport': {
 		set: function(viewport) {
 			this._viewport = viewport;
-			this.mesh.viewport = viewport;
+			//this.mesh.viewport = viewport;
 			this.children.forEach(function(child){
 				child.viewport = viewport;
 			});
@@ -38,8 +39,36 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 	}
 });
 
-DisplayObject3D.prototype.addMesh = function(mesh) {
-	this.meshes.push(mesh);
+DisplayObject3D.prototype.onReady = function(cb) {
+	this.readyCallback = cb;
+	if(this.ready) {
+		cb();
+	}
+}
+
+DisplayObject3D.prototype.addMeshData = function(dataUri) {
+	load(dataUri).then(data=>{
+		data.forEach((meshData, index)=>{
+			if(index === 2) {
+				this.meshes.push(new Mesh(meshData, ()=>{
+					this.meshLoaded();
+				}));
+			}
+			
+		});
+	});
+}
+
+DisplayObject3D.prototype.meshLoaded = function() {
+	this.mlc = this.mlc || 0;
+	this.mlc++;
+	
+	if(this.mlc >= this.meshes.length) {
+		this.ready = true;
+		if(!!this.readyCallback) {
+			this.readyCallback();
+		}
+	}
 }
 
 DisplayObject3D.prototype.addChild = function(childNode) {
@@ -52,10 +81,10 @@ DisplayObject3D.prototype.addChild = function(childNode) {
 }
 
 DisplayObject3D.prototype.render = function(camera){
-
 	this.meshes.forEach( mesh =>{
-		mat4.mul(this.renderTransform, camera.pvMatrix, this.transform);
-		mesh.render(camera, this.renderTransform);
+		//mat4.mul(this.renderTransform, camera.pvMatrix, this.transform);
+		//mesh.render(camera, this.renderTransform);
+		mesh.render(camera, this.transform);
 	});
 	
 	this.children.forEach(function(displayObject3D){

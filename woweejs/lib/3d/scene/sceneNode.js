@@ -128,7 +128,6 @@ Object.defineProperties(SceneNode.prototype, {
 		},
 		set: function(transform){
 			this._transform = transform;
-			this.mesh.transform = transform;
 		}
 	}
 });
@@ -139,7 +138,6 @@ SceneNode.prototype.updateTransform = function() {
 	mat4.rotateX(this.transform, this.transform, this.rotationX);
 	mat4.rotateY(this.transform, this.transform, this.rotationY);
 	mat4.rotateZ(this.transform, this.transform, this.rotationZ);
-	this.mesh.transform = this.transform;
 };
 
 SceneNode.prototype.setPosition = function(x, y, z){

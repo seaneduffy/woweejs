@@ -107,9 +107,12 @@ gulp.task( 'wavefront', function(done) {
 		.pipe(map(function(file, cb){
 	
 			var meshes = [],
-				mesh;
+				mesh,
+				startCutCount = true,
+				cut = 0,
+				cutCount = 0;
 			file.contents.toString().split('\n').forEach(
-				function(line){
+				function(line, index){
 					var lineArr = line.split(' '),
 						id = lineArr[0],
 						v;
@@ -118,43 +121,47 @@ gulp.task( 'wavefront', function(done) {
 							vertices : [],
 							normals : [],
 							texels: [],
-							faces : [],
+							vertexIndices: [],
+							texelIndices: [],
+							normalIndices: [],
 							material: ''
 						};
 						meshes.push(mesh);
 					} else if(id === 'v') {
+							if(startCutCount) {
+								startCutCount = false;
+								cut += cutCount;
+								cutCount = 0;
+							}
+							cutCount++;
 						v = new Array(3);
 						v[0] = lineArr[1] * 1;
 						v[1] = lineArr[2] * 1;
 						v[2] = lineArr[3] * 1;
-						mesh.vertices.push(v);
+						mesh.vertices.push(v[0]);
+						mesh.vertices.push(v[1]);
+						mesh.vertices.push(v[2]);
 					} else if(id === 'vn') {
+					startCutCount = true;
 						v = new Array(3);
 						v[0] = lineArr[1] * 1;
 						v[1] = lineArr[2] * 1;
 						v[2] = lineArr[3] * 1;
-						mesh.normals.push(v);
+						mesh.normals.push(v[0]);
+						mesh.normals.push(v[1]);
+						mesh.normals.push(v[2]);
 					} else if(id === 'vt') {
-						v = new Array(2);
-						v[0] = lineArr[1] * 1;
-						v[1] = lineArr[2] * 1;
-						mesh.texels.push(v);
+						mesh.texels.push(lineArr[1] * 1);
+						mesh.texels.push(lineArr[2] * 1);
 					} else if(id === 'f') {
-						var vertices = [],
-							vertexValues,
-							vertex;
-						lineArr.forEach(function(vertexArr, index){
+						lineArr.forEach(function(a, index){
 							if(index !== 0) {
-								vertexValues = vertexArr.split('/');
-								vertex = {
-									vertex : vertexValues[0] * 1 - 1,
-									texels : vertexValues[1] * 1 - 1,
-									normal : vertexValues[2] * 1 - 1
-								}
-								vertices.push(vertex);
+								var b = a.split('/');
+								mesh.vertexIndices.push(b[0]*1-1 - cut);
+								mesh.texelIndices.push(b[1]*1-1 - cut);
+								mesh.normalIndices.push(b[2]*1-1 - cut);
 							}
 						});
-						mesh.faces.push(vertices);
 					} else if(id === 'usemtl') {
 						mesh.material = materialObj[lineArr[1]];
 					}

@@ -13,13 +13,16 @@ window.wowee = (function(){
 		root_element.style.width = stage_width + 'px';
 		root_element.style.height = stage_height + 'px';
 		root_element.style.background = config.background || 'white';
-			
+		var load = require('./lib/async/load');
 		window.DisplayObject3D = require('./lib/3d/display/displayObject3D');
 		window.Camera = require('./lib/3d/scene/camera');
 		window.Tween = require('./lib/animation/tween/tween');
 		window.Mesh = require('./lib/3d/display/mesh/mesh');
 		window.viewport = require('./lib/3d/scene/viewport')(root_element, stage_width, stage_height);
 		window.Cycle = require('./lib/animation/cycle');
+		
+		Mesh.setMaterialPath(config.material_path);
+		
 		Cycle.setFrameRate(config.frame_rate || 20);
 	}
 }());
