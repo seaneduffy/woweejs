@@ -22,7 +22,7 @@ window.wowee = (function(){
 		window.Cycle = require('./lib/animation/cycle');
 		
 		Mesh.setMaterialPath(config.material_path);
-		
+		Cycle.add(window.viewport.render.bind(window.viewport));
 		Cycle.setFrameRate(config.frame_rate || 20);
 	}
 }());

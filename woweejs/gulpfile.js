@@ -87,6 +87,13 @@ gulp.task( 'wavefront', function(done) {
 	
 	var materialObj = {},
 		materialProps;
+		
+	var meta = {
+		vertices : [],
+		normals : [],
+		textures: [],
+		faces : []
+	};
 	
 	vfs.src('./src/wavefront/'+argv.m+'.mtl')
 	.pipe(map(function(file, cb){
@@ -105,70 +112,109 @@ gulp.task( 'wavefront', function(done) {
 		);
 		return vfs.src('./src/wavefront/'+argv.m+'.obj')
 		.pipe(map(function(file, cb){
-	
-			var meshes = [],
-				mesh,
-				startCutCount = true,
-				cut = 0,
-				cutCount = 0;
+				
+			
+
 			file.contents.toString().split('\n').forEach(
-				function(line, index){
+				function(line){
 					var lineArr = line.split(' '),
-						id = lineArr[0],
-						v;
-					if(id === 'o') {
-						mesh = {
-							vertices : [],
-							normals : [],
-							texels: [],
-							vertexIndices: [],
-							texelIndices: [],
-							normalIndices: [],
-							material: ''
-						};
-						meshes.push(mesh);
-					} else if(id === 'v') {
-							if(startCutCount) {
-								startCutCount = false;
-								cut += cutCount;
-								cutCount = 0;
-							}
-							cutCount++;
-						v = new Array(3);
-						v[0] = lineArr[1] * 1;
-						v[1] = lineArr[2] * 1;
-						v[2] = lineArr[3] * 1;
-						mesh.vertices.push(v[0]);
-						mesh.vertices.push(v[1]);
-						mesh.vertices.push(v[2]);
+						id = lineArr[0];
+					if(id === 'v') {
+						meta.vertices.push([
+							lineArr[1] * 1,
+							lineArr[2] * 1,
+							lineArr[3] * 1,
+						]);
 					} else if(id === 'vn') {
-					startCutCount = true;
-						v = new Array(3);
-						v[0] = lineArr[1] * 1;
-						v[1] = lineArr[2] * 1;
-						v[2] = lineArr[3] * 1;
-						mesh.normals.push(v[0]);
-						mesh.normals.push(v[1]);
-						mesh.normals.push(v[2]);
+						meta.normals.push([
+							lineArr[1] * 1,
+							lineArr[2] * 1,
+							lineArr[3] * 1,
+						]);
 					} else if(id === 'vt') {
-						mesh.texels.push(lineArr[1] * 1);
-						mesh.texels.push(lineArr[2] * 1);
+						meta.textures.push([
+							lineArr[1] * 1,
+							lineArr[2] * 1
+						]);
 					} else if(id === 'f') {
-						lineArr.forEach(function(a, index){
+						var vertices = [],
+							vertexValues,
+							vertex;
+						lineArr.forEach(function(vertexArr, index){
 							if(index !== 0) {
-								var b = a.split('/');
-								mesh.vertexIndices.push(b[0]*1-1 - cut);
-								mesh.texelIndices.push(b[1]*1-1 - cut);
-								mesh.normalIndices.push(b[2]*1-1 - cut);
+								vertexValues = vertexArr.split('/');
+								vertex = {
+									vertex : vertexValues[0] * 1 - 1,
+									normal : vertexValues[2] * 1 - 1
+								};
+								if(vertexValues[1] !== ''){
+									vertex.texture = vertexValues[1] * 1 - 1;
+								}
+								vertices.push(vertex);
 							}
 						});
+						meta.faces.push(vertices);
 					} else if(id === 'usemtl') {
-						mesh.material = materialObj[lineArr[1]];
+						meta.material = materialObj[lineArr[1]];
 					}
 				}
 			);
 			
-			var str = JSON.stringify(meshes);
+			// texels - faces * v/f * 2, vertices - faces * v/f * 3, vertexIndices - triangles * 3 
+			// texels - 6 * 4 * 2 = 48   vertices - 6 * 4 * 3 = 72      vertexIndices - 12 * 3 = 36
+			// should be 756 vertexIndices, 378 vertices, 504 texels
+			// texels - 80 * 3 * 2 = 480, vertices - 80 * 3 * 3 = 720, vertexIndices - 80 * 3 = 240
+			
+			var maxX = null,
+			minX = null,
+			maxY = null,
+			minY = null,
+			maxZ = null,
+			minZ = null;
+			meta.vertices.forEach(v=>{
+				maxX = maxX == null || maxX < v[0] ? v[0] : maxX;
+				minX = minX == null || minX > v[0] ? v[0] : minX;
+				maxY = maxY == null || maxY < v[1] ? v[1] : maxY;
+				minY = minY == null || minY > v[1] ? v[1] : minY;
+				maxZ = maxZ == null || maxZ < v[2] ? v[2] : maxZ;
+				minZ = minZ == null || minZ > v[2] ? v[2] : minZ;
+			});
+	
+			var xDelta = maxX - minX,
+				yDelta = maxY - minY,
+				zDelta = maxZ - minZ;
+		
+			meta.vertices = meta.vertices.map((v, index)=>{
+				return [
+					(v[0] - minX) / xDelta,
+					(v[1] - minY) / yDelta,
+					(v[2] - minZ) / zDelta
+				];
+			});
+			
+			var out = {
+				material: meta.material,
+				vertices: [],
+				vertexIndices: [],
+				texels: []
+			};
+			
+			var counter = 0;
+			
+			meta.faces.forEach( f => {
+				f.forEach( (v, index) => {
+					out.vertices.push(meta.vertices[v.vertex][0]);
+					out.vertices.push(meta.vertices[v.vertex][1]);
+					out.vertices.push(meta.vertices[v.vertex][2]);
+					out.texels.push(meta.textures[v.texture][0]);
+					out.texels.push(meta.textures[v.texture][1]);
+					out.vertexIndices.push(counter);
+					counter++;
+				});
+				
+			});
+			
+			var str = JSON.stringify(out);
 			file.contents = new stream.Readable();
 			file.contents._read = function noop() {};
 			file.contents.push(str);

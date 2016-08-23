@@ -48,18 +48,11 @@ DisplayObject3D.prototype.onReady = function(cb) {
 
 DisplayObject3D.prototype.addMeshData = function(dataUri) {
 	load(dataUri).then(data=>{
-		data.forEach((meshData, index)=>{
-			this.mesh = new Mesh(meshData, ()=>{
-				this.ready = true;
-				if(!!this.readyCallback) {
-					this.readyCallback();
-				}
-			});
-			/*
-			this.meshes.push(new Mesh(meshData, ()=>{
-				this.meshLoaded();
-			}*/
-			
+		this.mesh = new Mesh(data, ()=>{
+			this.ready = true;
+			if(!!this.readyCallback) {
+				this.readyCallback();
+			}
 		});
 	});
 }

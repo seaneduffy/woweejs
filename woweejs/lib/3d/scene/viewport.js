@@ -13,7 +13,8 @@ function Viewport() {
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
 	this.gl = this._canvas.getContext('experimental-webgl');
-	Cycle.add(this.render.bind(this));
+	this.gl.enable(this.gl.CULL_FACE);
+	this.gl.cullFace(this.gl.FRONT);
 }
 
 Viewport.prototype = Object.create(SceneNode.prototype, {
@@ -27,21 +28,23 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 	},
 	'width': {
 		get: function(){
-			return this._width;
+			return this._width || 512;
 		},
 		set: function(width){
 			this._width = width;
 			
 		this._canvas.width = this.width;
+		this.gl.viewport(0, 0, this.width, this.height);
 		}
 	},
 	'height': {
 		get: function(){
-			return this._height;
+			return this._height || 512;
 		},
 		set: function(height){
 			this._height = height;
 			this._canvas.height = this.height;
+			this.gl.viewport(0, 0, this.width, this.height);
 		}
 	},
 	'root': {
@@ -91,7 +94,6 @@ Viewport.prototype.addChild = function(childNode) {
 
 Viewport.prototype.render = function(){
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-	
 	this.children.forEach( childNode => {
 		childNode.render(this.camera);
 	});
@@ -121,5 +123,6 @@ module.exports = function(root, width, height){
 	if(!!height) {
 		vp.height = height;
 	}
+
 	return vp;
 };
