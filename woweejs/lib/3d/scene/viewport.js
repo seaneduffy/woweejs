@@ -12,8 +12,8 @@ function Viewport() {
 	this._canvas.style.zIndex = 0;
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
-	this.gl = this._canvas.getContext('webgl');
-	//Cycle.add(this.render.bind(this));
+	this.gl = this._canvas.getContext('experimental-webgl');
+	Cycle.add(this.render.bind(this));
 }
 
 Viewport.prototype = Object.create(SceneNode.prototype, {

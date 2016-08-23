@@ -8,7 +8,7 @@ function init() {
 		root: document.getElementById("game"), 
 		width: 1080, 
 		height: 720,
-		frame_rate: 10,
+		frame_rate: 60,
 		background: "black",
 		material_path: "/"
 	});
@@ -23,13 +23,16 @@ function init() {
 		obj.rotationY = Math.PI / 180 * 180;
 		obj.rotationX = Math.PI / 180 * 90;
 		obj.rotationZ = Math.PI / 180 * 0;
-		obj.position = [0, 0, -10];
+		obj.position = [0, 0, -1];
 		camera.rotationY = 0;
 		camera.rotationX = 0;
 		camera.rotationZ = 0;
-		viewport.render();
+		camera.x = 100;
+		camera.y = 100;
+		new Tween(obj, {'z': -2, 'rotationY': Math.PI / 180*60, 'x': 2}, 10, 'easeOutQuad', '+');
+		Cycle.start();
 	});
-	obj.addMeshData('/tie1.json');
+	obj.addMeshData('/tie_body.json');
 	
 	
 	
@@ -39,6 +42,6 @@ function init() {
 	
 	
 	viewport.render();
-	//new Tween(obj, {'z': -40, 'x': -40}, 1, 'easeOutQuad', '+');
+	
 	//new Tween(camera, {'rotationY':Math.PI / 180 * 82}, 1, 'easeOutSine', '+');*/
 }

@@ -21,11 +21,47 @@ Mesh.setMaterialPath = function(path) {
 function Mesh(data, cb) {
 	this.data = data;
 	
-	console.log(data);
 	
-	this.data.vertices = this.data.vertices.map(v=>{
-		return v * 10;
+	
+	var maxX = null,
+	minX = null,
+	maxY = null,
+	minY = null,
+	maxZ = null,
+	minZ = null;
+	this.data.vertices.forEach((v, index)=>{
+		if(index % 3 === 0) {
+			maxX = maxX == null || maxX < v ? v : maxX;
+			minX = minX == null || minX > v ? v : maxX;
+ 		} else if(index % 3 === 1){
+			maxY = maxY == null || maxY < v ? v : maxY;
+			minY = minY == null || minY > v ? v : maxY;
+ 		} else {
+		console.log(v);
+			maxZ = (maxZ == null || maxZ < v) ? v : maxZ;
+			minZ = (minZ == null || minZ > v) ? v : minZ;
+			console.log(maxZ, minZ);
+ 		}
 	});
+	
+	console.log(maxZ, minZ);
+	
+	var xDelta = maxX - minX,
+		yDelta = maxY - minY,
+		zDelta = maxZ - minZ;
+		
+	this.data.vertices = this.data.vertices.map((v, index)=>{
+		if(index % 3 === 0) {
+			return (v - minX) / xDelta;
+ 		} else if(index % 3 === 1){
+			return (v - minY) / yDelta;
+ 		} else {
+		//console.log(v, minZ, zDelta);
+			return (v - minZ) / zDelta;
+ 		}
+	});
+	
+	console.log(this.data);
 	
 	this.verticesBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
@@ -98,8 +134,6 @@ Mesh.prototype.initTexture = function() {
 };
 
 Mesh.prototype.render = function(camera, transform) {
-	
-	window.verticesBuffer = this.verticesBuffer;
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
 	gl.vertexAttribPointer(this.shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 

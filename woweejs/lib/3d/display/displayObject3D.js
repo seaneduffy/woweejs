@@ -49,11 +49,16 @@ DisplayObject3D.prototype.onReady = function(cb) {
 DisplayObject3D.prototype.addMeshData = function(dataUri) {
 	load(dataUri).then(data=>{
 		data.forEach((meshData, index)=>{
-			if(index === 2) {
-				this.meshes.push(new Mesh(meshData, ()=>{
-					this.meshLoaded();
-				}));
-			}
+			this.mesh = new Mesh(meshData, ()=>{
+				this.ready = true;
+				if(!!this.readyCallback) {
+					this.readyCallback();
+				}
+			});
+			/*
+			this.meshes.push(new Mesh(meshData, ()=>{
+				this.meshLoaded();
+			}*/
 			
 		});
 	});
@@ -81,11 +86,12 @@ DisplayObject3D.prototype.addChild = function(childNode) {
 }
 
 DisplayObject3D.prototype.render = function(camera){
-	this.meshes.forEach( mesh =>{
+	this.mesh.render(camera, this.transform);
+	/*this.meshes.forEach( mesh =>{
 		//mat4.mul(this.renderTransform, camera.pvMatrix, this.transform);
 		//mesh.render(camera, this.renderTransform);
 		mesh.render(camera, this.transform);
-	});
+	});*/
 	
 	this.children.forEach(function(displayObject3D){
 		displayObject3D.render(camera);
