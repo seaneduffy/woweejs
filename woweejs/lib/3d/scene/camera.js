@@ -20,7 +20,7 @@ function Camera(){
 	
 	SceneNode.prototype.constructor.call(this);
 
-	this.up = vec3.fromValues(0, 1, 0);
+	this.up = UP;
 	vec3.set(this.position, 0, 0, -3);
 	this.front = vec3.fromValues(0, 0, -1);
 	this.projection = new Float32Array(16);
