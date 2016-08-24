@@ -186,9 +186,9 @@ gulp.task( 'wavefront', function(done) {
 		
 			meta.vertices = meta.vertices.map((v, index)=>{
 				return [
-					(v[0] - minX) / xDelta,
-					(v[1] - minY) / yDelta,
-					(v[2] - minZ) / zDelta
+					(v[0] - minX) / xDelta - .5,
+					(v[1] - minY) / yDelta - .5,
+					(v[2] - minZ) / zDelta - .5
 				];
 			});
 			

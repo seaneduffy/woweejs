@@ -20,13 +20,7 @@ function init() {
 		obj.rotationY = Math.PI / 180 * 0;
 		obj.rotationX = Math.PI / 180 * 0;
 		obj.rotationZ = Math.PI / 180 * 0;
-		obj.position = [0, 0, 2];
-		camera.rotationY = 0;
-		camera.rotationX = 0;
-		camera.rotationZ = 0;
-		camera.x = 0;
-		camera.y = 0;
-		new Tween(obj, {'rotationY': Math.PI / 180*40,'rotationX':Math.PI / 180 * 60}, 40, 'easeOutQuad', '+');
+		//new Tween(obj, {'rotationY': Math.PI / 180*40,'rotationX':Math.PI / 180 * 60}, 40, 'easeOutQuad', '+');
 		Cycle.start();
 	});
 	obj.addMeshData('/tie_body.json');
