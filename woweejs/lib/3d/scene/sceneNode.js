@@ -2,10 +2,15 @@
 
 let glm = require('gl-matrix'),
 	vec3 = glm.vec3,
-	mat4 = glm.mat4;
+	mat4 = glm.mat4,
+	quat = glm.quat;
 
 function SceneNode() {
-	
+	this.origin = vec3.create();
+	this.rotationQuat = quat.create();
+	this.scaleVec = vec3.create();
+	this.scratch = mat4.create();
+	this.translationVec = vec3.create();
 }
 
 Object.defineProperties(SceneNode.prototype, {
@@ -54,8 +59,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._x = 0;
 		},
 		set: function(x){
-			this.position = vec3.fromValues(x, this.y, this.z);
 			this._x = x;
+			this.updateTransform();
 		}
 	},
 	'y': {
@@ -66,8 +71,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._y = 0;
 		},
 		set: function(y){
-			this.position = vec3.fromValues(this.x, y, this.z);
 			this._y = y;
+			this.updateTransform();
 		}
 	},
 	'z': {
@@ -78,8 +83,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._z = 0;
 		},
 		set: function(z){
-			this.position = vec3.fromValues(this.x, this.y, z);
 			this._z = z;
+			this.updateTransform();
 		}
 	},
 	'scale': {
@@ -113,35 +118,6 @@ Object.defineProperties(SceneNode.prototype, {
 			this._parent = sceneNode;
 		}
 	},
-	'position': {
-		get: function(){
-			if(!!this._position) {
-				return this._position;
-			}
-			return this._position = vec3.create();
-		},
-		set: function(p){
-			
-			this._position = p;
-			this._x = p[0];
-			this._y = p[1];
-			this._z = p[2];
-			
-			this.updateTransform();
-			
-		}
-	},
-	'parentTransform': {
-		get: function(){
-			if(!!this._parentTransform) {
-				return this._parentTransform;
-			}
-		},
-		set: function(t){
-			this._parentTransform = t;
-			this.updateTransform();
-		}
-	},
 	'transform': {
 		get: function(){
 			if(!!this._transform) {
@@ -152,28 +128,53 @@ Object.defineProperties(SceneNode.prototype, {
 		set: function(transform){
 			this._transform = transform;
 		}
+	},
+	'origin': {
+		get: function(){
+			if(!!this._origin) {
+				return this._origin;
+			}
+			return this._origin = vec3.create();
+		},
+		set: function(v){
+			this._origin = v;
+		}
 	}
 });
 
 SceneNode.prototype.updateTransform = function() {
-	mat4.identity(this.transform);
-	mat4.translate(this.transform, this.transform, this.position);
-	mat4.rotateX(this.transform, this.transform, this.rotationX);
-	mat4.rotateY(this.transform, this.transform, this.rotationY);
-	mat4.rotateZ(this.transform, this.transform, this.rotationZ);
-	mat4.scale(this.transform, this.transform, vec3.fromValues(this.scale, this.scale, this.scale));
-	mat4.mul(this.transform, this.transform, this.parentTransform);
-	
-	this.children.forEach(child=>{
-		child.parentTransform = this.transform;
-	});
-};
 
-SceneNode.prototype.setPosition = function(x, y, z){
-	vec3.set(this.position, x, y, z);
+	if(!!this.parent) {
+		mat4.fromRotationTranslationScaleOrigin(
+			this.scratch, 
+			this.parent.rotationQuat, 
+			this.parent.translationVec, 
+			vec3.set(this.parent.scaleVec, this.parent.scale, this.parent.scale, this.parent.scale),
+			this.parent.translationVec
+		);
+	}
+	
+	quat.identity(this.rotationQuat);
+	quat.rotateX( this.rotationQuat, this.rotationQuat, this.rotationX );
+	quat.rotateY( this.rotationQuat, this.rotationQuat, this.rotationY );
+	quat.rotateZ( this.rotationQuat, this.rotationQuat, this.rotationZ );
+	mat4.fromRotationTranslationScale(
+		this.transform, 
+		this.rotationQuat, 
+		vec3.set(this.translationVec, this.x, this.y, this.z), 
+		vec3.set(this.scaleVec, this.scale, this.scale, this.scale)
+	);
+
+	mat4.mul(this.transform, this.scratch, this.transform);
+
+	this.children.forEach( child=>{
+		child.updateTransform();
+	});
+	
 };
 
 SceneNode.prototype.addChild = function(sceneNode){
+	sceneNode.parent = this;
 	this.children.push(sceneNode);
 };
 

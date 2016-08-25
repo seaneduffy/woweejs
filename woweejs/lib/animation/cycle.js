@@ -17,17 +17,17 @@ function cycle() {
 		let time = Date.now(),
 			dTime = time - startTime;
 		
-		if(dTime >= frameRate) {
+		//if(dTime >= frameRate) {
 
 			startTime = time;
 			
 			cycleFunctions.forEach(a=>{
 				a.dTime += frameRate;
 				a.time += frameRate;
-				if(a.dTime >= a.rate) {
+				//if(a.dTime >= a.rate) {
 					a.func(a.time);
 					a.dTime = 0;
-				}
+				//}
 			});
 			
 			let arr = [];
@@ -42,7 +42,7 @@ function cycle() {
 			});
 
 			delayFunctions = arr;
-		}
+		//}
 	}
 }
 
