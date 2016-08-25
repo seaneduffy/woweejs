@@ -78,36 +78,11 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 	}
 });
 
-Viewport.prototype.addFaces = function(faces) {
-	/*faces.forEach(face=>{
-		this.root.appendChild(face.canvas);
-		face.viewport = this;
-		face.drawTexture(this.width, this.height);
-	});
-	this.faces = this.faces.concat(faces);*/
-}
-
-Viewport.prototype.addChild = function(childNode) {
-	SceneNode.prototype.addChild.call(this, childNode);
-	childNode.viewport = this;
-}
-
 Viewport.prototype.render = function(){
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	this.children.forEach( childNode => {
 		childNode.render(this.camera);
 	});
-}
-
-Viewport.prototype.renderFace = function(canvas, t){
-	if(!!t) {
-		this._context.save();
-		this._context.setTransform(t[0],t[1],t[2],t[3],t[4],t[5]);
-		this._context.drawImage(canvas, 0,0);
-		this._context.restore();
-	} else {
-		this._context.drawImage(canvas, 0, 0);
-	}
 }
 
 module.exports = function(root, width, height){

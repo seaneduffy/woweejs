@@ -27,34 +27,20 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 		set: function(graphics){
 			this._graphics = graphics;
 		}
-	},
-	'viewport': {
-		set: function(viewport) {
-			this._viewport = viewport;
-			//this.mesh.viewport = viewport;
-			this.children.forEach(function(child){
-				child.viewport = viewport;
-			});
-		}
 	}
 });
 
-DisplayObject3D.prototype.onReady = function(cb) {
-	this.readyCallback = cb;
-	if(this.ready) {
-		cb();
-	}
-}
-
 DisplayObject3D.prototype.addMeshData = function(dataUri) {
-	load(dataUri).then(data=>{
-		this.mesh = new Mesh(data, ()=>{
-			this.ready = true;
-			if(!!this.readyCallback) {
-				this.readyCallback();
-			}
+	
+	this.readyPromise = new Promise( (resolve, reject) => {
+		load(dataUri).then(data=>{
+			this.mesh = new Mesh(data, ()=>{
+				resolve();
+			});
 		});
 	});
+	
+	
 }
 
 DisplayObject3D.prototype.meshLoaded = function() {
@@ -69,22 +55,10 @@ DisplayObject3D.prototype.meshLoaded = function() {
 	}
 }
 
-DisplayObject3D.prototype.addChild = function(childNode) {
-	
-	SceneNode.prototype.addChild.call(this, childNode);
-	
-	if(!!this.viewport) {
-		childNode.viewport = this.viewport;
-	}
-}
-
 DisplayObject3D.prototype.render = function(camera){
-	this.mesh.render(camera, this.transform);
-	/*this.meshes.forEach( mesh =>{
-		//mat4.mul(this.renderTransform, camera.pvMatrix, this.transform);
-		//mesh.render(camera, this.renderTransform);
-		mesh.render(camera, this.transform);
-	});*/
+	if(!!this.mesh) {
+		this.mesh.render(camera, this.transform);
+	}
 	
 	this.children.forEach(function(displayObject3D){
 		displayObject3D.render(camera);

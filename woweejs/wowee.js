@@ -14,6 +14,7 @@ window.wowee = (function(){
 		root_element.style.height = stage_height + 'px';
 		root_element.style.background = config.background || 'white';
 		var load = require('./lib/async/load');
+		window.SceneNode = require('./lib/3d/scene/sceneNode');
 		window.DisplayObject3D = require('./lib/3d/display/displayObject3D');
 		window.Camera = require('./lib/3d/scene/camera');
 		window.Tween = require('./lib/animation/tween/tween');

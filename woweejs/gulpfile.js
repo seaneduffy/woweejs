@@ -185,10 +185,11 @@ gulp.task( 'wavefront', function(done) {
 				zDelta = maxZ - minZ;
 		
 			meta.vertices = meta.vertices.map((v, index)=>{
+
 				return [
-					(v[0] - minX) / xDelta - .5,
-					(v[1] - minY) / yDelta - .5,
-					(v[2] - minZ) / zDelta - .5
+					(xDelta === 0) ? 0 : (v[0] - minX) / xDelta - .5,
+					(yDelta === 0) ? 0 : (v[1] - minY) / yDelta - .5,
+					(zDelta === 0) ? 0 : (v[2] - minZ) / zDelta - .5
 				];
 			});
 			

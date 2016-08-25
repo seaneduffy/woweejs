@@ -21,6 +21,7 @@ Mesh.setMaterialPath = function(path) {
 function Mesh(data, cb) {
 	
 	this.data = data;
+	//console.log(this.data);
 	
 	this.verticesBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
@@ -39,7 +40,8 @@ function Mesh(data, cb) {
 			cb();
 		});
 	} else {
-		this.shader = new ColorShader(1.0, 1.0, 1.0, 1.0);
+		this.whiteShader = new ColorShader(1.0, 1.0, 1.0, 1.0);
+		this.redShader = new ColorShader(1.0, 0.0, 0.0, 1.0);
 		cb();
 	}
 }
@@ -68,12 +70,6 @@ Object.defineProperties(Mesh.prototype, {
 		set: function(faces){
 			this._faces = faces;
 		}
-	},
-	'viewport': {
-		set: function(viewport) {
-			this._viewport = viewport;
-			viewport.addFaces(this.faces);
-		}
 	}
 });
 
@@ -93,6 +89,7 @@ Mesh.prototype.initTexture = function() {
 };
 
 Mesh.prototype.render = function(camera, transform) {
+	gl.useProgram(this.shader.program);
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
 	gl.vertexAttribPointer(this.shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -112,47 +109,8 @@ Mesh.prototype.render = function(camera, transform) {
 	  var mvUniform = gl.getUniformLocation(this.shader.program, "uMVMatrix");
 	  gl.uniformMatrix4fv(mvUniform, false, new Float32Array(transform));
 	
-	gl.drawElements(gl.TRIANGLES, 240, gl.UNSIGNED_SHORT, 0);
+	gl.drawElements(gl.TRIANGLES, this.data.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 
 };
-
-// Maybe for non-webgl fallback
-/*
-Mesh.prototype.createFaces = function(vertices) {
-	
-	// original position vec3, texture vertex2, transform texture vertex2
-	// transform position vec3
-	// original normal vec3
-	// transform normal vec3
-	// texture position vec2
-	// transform texture vec2
-	// projection position vec2
-	
-	return vertices.map(data => {
-		
-		let face = new Face();
-		
-		face.positionVertices = new Array(data.length);
-		face.transformVertices = new Array(data.length);
-		face.normals = new Array(data.length);
-		face.textureVertices = !!data[0][2] ? new Array(data.length) : false;
-		face.projectionVertices = new Array(data.length);
-		
-		data.forEach((v, index) => {
-			face.positionVertices[index] = vec3.set(new Float32Array(3), v[0][0], v[0][1], v[0][2]);
-			face.transformVertices[index] = new Float32Array(3);
-			face.normals[index] = vec3.set(new Float32Array(3), v[1][0], v[1][1], v[1][2]);
-			face.projectionVertices[index] = new Float32Array(2);
-			if(!!face.textureVertices) {
-				face.textureVertices[index] = vec2.set(new Float32Array(2), v[2][0], v[2][1]);
-			}
-		});
-		
-		face.texture = this.texture;
-		
-		return face;
-	})
-};
-*/
 
 module.exports = Mesh;

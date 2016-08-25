@@ -1,6 +1,7 @@
 'use strict';
 
 let viewport = require('../../../3d/scene/viewport')(),
+	Shader = require('../../../3d/display/shaders/shader'),
 	gl = viewport.gl;
 	
 var vertexShaderSource = 'attribute vec3 aVertexPosition;' +
@@ -18,6 +19,7 @@ var fragmentShaderSource = 'varying highp vec2 vTextureCoord;' +
 	'gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));}';
 
 function Texture() {
+	Shader.prototype.constructor.call(this);
 	this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(this.vertexShader, vertexShaderSource);
 	gl.compileShader(this.vertexShader);
@@ -41,6 +43,6 @@ function Texture() {
 	
 }
 
-Texture.prototype = {};
+Texture.prototype = Object.create(Shader.prototype);
 
 module.exports = Texture;
