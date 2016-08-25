@@ -21,7 +21,7 @@ Mesh.setMaterialPath = function(path) {
 function Mesh(data, cb) {
 	
 	this.data = data;
-	//console.log(this.data);
+	console.log(this.data);
 	
 	this.verticesBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);

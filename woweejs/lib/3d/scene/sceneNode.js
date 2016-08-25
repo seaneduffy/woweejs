@@ -82,6 +82,18 @@ Object.defineProperties(SceneNode.prototype, {
 			this._z = z;
 		}
 	},
+	'scale': {
+		get: function(){
+			if(!!this._scale) {
+				return this._scale;
+			}
+			return this._scale = 1;
+		},
+		set: function(scale) {
+			this._scale = scale;
+			this.updateTransform();
+		}
+	},
 	'children': {
 		get: function() {
 			if(!!this._children) {
@@ -119,6 +131,17 @@ Object.defineProperties(SceneNode.prototype, {
 			
 		}
 	},
+	'parentTransform': {
+		get: function(){
+			if(!!this._parentTransform) {
+				return this._parentTransform;
+			}
+		},
+		set: function(t){
+			this._parentTransform = t;
+			this.updateTransform();
+		}
+	},
 	'transform': {
 		get: function(){
 			if(!!this._transform) {
@@ -138,6 +161,12 @@ SceneNode.prototype.updateTransform = function() {
 	mat4.rotateX(this.transform, this.transform, this.rotationX);
 	mat4.rotateY(this.transform, this.transform, this.rotationY);
 	mat4.rotateZ(this.transform, this.transform, this.rotationZ);
+	mat4.scale(this.transform, this.transform, vec3.fromValues(this.scale, this.scale, this.scale));
+	mat4.mul(this.transform, this.transform, this.parentTransform);
+	
+	this.children.forEach(child=>{
+		child.parentTransform = this.transform;
+	});
 };
 
 SceneNode.prototype.setPosition = function(x, y, z){

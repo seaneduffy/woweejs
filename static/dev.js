@@ -26,6 +26,14 @@ function init() {
 		tie.addChild(tie_body);
 		tie.addChild(right_wing);
 		tie.addChild(left_wing);
+		tie_body.z = 5;
+		left_wing.x = 1;
+		left_wing.scale = right_wing.scale = 2;
+		left_wing.rotationY = Math.PI / 180 * 90;
+		right_wing.x = -1;
+		right_wing.rotationY = Math.PI / 180 * 90;
+		left_wing.z = right_wing.z = 5;
+		tie.rotationY = Math.PI / 180 * 20;
 		//new Tween(obj, {'rotationY': Math.PI / 180*40,'rotationX':Math.PI / 180 * 60}, 40, 'easeOutQuad', '+');
 		Cycle.start();
 	});
