@@ -8,9 +8,14 @@ let glm = require('gl-matrix'),
 function SceneNode() {
 	this.origin = vec3.create();
 	this.rotationQuat = quat.create();
+	this.rotationMat = mat4.create();
 	this.scaleVec = vec3.create();
-	this.scratch = mat4.create();
 	this.translationVec = vec3.create();
+	this.localTransform = mat4.create();
+	this.worldTransform = mat4.create();
+	this.transform = mat4.create();
+	this.mat4Identity = mat4.create();
+	this.vec3Identity = vec3.create();
 }
 
 Object.defineProperties(SceneNode.prototype, {
@@ -23,6 +28,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationX = 0;
 		},
 		set: function(rad){
+			mat4.rotateX(this.localTransform, this.localTransform, rad - this.rotationX);
 			this._rotationX = rad;
 			this.updateTransform();
 		}
@@ -35,6 +41,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationY = 0;
 		},
 		set: function(rad){
+			mat4.rotateY(this.localTransform, this.localTransform, rad - this.rotationY);
 			this._rotationY = rad;
 			this.updateTransform();
 		}
@@ -47,6 +54,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationZ = 0;
 		},
 		set: function(rad){
+			mat4.rotateZ(this.localTransform, this.localTransform, rad - this.rotationZ);
 			this._rotationZ = rad;
 			this.updateTransform();
 		}
@@ -59,6 +67,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._x = 0;
 		},
 		set: function(x){
+			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(x - this.x, 0, 0));
 			this._x = x;
 			this.updateTransform();
 		}
@@ -71,6 +80,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._y = 0;
 		},
 		set: function(y){
+			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(0, y - this.y, 0));
 			this._y = y;
 			this.updateTransform();
 		}
@@ -83,6 +93,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._z = 0;
 		},
 		set: function(z){
+			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(0, 0, z - this.z));
 			this._z = z;
 			this.updateTransform();
 		}
@@ -95,6 +106,7 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._scale = 1;
 		},
 		set: function(scale) {
+			mat4.scale(this.localTransform, vec3.set(this.scaleVec, scale - this._scale, scale - this._scale, scale - this._scale));
 			this._scale = scale;
 			this.updateTransform();
 		}
@@ -118,17 +130,6 @@ Object.defineProperties(SceneNode.prototype, {
 			this._parent = sceneNode;
 		}
 	},
-	'transform': {
-		get: function(){
-			if(!!this._transform) {
-				return this._transform;
-			}
-			return this._transform = mat4.create();
-		},
-		set: function(transform){
-			this._transform = transform;
-		}
-	},
 	'origin': {
 		get: function(){
 			if(!!this._origin) {
@@ -142,35 +143,42 @@ Object.defineProperties(SceneNode.prototype, {
 	}
 });
 
+SceneNode.prototype.updateWorldTransform = function(t) {
+	
+	this.worldTransform = t;
+	
+	this.updateTransform();
+	
+};
+
 SceneNode.prototype.updateTransform = function() {
-
-	if(!!this.parent) {
-		mat4.fromRotationTranslationScaleOrigin(
-			this.scratch, 
-			this.parent.rotationQuat, 
-			this.parent.translationVec, 
-			vec3.set(this.parent.scaleVec, this.parent.scale, this.parent.scale, this.parent.scale),
-			this.parent.translationVec
-		);
-	}
 	
-	quat.identity(this.rotationQuat);
-	quat.rotateX( this.rotationQuat, this.rotationQuat, this.rotationX );
-	quat.rotateY( this.rotationQuat, this.rotationQuat, this.rotationY );
-	quat.rotateZ( this.rotationQuat, this.rotationQuat, this.rotationZ );
-	mat4.fromRotationTranslationScale(
-		this.transform, 
-		this.rotationQuat, 
-		vec3.set(this.translationVec, this.x, this.y, this.z), 
-		vec3.set(this.scaleVec, this.scale, this.scale, this.scale)
-	);
-
-	mat4.mul(this.transform, this.scratch, this.transform);
-
+	/*console.log(this.id, 'local');
+	console.log('trans', this.localTransform);
+	console.log('x', this.localTransform[12]);
+	console.log('y', this.localTransform[13]);
+	console.log('z', this.localTransform[14]);*/
+	
+	mat4.mul(this.transform, this.worldTransform, this.localTransform);
+	/*console.log(this.id, 'transform');
+	console.log('trans', this.transform);
+	console.log('x', this.transform[12]);
+	console.log('y', this.transform[13]);
+	console.log('z', this.transform[14]);*/
 	this.children.forEach( child=>{
-		child.updateTransform();
+		child.updateWorldTransform(this.transform);
 	});
+}
+
+SceneNode.prototype.updateLocalTransform = function() {
 	
+	/*mat4.identity(this.localTransform);
+	mat4.translate(this.localTransform, this.localTransform, vec3.set(this.translationVec, this.x, this.y, this.z));
+	mat4.rotateX(this.localTransform, this.localTransform, this.rotationX);
+	mat4.rotateY(this.localTransform, this.localTransform, this.rotationY);
+	mat4.rotateZ(this.localTransform, this.localTransform, this.rotationZ);
+	
+	this.updateTransform();*/
 };
 
 SceneNode.prototype.addChild = function(sceneNode){
