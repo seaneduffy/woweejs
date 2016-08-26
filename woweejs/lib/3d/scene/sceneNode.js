@@ -106,8 +106,10 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._scale = 1;
 		},
 		set: function(scale) {
-			mat4.scale(this.localTransform, vec3.set(this.scaleVec, scale - this._scale, scale - this._scale, scale - this._scale));
+			scale = scale / this.scale;
+			mat4.scale(this.localTransform, this.localTransform, vec3.set(this.scaleVec, scale, scale, scale));
 			this._scale = scale;
+
 			this.updateTransform();
 		}
 	},
@@ -146,40 +148,20 @@ Object.defineProperties(SceneNode.prototype, {
 SceneNode.prototype.updateWorldTransform = function(t) {
 	
 	this.worldTransform = t;
-	
 	this.updateTransform();
 	
 };
 
 SceneNode.prototype.updateTransform = function() {
 	
-	/*console.log(this.id, 'local');
-	console.log('trans', this.localTransform);
-	console.log('x', this.localTransform[12]);
-	console.log('y', this.localTransform[13]);
-	console.log('z', this.localTransform[14]);*/
-	
 	mat4.mul(this.transform, this.worldTransform, this.localTransform);
-	/*console.log(this.id, 'transform');
-	console.log('trans', this.transform);
-	console.log('x', this.transform[12]);
-	console.log('y', this.transform[13]);
-	console.log('z', this.transform[14]);*/
+	/*console.log(this.id, 'localTransform', this.localTransform);
+	console.log(this.id, 'worldTransform', this.worldTransform);
+	console.log(this.id, 'transform', this.transform);*/
 	this.children.forEach( child=>{
 		child.updateWorldTransform(this.transform);
 	});
 }
-
-SceneNode.prototype.updateLocalTransform = function() {
-	
-	/*mat4.identity(this.localTransform);
-	mat4.translate(this.localTransform, this.localTransform, vec3.set(this.translationVec, this.x, this.y, this.z));
-	mat4.rotateX(this.localTransform, this.localTransform, this.rotationX);
-	mat4.rotateY(this.localTransform, this.localTransform, this.rotationY);
-	mat4.rotateZ(this.localTransform, this.localTransform, this.rotationZ);
-	
-	this.updateTransform();*/
-};
 
 SceneNode.prototype.addChild = function(sceneNode){
 	sceneNode.parent = this;

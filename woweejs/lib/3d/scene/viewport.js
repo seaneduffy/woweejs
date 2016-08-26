@@ -77,12 +77,21 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 	}
 });
 
+var c = 0;
+
 Viewport.prototype.render = function(){
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-	this.children.forEach( childNode => {
+	let tmp = [];
+	flattenChildTree(tmp, this.children);
+
+	tmp.sort(function(a, b) {
+		return b.transform[14] - a.transform[14];
+	});
+
+	tmp.forEach( childNode => {
 		childNode.render(this.camera);
 	});
-}
+};
 
 module.exports = function(root, width, height){
 	
@@ -100,3 +109,10 @@ module.exports = function(root, width, height){
 
 	return vp;
 };
+
+function flattenChildTree(out, arr) {
+	arr.forEach( child => {
+		out.push(child);
+		flattenChildTree(out, child.children);
+	});
+}

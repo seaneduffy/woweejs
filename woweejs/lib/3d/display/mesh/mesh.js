@@ -1,10 +1,6 @@
 'use strict';
 
 let glm = require('gl-matrix'),
-	vec3 = glm.vec3,
-	vec2 = glm.vec2,
-	mat3 = glm.mat3,
-	mat4 = glm.mat4,
 	load = require('../../../async/load'),
 	Face = require('../../../3d/display/mesh/face'),
 	Camera = require('../../../3d/scene/camera'),
@@ -109,7 +105,7 @@ Mesh.prototype.render = function(camera, transform) {
 	  var mvUniform = gl.getUniformLocation(this.shader.program, "uMVMatrix");
 	  gl.uniformMatrix4fv(mvUniform, false, new Float32Array(transform));
 	
-	gl.drawElements(gl.TRIANGLES, this.data.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
+	gl.drawArrays(gl.TRIANGLES, 0, this.data.vertexIndices.length);
 
 };
 
