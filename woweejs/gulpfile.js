@@ -154,9 +154,9 @@ gulp.task( 'wavefront', function(done) {
 							}
 						});
 						meta.faces.push(vertices);
-					} else if(id === 'usemtl') {
+					}/* else if(id === 'usemtl') {
 						meta.material = materialObj[lineArr[1]];
-					}
+					}*/
 				}
 			);
 			
@@ -209,7 +209,7 @@ gulp.task( 'wavefront', function(done) {
 					out.vertices.push(meta.vertices[v.vertex][2]);
 					if(!!meta.textures[v.texture]) {
 						out.texels.push(meta.textures[v.texture][0]);
-						out.texels.push(meta.textures[v.texture][1]);
+						out.texels.push(1-meta.textures[v.texture][1]);
 					}
 					out.vertexIndices.push(counter);
 					counter++;

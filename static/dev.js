@@ -77,8 +77,8 @@ function init() {
 			left_wing.scale = right_wing.scale = 2;*/
 
 			tie.z = 2;
-			tie.rotationY = Math.PI / 180 * 0;
-			//new Tween(tie, {'z': 2.9, 'rotationY': Math.PI / 180 * 180}, 30, 'easeOutQuad');
+			//tie.rotationY = Math.PI / 180 * 180;
+			new Tween(tie, {'z': 2.9, 'rotationY': Math.PI / 180 * 180}, 30, 'easeOutQuad');
 			Cycle.start();
 		
 	});

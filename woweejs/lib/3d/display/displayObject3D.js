@@ -12,7 +12,7 @@ let glm = require('gl-matrix'),
 	materialPath = null;
 
 function DisplayObject3D(config) {
-
+	
 	SceneNode.prototype.constructor.call(this);
 	
 	this.config = config;
@@ -40,6 +40,7 @@ DisplayObject3D.prototype.loadMesh = function() {
 	return new Promise((resolve, reject)=>{
 		if(!!this.config.mesh){
 			load(this.config.mesh).then(data=>{
+				console.log(data);
 				this.mesh = data;
 				resolve();
 			});
@@ -108,9 +109,9 @@ DisplayObject3D.prototype.render = function(camera){
 	this.shaders.forEach( shader => {
 		
 		if(!!this.config && this.config.isPlane) {
-			gl.disable(gl.CULL_FACE);
+			//gl.disable(gl.CULL_FACE);
 		} else if(!!this.config && !this.config.isPlane) {
-			gl.enable(gl.CULL_FACE);
+			//gl.enable(gl.CULL_FACE);
 		}
 		gl.useProgram(shader.program);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -132,6 +133,7 @@ DisplayObject3D.prototype.render = function(camera){
 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
 		
 		gl.drawArrays(gl[shader.shapes], 0, this.mesh.vertexIndices.length);
+		//gl.drawElements(gl[shader.shapes], this.mesh.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 	});
 
 };
