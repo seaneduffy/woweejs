@@ -17,8 +17,8 @@ var fragmentShaderSource =
 	gl_FragColor = vec4(%R, %G, %B, %A);\
 }';
 
-/*
-var vertexShaderSource = 
+
+var vertexShaderSource1 = 
 'attribute vec3 aVertexPosition;\
 attribute vec2 aTextureCoord;\
 uniform mat4 uMVMatrix;\
@@ -29,13 +29,13 @@ void main(void) {\
 	vTextureCoord = aTextureCoord;\
 }';
 
-var fragmentShaderSource = 
+var fragmentShaderSource1 = 
 'varying highp vec2 vTextureCoord;\
 uniform sampler2D uSampler;\
 void main(void) {\
 	gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
 }';
-*/
+
 
 function ColorShader(r, g, b, a) {
 

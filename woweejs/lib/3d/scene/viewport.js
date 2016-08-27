@@ -13,7 +13,8 @@ function Viewport() {
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
 	this.gl = this._canvas.getContext('experimental-webgl');
-	this.gl.cullFace(this.gl.FRONT);
+	this.gl.cullFace(this.gl.BACK);
+	this.gl.enable(this.gl.DEPTH_TEST);
 }
 
 Viewport.prototype = Object.create(SceneNode.prototype, {

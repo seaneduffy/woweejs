@@ -27,13 +27,6 @@ DisplayObject3D.prototype.loadMaterial = function() {
 		if(!!this.config.material){
 			load(this.config.material, 'image').then(image=>{
 				this.material = image;
-				this.texture = gl.createTexture();
-				gl.bindTexture(gl.TEXTURE_2D, this.texture);
-				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.material);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-				gl.generateMipmap(gl.TEXTURE_2D);
-				gl.bindTexture(gl.TEXTURE_2D, null);
 				resolve();
 			});
 		} else {
@@ -60,11 +53,10 @@ DisplayObject3D.prototype.init = function() {
 
 	return new Promise( (resolve, reject) => {
 
-		this.initShaders();
-
 		return this.loadMaterial().then(()=>{
 			return this.loadMesh();
 		}).then(()=>{
+			this.initShaders();
 			this.initBuffers();
 			resolve();
 		});
@@ -78,11 +70,14 @@ DisplayObject3D.prototype.initShaders = function() {
 
 	if(!!this.config.shaders) {
 		this.shaders = this.config.shaders.map( shader => {
+			let s = null;
 			if(shader.type === 'color') {
-				return new ColorShader(shader.r, shader.g, shader.b, shader.a);
+				s = new ColorShader(shader.r, shader.g, shader.b, shader.a);
 			} else if(shader.type === 'texture') {
-				return new TextureShader();
+				s = new TextureShader(this.material);
 			}
+			s.shapes = shader.shapes;
+			return s;
 		});
 	}
 }
@@ -97,7 +92,7 @@ DisplayObject3D.prototype.initBuffers = function(){
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.mesh.vertexIndices), gl.STATIC_DRAW);
 	
-	if(!!this.texture) {
+	if(!!this.material) {
 		this.textureBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.mesh.texels), gl.STATIC_DRAW);
@@ -105,6 +100,7 @@ DisplayObject3D.prototype.initBuffers = function(){
 }
 
 DisplayObject3D.prototype.render = function(camera){
+	
 	if(typeof this.shaders === 'undefined') {
 		return;
 	}
@@ -120,12 +116,11 @@ DisplayObject3D.prototype.render = function(camera){
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
-		if(!!this.texture) {
+		if(!!shader.texture) {
 			gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-			gl.vertexAttribPointer(shader.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
-			
+			gl.vertexAttribPointer(shader.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);			
 			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
+			gl.bindTexture(gl.TEXTURE_2D, shader.texture);
 		}
 		gl.uniform1i(gl.getUniformLocation(shader.program, "uSampler"), 0);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -136,7 +131,7 @@ DisplayObject3D.prototype.render = function(camera){
 		var mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
 		
-		gl.drawArrays(gl.TRIANGLES, 0, this.mesh.vertexIndices.length);
+		gl.drawArrays(gl[shader.shapes], 0, this.mesh.vertexIndices.length);
 	});
 
 };

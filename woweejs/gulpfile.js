@@ -207,8 +207,10 @@ gulp.task( 'wavefront', function(done) {
 					out.vertices.push(meta.vertices[v.vertex][0]);
 					out.vertices.push(meta.vertices[v.vertex][1]);
 					out.vertices.push(meta.vertices[v.vertex][2]);
-					out.texels.push(meta.textures[v.texture][0]);
-					out.texels.push(meta.textures[v.texture][1]);
+					if(!!meta.textures[v.texture]) {
+						out.texels.push(meta.textures[v.texture][0]);
+						out.texels.push(meta.textures[v.texture][1]);
+					}
 					out.vertexIndices.push(counter);
 					counter++;
 				});
