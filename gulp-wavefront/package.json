@@ -1,0 +1,16 @@
+{
+  "name": "gulp-wavefront",
+  "version": "1.0.0",
+  "description": "Convert Wavefront .obj to JSON",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sean E. Duffy",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-rename": "^1.2.2",
+    "stream": "0.0.2",
+    "through2": "^2.0.1"
+  }
+}

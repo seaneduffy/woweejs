@@ -62,9 +62,6 @@ function init() {
 	
 	Promise.all([
 		tie.init()
-		/*tie_body.init(),
-		left_wing.init(),
-		right_wing.init()*/
 	]).then(function(){
 			let camera = new Camera(1080, 720);
 			viewport.camera = camera;
