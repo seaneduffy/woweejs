@@ -130,7 +130,7 @@ Camera.prototype.follow = function(node, distance) {
 }
 
 Camera.prototype.followMove = function() {
-	this.scratchMat = mat4.clone(this.followNode.transform);
+	mat4.copy(this.scratchMat, this.followNode.transform);
 	mat4.getTranslation(this.front, this.scratchMat);
 	mat4.translate(this.scratchMat, this.scratchMat, vec3.set(this.scratchVec, 0, 0, -this.followDistance));
 	mat4.getTranslation(this.targetPosition, this.scratchMat);

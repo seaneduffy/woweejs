@@ -186,10 +186,10 @@ SceneNode.prototype.updateWorldTransform = function(t) {
 };
 
 SceneNode.prototype.updateTransform = function() {
-	quat.identity(this.rotationQuat);
+	/*quat.identity(this.rotationQuat);
 	quat.rotateX(this.rotationQuat, this.rotationQuat, this.rotationX);
 	quat.rotateY(this.rotationQuat, this.rotationQuat, this.rotationY);
-	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.rotationZ);
+	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.rotationZ);*/
 	mat4.fromRotationTranslation(this.localTransform, this.rotationQuat, this.translationVec);
 	mat4.mul(this.transform, this.worldTransform, this.localTransform);
 	this.children.forEach( child=>{

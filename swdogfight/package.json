@@ -22,6 +22,7 @@
   "author": "Sean E. Duffy",
   "license": "UNLICENSED",
   "dependencies": {
+    "gl-matrix": "^2.3.2",
     "keycode": "^2.1.4"
   }
 }

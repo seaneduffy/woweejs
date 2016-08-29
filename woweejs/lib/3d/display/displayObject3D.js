@@ -2,6 +2,8 @@
 
 let glm = require('gl-matrix'),
 	mat4 = glm.mat4,
+	vec3 = glm.vec3,
+	quat = glm.quat,
 	load = require('../../async/load'),
 	SceneNode = require('../../3d/scene/sceneNode'),
 	Mesh = require('../../3d/display/mesh/mesh'),
@@ -23,37 +25,15 @@ function DisplayObject3D(config) {
 }
 
 DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
-	'dx': {
+	'velocity': {
 		get: function() {
-			if(!!this._dx) {
-				return this._dx;
+			if(!!this._velocity) {
+				return this._velocity;
 			}
-			return this._dx = 0;
+			return this._velocity = vec3.create();
 		},
-		set: function(dx) {
-			this._dx = dx;
-		}
-	},
-	'dy': {
-		get: function() {
-			if(!!this._dy) {
-				return this._dy;
-			}
-			return this._dy = 0;
-		},
-		set: function(dy) {
-			this._dy = dy;
-		}
-	},
-	'dz': {
-		get: function() {
-			if(!!this._dz) {
-				return this._dz;
-			}
-			return this._dz = 0;
-		},
-		set: function(dz) {
-			this._dz = dz;
+		set: function(v) {
+			vec3.copy(this._velocity, v);
 		}
 	},
 	'drx': {
@@ -208,24 +188,14 @@ DisplayObject3D.prototype.render = function(camera){
 };
 
 DisplayObject3D.prototype.move = function() {
-	if(this.dx !== 0) {
-		this.x += this.dx;
-	}
-	if(this.dy !== 0) {
-		this.y += this.dy;
-	}
-	if(this.dz !== 0) {
-		this.z += this.dz;
-	}
-	if(this.drx !== 0) {
-		this.rotationX += this.drx;
-	}
-	if(this.dry !== 0) {
-		this.rotationY += this.dry;
-	}
-	if(this.drz !== 0) {
-		this.rotationZ += this.drz;
-	}
+	vec3.add(this.translationVec, this.translationVec, this.velocity);
+	quat.rotateX(this.rotationQuat, this.rotationQuat, this.drx);
+	this._rotationX += this.drx;
+	this._rotationY += this.dry;
+	this._rotationZ += this.drz;
+	quat.rotateY(this.rotationQuat, this.rotationQuat, this.dry);
+	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.drz);
+	this.updateTransform();
 };
 
 module.exports = DisplayObject3D;
