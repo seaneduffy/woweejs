@@ -23,5 +23,6 @@ window.wowee = (function(){
 		window.Cycle = require('./lib/animation/cycle');
 		Cycle.add(window.viewport.render.bind(window.viewport));
 		Cycle.setFrameRate(config.frame_rate || 20);
+		Cycle.start();
 	}
 }());

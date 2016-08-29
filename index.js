@@ -6,6 +6,7 @@ let fs = require('fs'),
 	http = require('http').Server(app);
 	
 app.use(express.static(__dirname + '/woweejs/dist'));
+app.use(express.static(__dirname + '/swdogfight/dist'));
 app.use(express.static(__dirname + '/static'));
 
 fs.readFile('woweejs-dev.html', 'utf8', function(err, data){

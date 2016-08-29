@@ -8,18 +8,88 @@ let glm = require('gl-matrix'),
 	TextureShader = require('../../3d/display/shaders/texture'),
 	ColorShader = require('../../3d/display/shaders/color'),
 	viewport = require('../../3d/scene/viewport')(),
-	gl = viewport.gl,
-	materialPath = null;
+	gl = viewport.gl;
 
 function DisplayObject3D(config) {
 	
 	SceneNode.prototype.constructor.call(this);
 	
 	this.config = config;
+	
+	this.cycleMove = this.move.bind(this);
+	
+	Cycle.add(this.cycleMove);
 
 }
 
-DisplayObject3D.prototype = Object.create(SceneNode.prototype);
+DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
+	'dx': {
+		get: function() {
+			if(!!this._dx) {
+				return this._dx;
+			}
+			return this._dx = 0;
+		},
+		set: function(dx) {
+			this._dx = dx;
+		}
+	},
+	'dy': {
+		get: function() {
+			if(!!this._dy) {
+				return this._dy;
+			}
+			return this._dy = 0;
+		},
+		set: function(dy) {
+			this._dy = dy;
+		}
+	},
+	'dz': {
+		get: function() {
+			if(!!this._dz) {
+				return this._dz;
+			}
+			return this._dz = 0;
+		},
+		set: function(dz) {
+			this._dz = dz;
+		}
+	},
+	'drx': {
+		get: function() {
+			if(!!this._drx) {
+				return this._drx;
+			}
+			return this._drx = 0;
+		},
+		set: function(drx) {
+			this._drx = drx;
+		}
+	},
+	'dry': {
+		get: function() {
+			if(!!this._dry) {
+				return this._dry;
+			}
+			return this._dry = 0;
+		},
+		set: function(dry) {
+			this._dry = dry;
+		}
+	},
+	'drz': {
+		get: function() {
+			if(!!this._drz) {
+				return this._drz;
+			}
+			return this._drz = 0;
+		},
+		set: function(drz) {
+			this._drz = drz;
+		}
+	}
+});
 
 DisplayObject3D.prototype.loadMaterial = function() {
 	
@@ -40,7 +110,6 @@ DisplayObject3D.prototype.loadMesh = function() {
 	return new Promise((resolve, reject)=>{
 		if(!!this.config.mesh){
 			load(this.config.mesh).then(data=>{
-				console.log(data);
 				this.mesh = data;
 				resolve();
 			});
@@ -136,6 +205,27 @@ DisplayObject3D.prototype.render = function(camera){
 		//gl.drawElements(gl[shader.shapes], this.mesh.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 	});
 
+};
+
+DisplayObject3D.prototype.move = function() {
+	if(this.dx !== 0) {
+		this.x += this.dx;
+	}
+	if(this.dy !== 0) {
+		this.y += this.dy;
+	}
+	if(this.dz !== 0) {
+		this.z += this.dz;
+	}
+	if(this.drx !== 0) {
+		this.rotationX += this.drx;
+	}
+	if(this.dry !== 0) {
+		this.rotationY += this.dry;
+	}
+	if(this.drz !== 0) {
+		this.rotationZ += this.drz;
+	}
 };
 
 module.exports = DisplayObject3D;

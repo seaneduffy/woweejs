@@ -3,7 +3,8 @@
 let glm = require('gl-matrix'),
 	vec3 = glm.vec3,
 	mat4 = glm.mat4,
-	quat = glm.quat;
+	quat = glm.quat,
+	Cycle = require('../../animation/cycle');
 
 function SceneNode() {
 	this.origin = vec3.create();
@@ -16,10 +17,14 @@ function SceneNode() {
 	this.transform = mat4.create();
 	this.mat4Identity = mat4.create();
 	this.vec3Identity = vec3.create();
+	
+	this.listeners = {
+		'transform': []
+	};
+	
 }
 
 Object.defineProperties(SceneNode.prototype, {
-
 	'rotationX': {
 		get: function(){
 			if(!!this._rotationX) {
@@ -28,7 +33,14 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationX = 0;
 		},
 		set: function(rad){
-			mat4.rotateX(this.localTransform, this.localTransform, rad - this.rotationX);
+			/*if(Math.abs(rad) >= Math.PI * 2) {
+				rad = rad % (Math.PI * 2);
+			}
+			if(rad <= 0) {
+				rad = Math.PI * 2 + rad;
+			}*/
+			//mat4.getRotation(this.rotationQuat, this.localTransform);
+			//quat.rotateX(this.rotationQuat, this.rotationQuat, rad - this.rotationX);
 			this._rotationX = rad;
 			this.updateTransform();
 		}
@@ -41,7 +53,14 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationY = 0;
 		},
 		set: function(rad){
-			mat4.rotateY(this.localTransform, this.localTransform, rad - this.rotationY);
+			/*if(Math.abs(rad) >= Math.PI * 2) {
+				rad = rad % (Math.PI * 2);
+			}
+			if(rad <= 0) {
+				rad = Math.PI * 2 + rad;
+			}*/
+			//mat4.getRotation(this.rotationQuat, this.localTransform);
+			//quat.rotateY(this.rotationQuat, this.rotationQuat, rad - this.rotationY);
 			this._rotationY = rad;
 			this.updateTransform();
 		}
@@ -54,8 +73,15 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._rotationZ = 0;
 		},
 		set: function(rad){
-			mat4.rotateZ(this.localTransform, this.localTransform, rad - this.rotationZ);
+			/*if(Math.abs(rad) >= Math.PI * 2) {
+				rad = rad % (Math.PI * 2);
+			}
+			if(rad <= 0) {
+				rad = Math.PI * 2 + rad;
+			}*/
 			this._rotationZ = rad;
+			//mat4.getRotation(this.rotationQuat, this.localTransform);
+			//quat.rotateZ(this.rotationQuat, this.rotationQuat, rad - this.rotationZ);
 			this.updateTransform();
 		}
 	},
@@ -67,7 +93,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._x = 0;
 		},
 		set: function(x){
-			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(x - this.x, 0, 0));
+			mat4.getTranslation(this.translationVec, this.localTransform);
+			this.translationVec[0] = x;
 			this._x = x;
 			this.updateTransform();
 		}
@@ -80,7 +107,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._y = 0;
 		},
 		set: function(y){
-			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(0, y - this.y, 0));
+			mat4.getTranslation(this.translationVec, this.localTransform);
+			this.translationVec[1] = y;
 			this._y = y;
 			this.updateTransform();
 		}
@@ -93,7 +121,8 @@ Object.defineProperties(SceneNode.prototype, {
 			return this._z = 0;
 		},
 		set: function(z){
-			mat4.translate(this.localTransform, this.localTransform, vec3.fromValues(0, 0, z - this.z));
+			mat4.getTranslation(this.translationVec, this.localTransform);
+			this.translationVec[2] = z;
 			this._z = z;
 			this.updateTransform();
 		}
@@ -145,6 +174,10 @@ Object.defineProperties(SceneNode.prototype, {
 	}
 });
 
+SceneNode.prototype.on = function(event, cb) {
+	this.listeners[event].push(cb);
+};
+
 SceneNode.prototype.updateWorldTransform = function(t) {
 	
 	this.worldTransform = t;
@@ -153,13 +186,17 @@ SceneNode.prototype.updateWorldTransform = function(t) {
 };
 
 SceneNode.prototype.updateTransform = function() {
-	
+	quat.identity(this.rotationQuat);
+	quat.rotateX(this.rotationQuat, this.rotationQuat, this.rotationX);
+	quat.rotateY(this.rotationQuat, this.rotationQuat, this.rotationY);
+	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.rotationZ);
+	mat4.fromRotationTranslation(this.localTransform, this.rotationQuat, this.translationVec);
 	mat4.mul(this.transform, this.worldTransform, this.localTransform);
-	/*console.log(this.id, 'localTransform', this.localTransform);
-	console.log(this.id, 'worldTransform', this.worldTransform);
-	console.log(this.id, 'transform', this.transform);*/
 	this.children.forEach( child=>{
 		child.updateWorldTransform(this.transform);
+	});
+	this.listeners.transform.forEach( func => {
+		func(this);
 	});
 }
 
