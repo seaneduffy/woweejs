@@ -70,28 +70,29 @@
 		tie3.z = 55;
 		tie3.y = 2;
 		
-		camera.follow(tie.displayObject, 6);
+		camera.follow(tie.displayObject, 10);
 		
-		/*Controller.on(Controller.PITCH, function(amount){
+		Controller.on(Controller.PITCH, function(amount){
 			tie.pitch(amount);
-			log();
 		});
 		Controller.on(Controller.YAW, function(amount){
 			tie.yaw(amount);
-			log();
-		});*/
+		});
 		Controller.on(Controller.FORWARD, function(){
 			tie.thrust();
-			//log();
 		});
 		Controller.on(Controller.BRAKE, function(){
 			tie.brake();
-			//log();
 		});
-		tie.yaw(.4);
-		//tie.pitch(.4);
-		
-		//tie.rotationY = Math.PI / 4;
+		Controller.on(Controller.BARREL_RIGHT, function(){
+			tie.barrel(1);
+		});
+		Controller.on(Controller.BARREL_LEFT, function(){
+			tie.barrel(-1);
+		});
+		Controller.on(Controller.STOP_BARREL, function(){
+			tie.barrel(0);
+		});
 		
 	});
 	

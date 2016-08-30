@@ -7,8 +7,11 @@ YAW = 'yaw',
 BACK = 'back',
 BARREL_RIGHT = 'barrelright',
 BRAKE = 'brake',
+STOP_BARREL = 'stopbarrel',
 
 listeners = {},
+
+controls = {},
 
 on = function( event, cb ) {
 
@@ -17,6 +20,14 @@ on = function( event, cb ) {
 	}
 	listeners[ event ].push( cb );
 };
+
+function Control(label){
+	this.label = label;
+	this.active = false;
+}
+
+controls[BARREL_RIGHT] = new Control(BARREL_RIGHT);
+controls[BARREL_LEFT] = new Control(BARREL_LEFT);
 
 document.body.addEventListener( 'mousemove', event => {
 	let hw = viewport.width / 2,
@@ -59,15 +70,34 @@ document.body.addEventListener( 'keydown', event => {
 			func();
 		} );
 	} else if(event.code === 'KeyA') {
-		if(!!listeners[BARREL_LEFT])
-		listeners[BARREL_LEFT].forEach( func=>{
-			func();
-		} );
+		if(!!listeners[BARREL_LEFT] && !controls[BARREL_LEFT].active) {
+			controls[BARREL_LEFT].active = true;
+			listeners[BARREL_LEFT].forEach( func=>{
+				console.log('a');
+				func();
+			} );
+		}
 	} else if(event.code === 'KeyD') {
-		if(!!listeners[BARREL_RIGHT])
-		listeners[BARREL_RIGHT].forEach( func=>{
-			func();
-		} );
+		if(!!listeners[BARREL_RIGHT] && !controls[BARREL_RIGHT].active) {
+			controls[BARREL_RIGHT].active = true;
+			listeners[BARREL_RIGHT].forEach( func=>{
+				console.log('d');
+				func();
+			} );
+		}
+	}
+});
+
+document.body.addEventListener( 'keyup', event => {
+	if(event.code === 'KeyA' || event.code === 'KeyD') {
+		controls[BARREL_LEFT].active = false;
+		controls[BARREL_RIGHT].active = false;
+		if(!!listeners[STOP_BARREL]) {
+			listeners[STOP_BARREL].forEach( func=>{
+				console.log('c');
+				func();
+			} );
+		}
 	}
 });
 
@@ -79,5 +109,6 @@ module.exports = {
 	YAW: YAW,
 	BACK: BACK,
 	BARREL_RIGHT: BARREL_RIGHT,
-	BRAKE: BRAKE
+	BRAKE: BRAKE,
+	STOP_BARREL: STOP_BARREL
 };

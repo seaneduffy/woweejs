@@ -195,7 +195,7 @@ let consoleTiePositionX = document.querySelector('#tie-position .x'),
 		consoleTieRotationZ = document.querySelector('#tie-rotation .z');
 
 DisplayObject3D.prototype.move = function() {
-	if(this.velocity[0] === 0 && this.velocity[1] === 0 && this.velocity[2] === 0 && this.drx === 0 && this.dry === 0)
+	if(this.velocity[0] === 0 && this.velocity[1] === 0 && this.velocity[2] === 0 && this.drx === 0 && this.dry === 0 && this.drz === 0)
 		return;
 	vec3.add(this.translationVec, this.translationVec, this.velocity);
 	quat.rotateX(this.rotationQuat, this.rotationQuat, this.drx);
