@@ -94,6 +94,21 @@
 			tie.barrel(0);
 		});
 		
+		let g = new Graphics({
+			shaders: [
+				{
+					type: 'color',
+					shapes: 'LINES',
+					r: 1.0,
+					g: 1.0,
+					b: 1.0,
+					a: 1.0
+				}
+			]
+		});
+		g.drawLine([0,0,0,0,1,0]);
+		viewport.addChild(g);
+		
 	});
 	
 }());

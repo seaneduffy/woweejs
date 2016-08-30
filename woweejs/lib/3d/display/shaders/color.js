@@ -69,5 +69,6 @@ function ColorShader(r, g, b, a) {
 }
 
 ColorShader.prototype = Object.create(Shader.prototype);
+ColorShader.prototype.constructor = ColorShader;
 
 module.exports = ColorShader;

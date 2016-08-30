@@ -123,6 +123,7 @@ Camera.prototype = Object.create(SceneNode, {
 		}
 	}
 });
+Camera.prototype.constructor = Camera;
 
 Camera.prototype.follow = function(node, distance) {
 	this.followNode = node;
@@ -139,14 +140,15 @@ Camera.prototype.followMove = function() {
 	this.scratchVec[1] = 0;
 	vec3.scale(this.scratchVec, this.scratchVec, this.followDistance);
 	vec3.sub(this.targetPosition, this.front, this.scratchVec);
-	let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
+	vec3.copy(this.position, this.targetPosition);
+	/*let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
 	if(distance <= .03) {
 		vec3.copy(this.position, this.targetPosition);
 		return;
 	}
 	vec3.sub(this.scratchVec, this.targetPosition, this.position);
 	vec3.scale(this.scratchVec, this.scratchVec, .08);
-	vec3.add(this.position, this.scratchVec, this.position);
+	vec3.add(this.position, this.scratchVec, this.position);*/
 	
 	/*mat4.translate(this.scratchMat, this.scratchMat, vec3.set(this.scratchVec, 0, 0, -1));
 	mat4.getTranslation(this.targetPosition, this.scratchMat);

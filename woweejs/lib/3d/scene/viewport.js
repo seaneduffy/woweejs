@@ -78,8 +78,7 @@ Viewport.prototype = Object.create(SceneNode.prototype, {
 		}
 	}
 });
-
-var c = 0;
+Viewport.prototype.constructor = Viewport;
 
 Viewport.prototype.render = function(){
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);

@@ -1,41 +1,37 @@
 'use strict';
 
-let root = null,
-	defaultWidth = null,
-	defaultHeight = null;
+let viewport = require('../../3d/scene/viewport')(),
+	gl = viewport.gl,
+	DisplayObject3D = require('../../3d/display/displayObject3D');
 
-Graphics.setRoot = function(node){
-	root = node;
-};
-
-Graphics.setDefaultWidth = function(width){
-	defaultWidth = width;
-}
-
-Graphics.setDefaultHeight = function(height){
-	defaultHeight = height;
-};
-
-
-function Graphics() {
-	this.counter = 0;
+function Graphics(config) {
+	DisplayObject3D.prototype.constructor.call(this, config);
 	
-	this._canvas = document.createElement('canvas');
-	this._canvas.style.zIndex = 0;
-	this._canvas.style.position = 'absolute';
-	this._canvas.style.transform = 'translate(0, 0)';
-	this._context = this._canvas.getContext('2d');
-	this._drawCanvas = document.createElement('canvas');
-	this._drawCanvas.style.zIndex = 0;
-	this._drawCanvas.style.position = 'absolute';
-	this._drawCanvas.style.transform = 'translate(-0, 0)';
-	this._drawContext = this._drawCanvas.getContext('2d');
-	this.width = defaultWidth;
-	this.height = defaultHeight;
-	root.appendChild(this._canvas);
-	root.appendChild(this._drawCanvas);
+	this.initShaders();
+	this.vertexBuffer = gl.createBuffer();
+	this.indexBuffer = gl.createBuffer();
 }
 
+Graphics.prototype = Object.create(DisplayObject3D.prototype);
+
+Graphics.prototype.constructor = Graphics;
+
+Graphics.prototype.drawLine = function(points){
+	this.vertexIndices = [];
+	let c = 0;
+	points.forEach( (point, index) => {
+		if(index % 3 === 0) {
+			this.vertexIndices.push(c);
+			c++;
+		}
+	});
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.vertexIndices), gl.STATIC_DRAW);
+};
+
+/*
 Object.defineProperties(Graphics.prototype, {
 	'x': {
 		get: function(){
@@ -235,7 +231,7 @@ Object.defineProperties(Graphics.prototype, {
 		}
 	}
 });
-
+*/
 
 
 module.exports = Graphics;

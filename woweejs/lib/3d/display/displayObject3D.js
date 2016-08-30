@@ -13,6 +13,7 @@ let glm = require('gl-matrix'),
 	gl = viewport.gl;
 
 function DisplayObject3D(config) {
+	console.log(config);
 	
 	SceneNode.prototype.constructor.call(this);
 	
@@ -70,6 +71,8 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 		}
 	}
 });
+
+DisplayObject3D.prototype.constructor = DisplayObject3D;
 
 DisplayObject3D.prototype.loadMaterial = function() {
 	
@@ -140,7 +143,8 @@ DisplayObject3D.prototype.initBuffers = function(){
 	
 	this.indexBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.mesh.vertexIndices), gl.STATIC_DRAW);
+	this.vertexIndices = this.mesh.vertexIndices;
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.vertexIndices), gl.STATIC_DRAW);
 	
 	if(!!this.material) {
 		this.textureBuffer = gl.createBuffer();
@@ -181,7 +185,7 @@ DisplayObject3D.prototype.render = function(camera){
 		var mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
 		
-		gl.drawArrays(gl[shader.shapes], 0, this.mesh.vertexIndices.length);
+		gl.drawArrays(gl[shader.shapes], 0, this.vertexIndices.length);
 		//gl.drawElements(gl[shader.shapes], this.mesh.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 	});
 

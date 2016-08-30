@@ -54,5 +54,5 @@ function Texture(image) {
 }
 
 Texture.prototype = Object.create(Shader.prototype);
-
+Texture.prototype.constructor = Texture;
 module.exports = Texture;

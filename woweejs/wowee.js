@@ -16,6 +16,7 @@ window.wowee = (function(){
 		var load = require('./lib/async/load');
 		window.SceneNode = require('./lib/3d/scene/sceneNode');
 		window.DisplayObject3D = require('./lib/3d/display/displayObject3D');
+		window.Graphics = require('./lib/3d/display/graphics');
 		window.Camera = require('./lib/3d/scene/camera');
 		window.Tween = require('./lib/animation/tween/tween');
 		window.Mesh = require('./lib/3d/display/mesh/mesh');
