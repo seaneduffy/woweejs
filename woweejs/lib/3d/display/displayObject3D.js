@@ -12,12 +12,9 @@ let glm = require('gl-matrix'),
 	viewport = require('../../3d/scene/viewport')(),
 	gl = viewport.gl;
 
-function DisplayObject3D(config) {
-	console.log(config);
-	
+function DisplayObject3D() {
+
 	SceneNode.prototype.constructor.call(this);
-	
-	this.config = config;
 	
 	this.cycleMove = this.move.bind(this);
 	
@@ -102,7 +99,9 @@ DisplayObject3D.prototype.loadMesh = function() {
 	});
 };
 
-DisplayObject3D.prototype.init = function() {
+DisplayObject3D.prototype.init = function(config) {
+
+	this.config = config;
 
 	return new Promise( (resolve, reject) => {
 
@@ -155,17 +154,13 @@ DisplayObject3D.prototype.initBuffers = function(){
 
 DisplayObject3D.prototype.render = function(camera){
 	
-	if(typeof this.shaders === 'undefined') {
+
+
+	if(this.vertexIndices.length === 0 || typeof this.shaders === 'undefined') {
 		return;
 	}
 
 	this.shaders.forEach( shader => {
-		
-		if(!!this.config && this.config.isPlane) {
-			//gl.disable(gl.CULL_FACE);
-		} else if(!!this.config && !this.config.isPlane) {
-			//gl.enable(gl.CULL_FACE);
-		}
 		gl.useProgram(shader.program);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
 		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -209,6 +204,8 @@ DisplayObject3D.prototype.move = function() {
 
 	let translationVec = vec3.create();
 	mat4.getTranslation(translationVec, this.transform);
+
+	console.log(this.worldTransform);
 
 	consoleTiePositionX.innerHTML = translationVec[0];
 	consoleTiePositionY.innerHTML = translationVec[1];

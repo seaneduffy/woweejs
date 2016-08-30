@@ -2,33 +2,80 @@
 
 let viewport = require('../../3d/scene/viewport')(),
 	gl = viewport.gl,
+	ColorShader = require('../../3d/display/shaders/color'),
+	TextureShader = require('../../3d/display/shaders/texture'),
 	DisplayObject3D = require('../../3d/display/displayObject3D');
 
-function Graphics(config) {
-	DisplayObject3D.prototype.constructor.call(this, config);
-	
-	this.initShaders();
-	this.vertexBuffer = gl.createBuffer();
-	this.indexBuffer = gl.createBuffer();
+function Graphics() {
+	DisplayObject3D.prototype.constructor.call(this);
+	this.graphics = [];
 }
 
 Graphics.prototype = Object.create(DisplayObject3D.prototype);
 
 Graphics.prototype.constructor = Graphics;
 
-Graphics.prototype.drawLine = function(points){
-	this.vertexIndices = [];
-	let c = 0;
+Graphics.prototype.initShader = function(obj) {
+	let shader = null;
+	if(obj.type === 'color') {
+		shader = new ColorShader(obj.r, obj.g, obj.b, obj.a);
+	} else if(obj.type === 'texture') {
+		//shader = new TextureShader(this.material);
+	}
+	shader.shapes = obj.shapes;
+	return shader;
+};
+
+Graphics.prototype.drawLine = function(points, shader){
+	
+	let graphicsObj = {
+		vertexBuffer : gl.createBuffer(),
+		indexBuffer : gl.createBuffer(),
+		vertices : [],
+		vertexIndices : [],
+		shader: this.initShader(shader)
+	};
+
+	this.graphics.push(graphicsObj);
+
 	points.forEach( (point, index) => {
-		if(index % 3 === 0) {
-			this.vertexIndices.push(c);
-			c++;
-		}
+		point.forEach( v => {
+			graphicsObj.vertices.push(v);
+		});
+		graphicsObj.vertexIndices.push(index);
 	});
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.vertexIndices), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, graphicsObj.vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(graphicsObj.vertices), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, graphicsObj.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(graphicsObj.vertexIndices), gl.STATIC_DRAW);
+};
+
+Graphics.prototype.render = function(camera){
+
+	this.graphics.forEach( graphic => {
+		
+		gl.useProgram(graphic.shader.program);
+		gl.bindBuffer(gl.ARRAY_BUFFER, graphic.vertexBuffer);
+		gl.vertexAttribPointer(graphic.shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+		if(!!graphic.shader.texture) {
+			gl.bindBuffer(gl.ARRAY_BUFFER, graphic.textureBuffer);
+			gl.vertexAttribPointer(graphic.shader.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);			
+			gl.activeTexture(gl.TEXTURE0);
+			gl.bindTexture(gl.TEXTURE_2D, graphic.shader.texture);
+		}
+		gl.uniform1i(gl.getUniformLocation(graphic.shader.program, "uSampler"), 0);
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, graphic.indexBuffer);
+
+		var pUniform = gl.getUniformLocation(graphic.shader.program, "uPMatrix");
+		gl.uniformMatrix4fv(pUniform, false, new Float32Array(camera.pvMatrix));
+
+		var mvUniform = gl.getUniformLocation(graphic.shader.program, "uMVMatrix");
+		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
+		
+		gl.drawArrays(gl[graphic.shader.shapes], 0, graphic.vertexIndices.length);
+	});
+
 };
 
 /*

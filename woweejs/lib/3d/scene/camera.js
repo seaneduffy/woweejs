@@ -37,7 +37,7 @@ function Camera(){
 	this.scratchVec = new Float32Array(3);
 	this.scratchMat = new Float32Array(16);
 	this.scratchQuat = new Float32Array(4);
-	
+
 	vec3.set(this.position, this._x, this._y, this._z);
 	this.front = vec3.fromValues(this._x, this._y, this._z + 1);
 	
@@ -47,6 +47,7 @@ Camera.prototype = Object.create(SceneNode, {
 	'viewport': {
 		set: function(viewport) {
 			this._viewport = viewport;
+			mat4.perspective(this.projection, Math.PI / 180 * 45, this.viewport.width / this.viewport.height, 1, 100);
 			this.setView();
 		},
 		get: function() {
@@ -188,7 +189,6 @@ Camera.prototype.setView = function() {
 	LOG_CAMERA_FRONT_X.innerHTML = this.front[0];
 	LOG_CAMERA_FRONT_Y.innerHTML = this.front[1];
 	LOG_CAMERA_FRONT_Z.innerHTML = this.front[2];
-	mat4.perspective(this.projection, Math.PI / 180 * 30, this.viewport.width / this.viewport.height, 1, 100);
 	mat4.lookAt(this.view, this.position, this.front, this.up);
 	mat4.mul(this.pvMatrix, this.projection, this.view);
 }
