@@ -187,15 +187,31 @@ DisplayObject3D.prototype.render = function(camera){
 
 };
 
+let consoleTiePositionX = document.querySelector('#tie-position .x'),
+		consoleTiePositionY = document.querySelector('#tie-position .y'),
+		consoleTiePositionZ = document.querySelector('#tie-position .z'),
+		consoleTieRotationX = document.querySelector('#tie-rotation .x'),
+		consoleTieRotationY = document.querySelector('#tie-rotation .y'),
+		consoleTieRotationZ = document.querySelector('#tie-rotation .z');
+
 DisplayObject3D.prototype.move = function() {
+	if(this.velocity[0] === 0 && this.velocity[1] === 0 && this.velocity[2] === 0 && this.drx === 0 && this.dry === 0)
+		return;
 	vec3.add(this.translationVec, this.translationVec, this.velocity);
 	quat.rotateX(this.rotationQuat, this.rotationQuat, this.drx);
-	this._rotationX += this.drx;
-	this._rotationY += this.dry;
-	this._rotationZ += this.drz;
 	quat.rotateY(this.rotationQuat, this.rotationQuat, this.dry);
 	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.drz);
 	this.updateTransform();
+
+	let translationVec = vec3.create();
+	mat4.getTranslation(translationVec, this.transform);
+
+	consoleTiePositionX.innerHTML = translationVec[0];
+	consoleTiePositionY.innerHTML = translationVec[1];
+	consoleTiePositionZ.innerHTML = translationVec[2];/*
+	consoleTieRotationX.innerHTML = tie.displayObject.rotationX;
+	consoleTieRotationY.innerHTML = tie.displayObject.rotationY;
+	consoleTieRotationZ.innerHTML = tie.displayObject.rotationZ;*/
 };
 
 module.exports = DisplayObject3D;

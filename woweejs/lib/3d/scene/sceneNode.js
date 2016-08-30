@@ -174,6 +174,22 @@ Object.defineProperties(SceneNode.prototype, {
 	}
 });
 
+SceneNode.prototype.rotateX = function(rad) {
+	quat.rotateX(this.rotationQuat, this.rotationQuat, rad);
+	console.log(this.rotationQuat);
+	this.updateTransform();
+};
+
+SceneNode.prototype.rotateY = function(rad) {
+	quat.rotateY(this.rotationQuat, this.rotationQuat, rad);
+	this.updateTransform();
+};
+
+SceneNode.prototype.rotateZ = function(rad) {
+	quat.rotateZ(this.rotationQuat, this.rotationQuat, rad);
+	this.updateTransform();
+};
+
 SceneNode.prototype.on = function(event, cb) {
 	this.listeners[event].push(cb);
 };

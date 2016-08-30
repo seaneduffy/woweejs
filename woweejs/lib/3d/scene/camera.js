@@ -135,14 +135,18 @@ Camera.prototype.followMove = function() {
 	mat4.translate(this.scratchMat, this.scratchMat, vec3.set(this.scratchVec, 0, 0, -this.followDistance));
 	mat4.getTranslation(this.targetPosition, this.scratchMat);
 	
-	let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
+	/*let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
 	if(distance <= .03) {
 		vec3.set(this.position, this.targetPosition[0],this.targetPosition[1],this.targetPosition[2]);
 		return;
 	}
 	vec3.sub(this.scratchVec, this.targetPosition, this.position);
-	vec3.scale(this.scratchVec, this.scratchVec, .03);
-	vec3.add(this.position, this.scratchVec, this.position);
+	vec3.copy(this.position, this.targetPosition);
+	//vec3.scale(this.scratchVec, this.scratchVec, .03);
+	//vec3.add(this.position, this.scratchVec, this.position);*/
+	this.position[1] = this.front[1];
+
+
 	/*mat4.translate(this.scratchMat, this.followNode.transform, [this.front[0], this.front[1], this.front[2]+1]);
 	mat4.getTranslation(this.scratchVec, this.followNode.transform);
 	mat4.getTranslation(this.up, this.scratchMat);
@@ -158,6 +162,12 @@ Camera.prototype.followMove = function() {
 }
 
 Camera.prototype.setView = function() {
+	LOG_CAMERA_POSITION_X.innerHTML = this.position[0];
+	LOG_CAMERA_POSITION_Y.innerHTML = this.position[1];
+	LOG_CAMERA_POSITION_Z.innerHTML = this.position[2];
+	LOG_CAMERA_FRONT_X.innerHTML = this.front[0];
+	LOG_CAMERA_FRONT_Y.innerHTML = this.front[1];
+	LOG_CAMERA_FRONT_Z.innerHTML = this.front[2];
 	mat4.perspective(this.projection, Math.PI / 180 * 30, this.viewport.width / this.viewport.height, 1, 100);
 	mat4.lookAt(this.view, this.position, this.front, this.up);
 	mat4.mul(this.pvMatrix, this.projection, this.view);

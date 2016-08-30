@@ -51,23 +51,7 @@
 		],
 		id: 'tie'
 	});
-	
-	let consoleTiePositionX = document.querySelector('#tie-position .x'),
-		consoleTiePositionY = document.querySelector('#tie-position .y'),
-		consoleTiePositionZ = document.querySelector('#tie-position .z'),
-		consoleTieRotationX = document.querySelector('#tie-rotation .x'),
-		consoleTieRotationY = document.querySelector('#tie-rotation .y'),
-		consoleTieRotationZ = document.querySelector('#tie-rotation .z');
-		
-		function log(){
-			consoleTiePositionX.innerHTML = tie.displayObject.x;
-			consoleTiePositionY.innerHTML = tie.displayObject.y;
-			consoleTiePositionZ.innerHTML = tie.displayObject.z;
-			consoleTieRotationX.innerHTML = tie.displayObject.rotationX;
-			consoleTieRotationY.innerHTML = tie.displayObject.rotationY;
-			consoleTieRotationZ.innerHTML = tie.displayObject.rotationZ;
-		}
-	
+
 	Promise.all([
 		tie.displayObject.init(),
 		tie2.init(),
@@ -88,22 +72,24 @@
 		
 		camera.follow(tie.displayObject, 6);
 		
-		Controller.on(Controller.PITCH, function(amount){
+		/*Controller.on(Controller.PITCH, function(amount){
 			tie.pitch(amount);
 			log();
 		});
 		Controller.on(Controller.YAW, function(amount){
 			tie.yaw(amount);
 			log();
-		});
+		});*/
 		Controller.on(Controller.FORWARD, function(){
 			tie.thrust();
-			log();
+			//log();
 		});
 		Controller.on(Controller.BRAKE, function(){
 			tie.brake();
-			log();
+			//log();
 		});
+		tie.yaw(.4);
+		//tie.pitch(.4);
 		
 		//tie.rotationY = Math.PI / 4;
 		
