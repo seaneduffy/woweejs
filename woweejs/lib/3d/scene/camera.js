@@ -24,8 +24,8 @@ function Camera(){
 
 	this.up = UP;
 	
-	this._x = 0;
-	this._y = 0;
+	this._x = 3;
+	this._y = 3;
 	this._z = -3;
 	
 	this.position = new Float32Array(3);
@@ -39,7 +39,7 @@ function Camera(){
 	this.scratchQuat = new Float32Array(4);
 
 	vec3.set(this.position, this._x, this._y, this._z);
-	this.front = vec3.fromValues(this._x, this._y, this._z + 1);
+	this.front = vec3.fromValues(0, 0, 0);
 	
 }
 
@@ -126,23 +126,39 @@ Camera.prototype = Object.create(SceneNode, {
 });
 Camera.prototype.constructor = Camera;
 
-Camera.prototype.follow = function(node, distance) {
+Camera.prototype.follow = function(node, distance, marker) {
 	this.followNode = node;
+	this.followMarker = marker;
 	this.followDistance = distance;
 	this.cycleFollowMove = this.followMove.bind(this);
 	Cycle.add(this.cycleFollowMove);
 }
 
 Camera.prototype.followMove = function() {
+	mat4.getRotation(this.scratchQuat, this.followNode.transform);
+	quat.normalize(this.scratchQuat, this.scratchQuat);
+	mat4.getTranslation(this.front, this.followNode.transform);
+	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.followDistance), this.scratchQuat);
+	vec3.sub(this.targetPosition, this.front, this.scratchVec);
+	vec3.copy(this.position, this.targetPosition);
+	this.setView();
+	/*let rotX = Math.acos(this.scratchQuat[1])*2;
+	let rotY = Math.acos(this.scratchQuat[2])*2;
+	let rotZ = Math.acos(this.scratchQuat[3])*2;
+	Log.log('Camera rotation X', rotX * 180 / Math.PI);
+	Log.log('Camera rotation Y', rotY * 180 / Math.PI);
+	Log.log('Camera rotation Z', rotZ * 180 / Math.PI);
+	
 	mat4.copy(this.scratchMat, this.followNode.transform);
 	mat4.getTranslation(this.front, this.scratchMat);
 	mat4.getRotation(this.scratchQuat, this.scratchMat);
 	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, 1), this.scratchQuat);
-	this.scratchVec[1] = 0;
-	vec3.scale(this.scratchVec, this.scratchVec, this.followDistance);
-	vec3.sub(this.targetPosition, this.front, this.scratchVec);
+	vec3.sub(this.scratchVec, this.scratchVec, this.front);
+	this.scratchVec[1] = this.front[1];
+	vec3.normalize(this.scratchVec, this.scratchVec);
+	vec3.scale(this.targetPosition, this.scratchVec, this.followDistance);
 	vec3.copy(this.position, this.targetPosition);
-	/*let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
+	let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
 	if(distance <= .03) {
 		vec3.copy(this.position, this.targetPosition);
 		return;
@@ -179,16 +195,10 @@ Camera.prototype.followMove = function() {
 	vec3.rotateY(this.up, UP, this.followNode.translationVec, this.followNode.rotationY);
 	vec3.rotateZ(this.up, UP, this.followNode.translationVec, this.followNode.rotationZ);
 	vec3.normalize(this.up, this.up);*/
-	this.setView();
+	
 }
 
 Camera.prototype.setView = function() {
-	LOG_CAMERA_POSITION_X.innerHTML = this.position[0];
-	LOG_CAMERA_POSITION_Y.innerHTML = this.position[1];
-	LOG_CAMERA_POSITION_Z.innerHTML = this.position[2];
-	LOG_CAMERA_FRONT_X.innerHTML = this.front[0];
-	LOG_CAMERA_FRONT_Y.innerHTML = this.front[1];
-	LOG_CAMERA_FRONT_Z.innerHTML = this.front[2];
 	mat4.lookAt(this.view, this.position, this.front, this.up);
 	mat4.mul(this.pvMatrix, this.projection, this.view);
 }
@@ -206,20 +216,6 @@ Camera.prototype.project = function(v2d, v3d, m) {
 	v2d[1] = 1 - (oy / ow + 1) / 2;
 	
 	return v2d
-};
-
-Camera.prototype.transformRotation = function() {
-	vec3.normalize(
-		this.front,
-		vec3.set(
-			this.front,
-			Math.cos(this.rotationY) * Math.cos(this.rotationX), 
-			Math.sin(this.rotationX), 
-			Math.cos(this.rotationX) * Math.sin(this.rotationY)
-		)
-	);
-
-	this.setView();
 };
 
 module.exports = Camera;

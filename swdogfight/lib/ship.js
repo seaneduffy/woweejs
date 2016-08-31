@@ -19,18 +19,22 @@ Ship.prototype.pitch = function(amount){
 	this.pitchAmount = amount;
 	if(Math.abs(this.pitchAmount) < .2) this.pitchAmount = 0;
 	this.displayObject.drx = Math.PI / 128 * this.pitchAmount;
+	this.changeVelocity(0)
 };
 
 Ship.prototype.yaw = function(amount){
 	this.yawAmount = amount;
 	if(Math.abs(this.yawAmount) < .2) this.yawAmount = 0;
 	this.displayObject.dry = Math.PI / 128 * this.yawAmount;
+	this.changeVelocity(0)
 };
 
 Ship.prototype.thrust = function(){
 	
-	this.changeSpeed(.01)
-
+	this.changeVelocity(.01)
+	
+	
+	/*
 	vec3.set(this.scratchVec, 1, 1, 1);
 
 	mat4.getRotation(this.scratchQuat, this.displayObject.transform);
@@ -39,7 +43,7 @@ Ship.prototype.thrust = function(){
 
 	vec3.scale(this.scratchVec, this.scratchVec, this.speed);
 	
-	vec3.add(this.displayObject.velocity, this.displayObject.velocity, this.scratchVec);
+	vec3.add(this.displayObject.velocity, this.displayObject.velocity, this.scratchVec);*/
 };
 
 Ship.prototype.barrel = function(amount){
@@ -50,20 +54,27 @@ Ship.prototype.barrel = function(amount){
 }
 
 Ship.prototype.brake = function(){
-	this.changeSpeed(-.01);
+	this.changeVelocity(-.01);
 
-	vec3.normalize(this.displayObject.velocity, this.displayObject.velocity);
-	vec3.scale(this.displayObject.velocity, this.displayObject.velocity, this.speed);
+	//vec3.normalize(this.displayObject.velocity, this.displayObject.velocity);
+	//vec3.scale(this.displayObject.velocity, this.displayObject.velocity, this.speed);
 };
 
-Ship.prototype.changeSpeed = function(amount){
+Ship.prototype.changeVelocity = function(amount){
+	
 	this.speed += amount;
+	
 	if(this.speed > this.topSpeed) {
 		this.speed = this.topSpeed;
 	}
 	else if(this.speed < 0) {
 		this.speed = 0;
 	}
+	
+	mat4.getRotation(this.scratchQuat, this.displayObject.transform);
+	quat.normalize(this.scratchQuat, this.scratchQuat);
+	vec3.transformQuat(this.displayObject.velocity, vec3.set(this.scratchVec, 0, 0, this.speed), this.scratchQuat);
+	
 };
 
 module.exports = Ship;

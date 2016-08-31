@@ -73,7 +73,6 @@ document.body.addEventListener( 'keydown', event => {
 		if(!!listeners[BARREL_LEFT] && !controls[BARREL_LEFT].active) {
 			controls[BARREL_LEFT].active = true;
 			listeners[BARREL_LEFT].forEach( func=>{
-				console.log('a');
 				func();
 			} );
 		}
@@ -81,7 +80,6 @@ document.body.addEventListener( 'keydown', event => {
 		if(!!listeners[BARREL_RIGHT] && !controls[BARREL_RIGHT].active) {
 			controls[BARREL_RIGHT].active = true;
 			listeners[BARREL_RIGHT].forEach( func=>{
-				console.log('d');
 				func();
 			} );
 		}
@@ -94,7 +92,6 @@ document.body.addEventListener( 'keyup', event => {
 		controls[BARREL_RIGHT].active = false;
 		if(!!listeners[STOP_BARREL]) {
 			listeners[STOP_BARREL].forEach( func=>{
-				console.log('c');
 				func();
 			} );
 		}

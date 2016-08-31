@@ -22,6 +22,7 @@ window.wowee = (function(){
 		window.Mesh = require('./lib/3d/display/mesh/mesh');
 		window.viewport = require('./lib/3d/scene/viewport')(root_element, stage_width, stage_height);
 		window.Cycle = require('./lib/animation/cycle');
+		window.Log = require('./lib/log');
 		Cycle.add(window.viewport.render.bind(window.viewport));
 		Cycle.setFrameRate(config.frame_rate || 20);
 		Cycle.start();
