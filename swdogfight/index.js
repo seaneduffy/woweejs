@@ -124,7 +124,7 @@
 			tie.yaw(0);
 		});		
 		Controller.on(Controller.THRUST, function(){
-			tie.thrust(tie.speed);
+			tie.thrust(tie.topSpeed);
 		});
 		Controller.on(Controller.THRUST_OFF, function(){
 			tie.thrust(0);

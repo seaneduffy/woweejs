@@ -11,12 +11,6 @@ let SceneNode = require('./sceneNode'),
 	Cycle = require('../../animation/cycle');
 
 const UP = vec3.fromValues(0, 1, 0);
-let LOG_CAMERA_POSITION_X = document.querySelector('#camera-position .x'),
-	LOG_CAMERA_POSITION_Y = document.querySelector('#camera-position .y'),
-	LOG_CAMERA_POSITION_Z = document.querySelector('#camera-position .z'),
-	LOG_CAMERA_FRONT_X = document.querySelector('#camera-front .x'),
-	LOG_CAMERA_FRONT_Y = document.querySelector('#camera-front .y'),
-	LOG_CAMERA_FRONT_Z = document.querySelector('#camera-front .z');
 
 function Camera(){
 	
@@ -135,26 +129,43 @@ Camera.prototype.follow = function(node, distance, marker) {
 }
 
 Camera.prototype.followMove = function() {
+
 	mat4.getRotation(this.scratchQuat, this.followNode.transform);
+
 	quat.normalize(this.scratchQuat, this.scratchQuat);
+
 	mat4.getTranslation(this.front, this.followNode.transform);
+
 	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.followDistance), this.scratchQuat);
-	
+
+	//this.scratchVec[1] = 0;
+
+	//vec3.normalize(this.scratchVec, this.scratchVec);
+
+	//vec3.scale(this.scratchVec, this.scratchVec, this.followDistance);
+
 	vec3.sub(this.targetPosition, this.front, this.scratchVec);
-	/*let d = vec3.distance(this.targetPosition, this.position);
-	if(d <= .03) {
+
+	vec3.copy(this.position, this.targetPosition);
+
+
+	Log.log('Target x', this.targetPosition[0]);
+	Log.log('Target y', this.targetPosition[1]);
+	Log.log('Target z', this.targetPosition[2]);
+
+/*
+	let d = vec3.distance(this.targetPosition, this.position);
+	if(d <= .3) {
 		vec3.copy(this.position, this.targetPosition);
 	} else {
 		vec3.sub(this.scratchVec, this.targetPosition, this.position);
 		vec3.normalize(this.scratchVec, this.scratchVec);
-		vec3.scale(this.scratchVec, this.scratchVec, .1);
+		vec3.scale(this.scratchVec, this.scratchVec, .35);
 		vec3.add(this.position, this.position, this.scratchVec);
 	}*/
-	vec3.copy(this.position, this.targetPosition);
-	vec3.transformQuat(this.up, this.up, this.scratchQuat);
 
 	
-
+/*
 	Log.log('Front x', this.front[0]);
 	Log.log('Front y', this.front[1]);
 	Log.log('Front z', this.front[2]);
@@ -163,9 +174,9 @@ Camera.prototype.followMove = function() {
 	Log.log('Target y', this.targetPosition[1]);
 	Log.log('Target z', this.targetPosition[2]);
 
-	Log.log('Camera x', this.position[0]);
+	Log.log('Camera x', this.position[0]);*/
 	Log.log('Camera y', this.position[1]);
-	Log.log('Camera z', this.position[2]);
+//	Log.log('Camera z', this.position[2]);
 
 	this.setView();
 	

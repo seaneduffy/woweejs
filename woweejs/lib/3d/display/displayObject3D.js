@@ -16,24 +16,9 @@ function DisplayObject3D() {
 
 	SceneNode.prototype.constructor.call(this);
 	
-	this.cycleMove = this.move.bind(this);
-	
-	Cycle.add(this.cycleMove);
-
 }
 
 DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
-	'velocity': {
-		get: function() {
-			if(!!this._velocity) {
-				return this._velocity;
-			}
-			return this._velocity = vec3.create();
-		},
-		set: function(v) {
-			vec3.copy(this._velocity, v);
-		}
-	},
 	'drx': {
 		get: function() {
 			if(!!this._drx) {
@@ -186,20 +171,6 @@ DisplayObject3D.prototype.render = function(camera){
 		//gl.drawElements(gl[shader.shapes], this.mesh.vertexIndices.length, gl.UNSIGNED_SHORT, 0);
 	});
 
-};
-
-DisplayObject3D.prototype.move = function() {
-	if(this.velocity[0] === 0 && this.velocity[1] === 0 && this.velocity[2] === 0 && this.drx === 0 && this.dry === 0 && this.drz === 0)
-		return;
-	vec3.add(this.translationVec, this.translationVec, this.velocity);
-	quat.rotateX(this.rotationQuat, this.rotationQuat, this.drx);
-	quat.rotateY(this.rotationQuat, this.rotationQuat, this.dry);
-	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.drz);
-	this.updateTransform();
-	
-	Log.log('Ship x', this.translationVec[0]);
-	Log.log('Ship y', this.translationVec[1]);
-	Log.log('Ship z', this.translationVec[2]);
 };
 
 module.exports = DisplayObject3D;
