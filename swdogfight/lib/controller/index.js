@@ -1,13 +1,19 @@
 'use strict';
 
 let PITCH = 'pitch',
-BARREL_LEFT = 'barrelleft',
-FORWARD = 'forward',
-YAW = 'yaw',
-BACK = 'back',
-BARREL_RIGHT = 'barrelright',
-BRAKE = 'brake',
-STOP_BARREL = 'stopbarrel',
+	PITCH_OFF = 'pitchoff',
+	YAW = 'yaw',
+	YAW_OFF = 'yawoff',
+	ROLL = 'roll',
+	ROLL_OFF = 'rolloff',
+	THRUST = 'thrust',
+	THRUST_OFF = 'thrustoff',
+	BRAKE = 'brake',
+	BRAKE_OFF = 'brakeoff',
+
+yawLimit = .2,
+
+pitchLimit = .2,
 
 listeners = {},
 
@@ -24,88 +30,94 @@ on = function( event, cb ) {
 function Control(label){
 	this.label = label;
 	this.active = false;
+	this.continuousActivation = false;
 }
 
-controls[BARREL_RIGHT] = new Control(BARREL_RIGHT);
-controls[BARREL_LEFT] = new Control(BARREL_LEFT);
+Control.prototype = Object.create(null, {});
 
-document.body.addEventListener( 'mousemove', event => {
-	let hw = viewport.width / 2,
-		hh = viewport.height / 2,
-		dmin = hw > hh ? hh : hw;
-	if(event.pageX > hw / 2) {
-		if(!!listeners[YAW])
-		listeners[YAW].forEach( func=> {
-			func(-(event.pageX - hw) / dmin);
-		});
-	} else {
-		if(!!listeners[YAW])
-		listeners[YAW].forEach( func=> {
-			func((hw - event.pageX) / dmin);
+Control.prototype.activate = function(a){
+	if((!this.active || this.continuousActivation) && !!listeners[this.label]) {
+		this.active = true;
+		listeners[this.label].forEach( func=> {
+			func(a);
 		});
 	}
-	if(event.pageY > hh / 2) {
-		if(!!listeners[PITCH])
-		listeners[PITCH].forEach( func=> {
-			func(-(event.pageY - hh) / dmin);
+}
+
+Control.prototype.deactivate = function(a){
+	if(this.active && !!listeners[this.label+'off']) {
+		this.active = false;
+
+		listeners[this.label+'off'].forEach( func=> {
+			func(a);
 		});
+	}
+}
+
+controls[PITCH] = new Control(PITCH);
+controls[PITCH].continuousActivation = true;
+controls[YAW] = new Control(YAW);
+controls[YAW].continuousActivation = true;
+controls[ROLL] = new Control(ROLL);
+controls[THRUST] = new Control(THRUST);
+controls[BRAKE] = new Control(BRAKE);
+
+document.body.addEventListener( 'mousemove', event => {
+	let per = event.pageX / viewport.width,
+		amount = null;
+
+	per = per > 1 ? 1 : per;
+	per = per < 0 ? 0 : per;
+	amount = per - .5;
+	if(Math.abs(amount) > yawLimit) {
+		controls[YAW].activate(amount);
 	} else {
-		if(!!listeners[PITCH])
-		listeners[PITCH].forEach( func=> {
-			func((hh - event.pageY) / dmin);
-		});
+		controls[YAW].deactivate();
+	}
+
+	per = event.pageY / viewport.height;
+	per = per > 1 ? 1 : per;
+	per = per < 0 ? 0 : per;
+	amount = per - .5;
+	if(Math.abs(amount) > pitchLimit) {
+		controls[PITCH].activate(amount);
+	} else {
+		controls[PITCH].deactivate();
 	}
 });
 
 document.body.addEventListener( 'keydown', event => {
-
 	if(event.code === 'KeyW') {
-		if(!!listeners[FORWARD])
-		listeners[FORWARD].forEach( func=>{
-			func();
-		} );
+		controls[THRUST].activate();
 	} else if(event.code === 'KeyS') {
-		if(!!listeners[BRAKE])
-		listeners[BRAKE].forEach( func=>{
-			func();
-		} );
+		controls[BRAKE].activate();
 	} else if(event.code === 'KeyA') {
-		if(!!listeners[BARREL_LEFT] && !controls[BARREL_LEFT].active) {
-			controls[BARREL_LEFT].active = true;
-			listeners[BARREL_LEFT].forEach( func=>{
-				func();
-			} );
-		}
+		controls[ROLL].activate(-1);
 	} else if(event.code === 'KeyD') {
-		if(!!listeners[BARREL_RIGHT] && !controls[BARREL_RIGHT].active) {
-			controls[BARREL_RIGHT].active = true;
-			listeners[BARREL_RIGHT].forEach( func=>{
-				func();
-			} );
-		}
+		controls[ROLL].activate(1);
 	}
 });
 
 document.body.addEventListener( 'keyup', event => {
 	if(event.code === 'KeyA' || event.code === 'KeyD') {
-		controls[BARREL_LEFT].active = false;
-		controls[BARREL_RIGHT].active = false;
-		if(!!listeners[STOP_BARREL]) {
-			listeners[STOP_BARREL].forEach( func=>{
-				func();
-			} );
-		}
+		controls[ROLL].deactivate();
+	} else if(event.code === 'KeyW') {
+		controls[THRUST].deactivate();
+	} else if(event.code === 'KeyS') {
+		controls[BRAKE].deactivate();
 	}
 });
 
 module.exports = {
 	on: on,
 	PITCH: PITCH,
-	BARREL_LEFT: BARREL_LEFT,
-	FORWARD: FORWARD,
+	PITCH_OFF: PITCH_OFF,
 	YAW: YAW,
-	BACK: BACK,
-	BARREL_RIGHT: BARREL_RIGHT,
+	YAW_OFF: YAW_OFF,
+	ROLL: ROLL,
+	ROLL_OFF: ROLL_OFF,
+	THRUST: THRUST,
+	THRUST_OFF: THRUST_OFF,
 	BRAKE: BRAKE,
-	STOP_BARREL: STOP_BARREL
+	BRAKE_OFF: BRAKE_OFF
 };

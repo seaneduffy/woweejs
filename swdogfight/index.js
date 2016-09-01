@@ -114,22 +114,28 @@
 		Controller.on(Controller.PITCH, function(amount){
 			tie.pitch(amount);
 		});
+		Controller.on(Controller.PITCH_OFF, function(){
+			tie.pitch(0);
+		});
 		Controller.on(Controller.YAW, function(amount){
 			tie.yaw(amount);
 		});
-		Controller.on(Controller.FORWARD, function(){
-			tie.thrust();
+		Controller.on(Controller.YAW_OFF, function(){
+			tie.yaw(0);
+		});		
+		Controller.on(Controller.THRUST, function(){
+			tie.thrust(tie.speed);
+		});
+		Controller.on(Controller.THRUST_OFF, function(){
+			tie.thrust(0);
 		});
 		Controller.on(Controller.BRAKE, function(){
-			tie.brake();
+			tie.thrust(-tie.speed);
 		});
-		Controller.on(Controller.BARREL_RIGHT, function(){
-			tie.barrel(1);
+		Controller.on(Controller.ROLL, function(amount){
+			tie.barrel(amount);
 		});
-		Controller.on(Controller.BARREL_LEFT, function(){
-			tie.barrel(-1);
-		});
-		Controller.on(Controller.STOP_BARREL, function(){
+		Controller.on(Controller.ROLL_OFF, function(){
 			tie.barrel(0);
 		});
 	

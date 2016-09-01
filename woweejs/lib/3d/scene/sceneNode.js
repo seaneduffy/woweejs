@@ -178,7 +178,6 @@ Object.defineProperties(SceneNode.prototype, {
 
 SceneNode.prototype.rotateX = function(rad) {
 	quat.rotateX(this.rotationQuat, this.rotationQuat, rad);
-	console.log(this.rotationQuat);
 	this.updateTransform();
 };
 

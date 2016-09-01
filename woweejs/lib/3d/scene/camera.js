@@ -139,62 +139,35 @@ Camera.prototype.followMove = function() {
 	quat.normalize(this.scratchQuat, this.scratchQuat);
 	mat4.getTranslation(this.front, this.followNode.transform);
 	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.followDistance), this.scratchQuat);
+	
 	vec3.sub(this.targetPosition, this.front, this.scratchVec);
-	vec3.copy(this.position, this.targetPosition);
-	this.setView();
-	/*let rotX = Math.acos(this.scratchQuat[1])*2;
-	let rotY = Math.acos(this.scratchQuat[2])*2;
-	let rotZ = Math.acos(this.scratchQuat[3])*2;
-	Log.log('Camera rotation X', rotX * 180 / Math.PI);
-	Log.log('Camera rotation Y', rotY * 180 / Math.PI);
-	Log.log('Camera rotation Z', rotZ * 180 / Math.PI);
-	
-	mat4.copy(this.scratchMat, this.followNode.transform);
-	mat4.getTranslation(this.front, this.scratchMat);
-	mat4.getRotation(this.scratchQuat, this.scratchMat);
-	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, 1), this.scratchQuat);
-	vec3.sub(this.scratchVec, this.scratchVec, this.front);
-	this.scratchVec[1] = this.front[1];
-	vec3.normalize(this.scratchVec, this.scratchVec);
-	vec3.scale(this.targetPosition, this.scratchVec, this.followDistance);
-	vec3.copy(this.position, this.targetPosition);
-	let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
-	if(distance <= .03) {
+	/*let d = vec3.distance(this.targetPosition, this.position);
+	if(d <= .03) {
 		vec3.copy(this.position, this.targetPosition);
-		return;
-	}
-	vec3.sub(this.scratchVec, this.targetPosition, this.position);
-	vec3.scale(this.scratchVec, this.scratchVec, .08);
-	vec3.add(this.position, this.scratchVec, this.position);*/
-	
-	/*mat4.translate(this.scratchMat, this.scratchMat, vec3.set(this.scratchVec, 0, 0, -1));
-	mat4.getTranslation(this.targetPosition, this.scratchMat);
-	this.targetPosition[1] = 0;
-	vec3.normalize(this.targetPosition, this.targetPosition);
-	vec3.scale(this.targetPosition, this.targetPosition, this.followDistance);
-	
-	console.log(distance);
-	mat4.getRotation(this.scratchQuat, this.scratchMat);
-	vec3.set(this.scratchVec, 0,1,0);
-	let rad = quat.getAxisAngle(this.scratchVec, this.scratchQuat);
-	mat4.rotateY(this.scratchMat, this.scratchMat, -rad);
-	
-	this.targetPosition[1] = 0;
+	} else {
+		vec3.sub(this.scratchVec, this.targetPosition, this.position);
+		vec3.normalize(this.scratchVec, this.scratchVec);
+		vec3.scale(this.scratchVec, this.scratchVec, .1);
+		vec3.add(this.position, this.position, this.scratchVec);
+	}*/
 	vec3.copy(this.position, this.targetPosition);
-	
-	let distance = Math.abs(vec3.distance(this.position, this.targetPosition));
+	vec3.transformQuat(this.up, this.up, this.scratchQuat);
 
-	mat4.translate(this.scratchMat, this.followNode.transform, [this.front[0], this.front[1], this.front[2]+1]);
-	mat4.getTranslation(this.scratchVec, this.followNode.transform);
-	mat4.getTranslation(this.up, this.scratchMat);
-	vec3.cross(this.up, this.up, this.front);
-	console.log(this.front, this.up);
-	vec3.normalize(this.up, this.up);
 	
-	vec3.rotateX(this.up, UP, this.followNode.translationVec, this.followNode.rotationX);
-	vec3.rotateY(this.up, UP, this.followNode.translationVec, this.followNode.rotationY);
-	vec3.rotateZ(this.up, UP, this.followNode.translationVec, this.followNode.rotationZ);
-	vec3.normalize(this.up, this.up);*/
+
+	Log.log('Front x', this.front[0]);
+	Log.log('Front y', this.front[1]);
+	Log.log('Front z', this.front[2]);
+
+	Log.log('Target x', this.targetPosition[0]);
+	Log.log('Target y', this.targetPosition[1]);
+	Log.log('Target z', this.targetPosition[2]);
+
+	Log.log('Camera x', this.position[0]);
+	Log.log('Camera y', this.position[1]);
+	Log.log('Camera z', this.position[2]);
+
+	this.setView();
 	
 }
 
