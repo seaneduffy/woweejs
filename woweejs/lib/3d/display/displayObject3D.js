@@ -6,15 +6,16 @@ let glm = require('gl-matrix'),
 	quat = glm.quat,
 	load = require('../../async/load'),
 	SceneNode = require('../../3d/scene/sceneNode'),
-	Mesh = require('../../3d/display/mesh/mesh'),
+	Mesh = require('../../3d/display/mesh'),
 	TextureShader = require('../../3d/display/shaders/texture'),
 	ColorShader = require('../../3d/display/shaders/color'),
-	viewport = require('../../3d/scene/viewport')(),
+	viewport = require('../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl;
 
 function DisplayObject3D() {
 
 	SceneNode.prototype.constructor.call(this);
+	this.shaders = [];
 	
 }
 
@@ -58,28 +59,6 @@ DisplayObject3D.prototype.constructor = DisplayObject3D;
 
 DisplayObject3D.prototype.addShader = function(s) {
 	this.shaders.push(s);
-}
-
-DisplayObject3D.prototype.initBuffers = function(){
-	
-	if(this.mesh == null || typeof this.mesh === 'undefined') {
-		return;
-	}
-
-	if(this.vertexBuffer == null || this.vertexBuffer === 'undefined') {
-		this.vertexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.mesh.vertices), gl.STATIC_DRAW);
-		this.indexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.mesh.vertexIndices), gl.STATIC_DRAW);
-	}
-	
-	if(!!this.texture && !!this.mesh.texels && (this.textureBuffer == null || this.textureBuffer === 'undefined')) {
-		this.textureBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.mesh.texels), gl.STATIC_DRAW);
-	}
 }
 
 DisplayObject3D.prototype.render = function(camera){

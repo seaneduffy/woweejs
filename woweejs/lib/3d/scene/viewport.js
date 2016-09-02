@@ -94,26 +94,28 @@ Viewport.prototype.render = function(){
 	});
 };
 
-module.exports = function(root, width, height){
-	
-	vp = vp || new Viewport();
-	
-	if(!!root) {
-		vp.root = root;
-	}
-	if(!!width) {
-		vp.width = width;
-	}
-	if(!!height) {
-		vp.height = height;
-	}
-
-	return vp;
-};
-
 function flattenChildTree(out, arr) {
 	arr.forEach( child => {
 		out.push(child);
 		flattenChildTree(out, child.children);
 	});
 }
+
+module.exports = {
+	getViewport: function(root, width, height){
+		
+		vp = vp || new Viewport();
+		
+		if(!!root) {
+			vp.root = root;
+		}
+		if(!!width) {
+			vp.width = width;
+		}
+		if(!!height) {
+			vp.height = height;
+		}
+
+		return vp;
+	}	
+};

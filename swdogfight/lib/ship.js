@@ -3,7 +3,9 @@
 let glm = require('gl-matrix'),
 	vec3 = glm.vec3,
 	quat = glm.quat,
-	mat4 = glm.mat4;
+	mat4 = glm.mat4,
+	Cycle = wowee.Cycle,
+	Log = wowee.Log;
 
 function Ship() {
 	

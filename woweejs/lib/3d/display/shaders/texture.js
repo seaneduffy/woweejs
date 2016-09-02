@@ -1,6 +1,6 @@
 'use strict';
 
-let viewport = require('../../../3d/scene/viewport')(),
+let viewport = require('../../../3d/scene/viewport').getViewport(),
 	Shader = require('../../../3d/display/shaders/shader'),
 	gl = viewport.gl;
 	
@@ -22,7 +22,7 @@ void main(void) {\
 	gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
 }';
 
-function Texture(image) {
+function TextureShader() {
 	Shader.prototype.constructor.call(this);
 	this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(this.vertexShader, vertexShaderSource);
@@ -42,17 +42,10 @@ function Texture(image) {
 	gl.enableVertexAttribArray(this.vertexPositionAttribute);
 	this.textureCoordAttribute = gl.getAttribLocation(this.program, "aTextureCoord");
 	gl.enableVertexAttribArray(this.textureCoordAttribute);
-	
-	this.texture = gl.createTexture();
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-	gl.generateMipmap(gl.TEXTURE_2D);
-	gl.bindTexture(gl.TEXTURE_2D, null);
-	
+
+	this.shapes = gl.TRIANGLES;
 }
 
-Texture.prototype = Object.create(Shader.prototype);
-Texture.prototype.constructor = Texture;
-module.exports = Texture;
+TextureShader.prototype = Object.create(Shader.prototype);
+TextureShader.prototype.constructor = TextureShader;
+module.exports = TextureShader;

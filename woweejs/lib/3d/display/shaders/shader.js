@@ -2,7 +2,8 @@
 
 let shaderIdCounter = 0;
 
-function Shader() {
+function Shader(shapes) {
+	this.shapes = shapes;
 	this.id = shaderIdCounter++;
 }
 

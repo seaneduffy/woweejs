@@ -5,7 +5,7 @@
 	let Controller = require('./lib/controller'),
 		Ship = require('./lib/ship');
 	
-	let game = wowee({
+	let game = wowee.init({
 		root: document.getElementById("game"), 
 		width: 900, 
 		height: 600,
@@ -14,32 +14,48 @@
 		material_path: "/"
 	});
 
+	let Texture = wowee.Texture,
+		TextureShader = wowee.TextureShader,
+		ColorShader = wowee.ColorShader,
+		DisplayObject3D = wowee.DisplayObject3D,
+		Mesh = wowee.Mesh,
+		Graphics = wowee.Graphics,
+		Camera = wowee.Camera,
+		Cycle = wowee.Cycle,
+		viewport = wowee.Viewport.getViewport(),
+		gl = viewport.gl;
+
 	let markerCountX = 5,
 		markerCountZ = 5,
 		markerDimensions = 200;
 	
 	let tie = new Ship(),
-		tieTexture = new Texture();
+		textureShader = new TextureShader(),
+		tieTexture = null,
+		tieMesh = null,
+		whiteShader = new ColorShader(1.0, 1.0, 1.0, 1.0, gl.LINES),
+		redShader = new ColorShader(1.0, 0, 0, 1.0, gl.LINES),
+		greenShader = new ColorShader(0, 1.0, 0, 1.0, gl.LINES),
+		blueShader = new ColorShader(0, 0, 1.0, 1.0, gl.LINES);
 
-	tie.displayObject = new DisplayObject3D();
-	tie.displayObject.init({
-		isPlane: false,
-		mesh: '/tie.json',
-		material: '/tie_fighter.png',
-		shaders: [
-			{
-				type: 'texture',
-				shapes: 'TRIANGLES'
-			}
-		],
-		id: 'tie'
-	}).then(function(){
+	Mesh.load('/tie.json')
+	.then(function(mesh){
+		tieMesh = mesh;
+		return Texture.load('/tie_fighter.png');
+	})
+	.then(function(tex) {
+		tieTexture = tex;
 		let camera = new Camera(1080, 720);
 		viewport.camera = camera;
+		tie.displayObject = new DisplayObject3D();
+		tie.displayObject.addShader(textureShader);
+		tie.displayObject.texture = tieTexture;
+		tie.displayObject.mesh = tieMesh;
 		viewport.addChild(tie.displayObject);
 		camera.follow(tie.displayObject, 5);
 		initMarkers();
 		initController();
+		Cycle.start();
 	});
 
 	function initController(){
@@ -80,39 +96,9 @@
 		for(let j=0; j<markerCountZ; j++) {
 
 			marker = new Graphics();
-			marker.drawLine(
-				[[0,0,0],[.5,0,0]],
-				{
-					type: 'color',
-					shapes: 'LINES',
-					r: .6,
-					g: 0.0,
-					b: 0.0,
-					a: 1.0
-				}
-			);
-			marker.drawLine(
-				[[0,0,0],[0,.5,0]],
-				{
-					type: 'color',
-					shapes: 'LINES',
-					r: 0.0,
-					g: .6,
-					b: 0.0,
-					a: 1.0
-				}
-			);
-			marker.drawLine(
-				[[0,0,0],[0,0,.5]],
-				{
-					type: 'color',
-					shapes: 'LINES',
-					r: 0,
-					g: 0.0,
-					b: .6,
-					a: 1.0
-				}
-			);
+			marker.drawLine([[0,0,0],[.5,0,0]],redShader);
+			marker.drawLine([[0,0,0],[0,.5,0]],greenShader);
+			marker.drawLine([[0,0,0],[0,0,.5]],blueShader);
 
 			marker.x = -markerDimensions / 2 + markerDimensions / markerCountX * i;
 			marker.z = -markerDimensions / 2 + markerDimensions / markerCountZ * j;

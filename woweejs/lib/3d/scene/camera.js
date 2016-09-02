@@ -8,7 +8,8 @@ let SceneNode = require('./sceneNode'),
 	vec3 = glm.vec3,
 	mat4 = glm.mat4,
 	quat = glm.quat,
-	Cycle = require('../../animation/cycle');
+	Cycle = require('../../animation/cycle'),
+	Log = require('../../log');
 
 const UP = vec3.fromValues(0, 1, 0);
 

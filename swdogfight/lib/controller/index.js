@@ -1,6 +1,7 @@
 'use strict';
 
-let PITCH = 'pitch',
+let viewport = wowee.Viewport.getViewport(),
+	PITCH = 'pitch',
 	PITCH_OFF = 'pitchoff',
 	YAW = 'yaw',
 	YAW_OFF = 'yawoff',

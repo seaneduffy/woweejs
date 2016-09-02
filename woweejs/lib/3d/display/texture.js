@@ -1,26 +1,34 @@
 'use strict';
 
-let load = require('../../../async/load');
+let load = require('../../async/load'),
+	Viewport = require('../../3d/scene/viewport'),
+	textures = {},
+	gl = null;
 
-function Texture() {
-	this.materialLoaded = false;
-}
+function loadTexture(src){
 
-Texture.prototype = Object.create(null);
-
-Texture.prototype.load = function(src){
+	if(gl == null) {
+		gl = Viewport.getViewport().gl;
+	}
 
 	return new Promise((resolve, reject)=>{
-		if(this.materialLoaded === src) {
-			resolve();
-			return;
+		if(!!textures[src]) {
+			resolve(textures[src]);
 		}
 		load(src, 'image').then(image=>{
-			this.material = image;
-			this.materialLoaded = src;
-			resolve();
+			let t = gl.createTexture();
+			gl.bindTexture(gl.TEXTURE_2D, t);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			gl.generateMipmap(gl.TEXTURE_2D);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+			textures[src] = t;
+			resolve(t);
 		});
 	});
 }
 
-module.exports = Texture;
+module.exports = {
+	load: loadTexture
+}

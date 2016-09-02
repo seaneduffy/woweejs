@@ -1,6 +1,6 @@
 'use strict';
 
-let viewport = require('../../../3d/scene/viewport')(),
+let viewport = require('../../../3d/scene/viewport').getViewport(),
 	Shader = require('../../../3d/display/shaders/shader'),
 	gl = viewport.gl;
 	
@@ -18,28 +18,9 @@ var fragmentShaderSource =
 }';
 
 
-var vertexShaderSource1 = 
-'attribute vec3 aVertexPosition;\
-attribute vec2 aTextureCoord;\
-uniform mat4 uMVMatrix;\
-uniform mat4 uPMatrix;\
-varying highp vec2 vTextureCoord;\
-void main(void) {\
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\
-	vTextureCoord = aTextureCoord;\
-}';
+function ColorShader(r, g, b, a, shapes) {
 
-var fragmentShaderSource1 = 
-'varying highp vec2 vTextureCoord;\
-uniform sampler2D uSampler;\
-void main(void) {\
-	gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\
-}';
-
-
-function ColorShader(r, g, b, a) {
-
-	Shader.prototype.constructor.call(this);
+	Shader.prototype.constructor.call(this, shapes);
 	
 	this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
     
