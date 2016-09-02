@@ -1,5 +1,7 @@
 'use strict';
+
 (function(){
+
 	let Controller = require('./lib/controller'),
 		Ship = require('./lib/ship');
 	
@@ -11,85 +13,14 @@
 		background: "black",
 		material_path: "/"
 	});
-	
-	let tie = new Ship();
-	
-	
 
-	/*tie.displayObject = new Graphics();
-	tie.displayObject.drawLine(
-		[[0,0,0],[1,0,0]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: 1.0,
-			g: 0.0,
-			b: 0.0,
-			a: 1.0
-		}
-	);
-	tie.displayObject.drawLine(
-		[[0,0,0],[0,1,0]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: 0.0,
-			g: 1.0,
-			b: 0.0,
-			a: 1.0
-		}
-	);
-	tie.displayObject.drawLine(
-		[[0,0,0],[0,0,1]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: 0.0,
-			g: 0.0,
-			b: 1.0,
-			a: 1.0
-		}
-	);*/
-
-	let origin = new Graphics();
-	origin.drawLine(
-		[[0,0,0],[.5,0,0]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: .6,
-			g: 0.0,
-			b: 0.0,
-			a: 1.0
-		}
-	);
-	origin.drawLine(
-		[[0,0,0],[0,.5,0]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: 0.0,
-			g: .6,
-			b: 0.0,
-			a: 1.0
-		}
-	);
-	origin.drawLine(
-		[[0,0,0],[0,0,.5]],
-		{
-			type: 'color',
-			shapes: 'LINES',
-			r: 0,
-			g: 0.0,
-			b: .6,
-			a: 1.0
-		}
-	);
-
+	let markerCountX = 5,
+		markerCountZ = 5,
+		markerDimensions = 200;
 	
-		
-		
-	
+	let tie = new Ship(),
+		tieTexture = new Texture();
+
 	tie.displayObject = new DisplayObject3D();
 	tie.displayObject.init({
 		isPlane: false,
@@ -102,15 +33,16 @@
 			}
 		],
 		id: 'tie'
-	});
-	
-	let camera = new Camera(1080, 720);
+	}).then(function(){
+		let camera = new Camera(1080, 720);
 		viewport.camera = camera;
 		viewport.addChild(tie.displayObject);
-		viewport.addChild(origin);
-		
 		camera.follow(tie.displayObject, 5);
-		
+		initMarkers();
+		initController();
+	});
+
+	function initController(){
 		Controller.on(Controller.PITCH, function(amount){
 			tie.pitch(amount);
 		});
@@ -138,8 +70,61 @@
 		Controller.on(Controller.ROLL_OFF, function(){
 			tie.barrel(0);
 		});
+	}
+
+	function initMarkers(){
+
+		let marker = null;
+
+		for(let i = 0; i<markerCountX; i++) {
+		for(let j=0; j<markerCountZ; j++) {
+
+			marker = new Graphics();
+			marker.drawLine(
+				[[0,0,0],[.5,0,0]],
+				{
+					type: 'color',
+					shapes: 'LINES',
+					r: .6,
+					g: 0.0,
+					b: 0.0,
+					a: 1.0
+				}
+			);
+			marker.drawLine(
+				[[0,0,0],[0,.5,0]],
+				{
+					type: 'color',
+					shapes: 'LINES',
+					r: 0.0,
+					g: .6,
+					b: 0.0,
+					a: 1.0
+				}
+			);
+			marker.drawLine(
+				[[0,0,0],[0,0,.5]],
+				{
+					type: 'color',
+					shapes: 'LINES',
+					r: 0,
+					g: 0.0,
+					b: .6,
+					a: 1.0
+				}
+			);
+
+			marker.x = -markerDimensions / 2 + markerDimensions / markerCountX * i;
+			marker.z = -markerDimensions / 2 + markerDimensions / markerCountZ * j;
+			viewport.addChild(marker);
+		}
+	}
+	}
 	
-	/*let tie2 = new DisplayObject3D({
+}());
+
+
+/*let tie2 = new DisplayObject3D({
 			isPlane: false,
 			mesh: '/tie.json',
 			material: '/tie_fighter.png',
@@ -223,5 +208,3 @@
 		
 	});
 	*/
-	
-}());

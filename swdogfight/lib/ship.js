@@ -11,7 +11,7 @@ function Ship() {
 	this.yawAmount = 0;
 	this.speed = 0;
 	this.topSpeed = .05;
-	this.turnSpeed = Math.PI / 180 * 45;
+	this.turnSpeed = Math.PI / 180 * 5;
 	this.barrelSpeed = Math.PI / 180;
 	this.scratchVec = vec3.create();
 	this.scratchVec2 = vec3.create();
@@ -80,6 +80,7 @@ Ship.prototype.move = function() {
 	vec3.rotateY(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.speed), vec3.set(this.scratchVec2, 0, 0, 0), this.yawAmount);
 	
 	quat.rotateY(this.displayObject.rotationQuat, this.displayObject.rotationQuat, vec3.angle(this.velocity, this.scratchVec));
+	Log.log('yaw ', this.yawAmount);
 	Log.log('rot ', vec3.angle(this.scratchVec, this.velocity) * 180 / Math.PI);
 
 	vec3.add(this.velocity, this.velocity, this.scratchVec);
@@ -90,9 +91,11 @@ Ship.prototype.move = function() {
 		vec3.normalize(this.velocity, this.velocity);
 		vec3.scale(this.velocity,this.velocity, this.topSpeed);
 	}
-	Log.log('scratchVec ', this.scratchVec);
+	//Log.log('scratchVec ', this.scratchVec);
 
-	Log.log('velocity ', this.velocity);
+	Log.log('velocity X', this.velocity[0]);
+	Log.log('velocity Y', this.velocity[1]);
+	Log.log('velocity Z', this.velocity[2]);
 	
 
 

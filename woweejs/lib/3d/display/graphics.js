@@ -14,8 +14,10 @@ function Graphics() {
 Graphics.prototype = Object.create(DisplayObject3D.prototype);
 
 Graphics.prototype.constructor = Graphics;
-
+let counter = 0;
 Graphics.prototype.initShader = function(obj) {
+	counter++;
+	console.log(counter);
 	let shader = null;
 	if(obj.type === 'color') {
 		shader = new ColorShader(obj.r, obj.g, obj.b, obj.a);
