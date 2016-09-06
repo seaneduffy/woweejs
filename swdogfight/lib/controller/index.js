@@ -12,9 +12,9 @@ let viewport = wowee.Viewport.getViewport(),
 	BRAKE = 'brake',
 	BRAKE_OFF = 'brakeoff',
 
-yawLimit = .2,
+yawLimit = .05,
 
-pitchLimit = .2,
+pitchLimit = .05,
 
 listeners = {},
 

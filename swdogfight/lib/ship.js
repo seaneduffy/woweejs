@@ -12,16 +12,16 @@ function Ship() {
 
 	this.translationNode = new DisplayObject3D();
 	this.rotationNode = new DisplayObject3D();
-	this.displayObject = new DisplayObject3D();
+	//this.displayObject = new DisplayObject3D();
 
 	this.translationNode.addChild(this.rotationNode);
-	this.rotationNode.addChild(this.displayObject);
+	//this.rotationNode.addChild(this.displayObject);
 	
 	this.pitchAmount = 0;
 	this.yawAmount = 0;
 	this.speed = 0;
-	this.topSpeed = .2;
-	this.turnSpeed = Math.PI / 180 * 45;
+	this.topSpeed = .05;
+	this.turnSpeed = Math.PI / 180 * 10;
 	this.barrelSpeed = Math.PI / 180;
 	this.scratchVec = vec3.create();
 	this.scratchVec2 = vec3.create();
@@ -81,7 +81,7 @@ Ship.prototype.barrel = function(amount){
 	//mat4.rotateZ(this.displayObject.localTransform, this.displayObject.localTransform, 2 * Math.PI * amount);
 	//mat4.translate(this.displayObject.localTransform, this.displayObject.localTransform, vec3.set(this.scratchVec, amount, 0, 0));
 }
-var c = 0;
+
 Ship.prototype.move = function() {
 	
 	let d = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0)),
@@ -92,6 +92,12 @@ Ship.prototype.move = function() {
 		vec3.set(this.scratchVec, 0, 0, this.speed);
 	} else {
 		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0)), this.speed);
+	}
+
+	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
+
+	if(d === 0 && this.speed === 0) {
+		return;
 	}
 
 	vec3.rotateY(this.scratchVec, this.scratchVec, this.velocity, this.yawAmount);
