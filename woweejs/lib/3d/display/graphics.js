@@ -21,6 +21,7 @@ Graphics.prototype.drawLine = function(points, shader){
 	let graphicsObj = {
 		vertexBuffer : gl.createBuffer(),
 		indexBuffer : gl.createBuffer(),
+		texelsBuffer : gl.createBuffer(),
 		vertices : [],
 		vertexIndices : [],
 		shader: shader
@@ -43,18 +44,16 @@ Graphics.prototype.drawLine = function(points, shader){
 Graphics.prototype.render = function(camera){
 
 	this.graphics.forEach( graphic => {
-		
+
+		//this.switchPrograms(graphic.shader.program);
+
+		gl.enableVertexAttribArray(graphic.shader.vertexPositionAttribute);
+
 		gl.useProgram(graphic.shader.program);
+
 		gl.bindBuffer(gl.ARRAY_BUFFER, graphic.vertexBuffer);
 		gl.vertexAttribPointer(graphic.shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-		if(!!graphic.shader.texture) {
-			gl.bindBuffer(gl.ARRAY_BUFFER, graphic.textureBuffer);
-			gl.vertexAttribPointer(graphic.shader.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);			
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, graphic.shader.texture);
-		}
-		gl.uniform1i(gl.getUniformLocation(graphic.shader.program, "uSampler"), 0);
+		gl.uniform1f(gl.getUniformLocation(graphic.shader.program, "uSampler"), 0);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, graphic.indexBuffer);
 
 		var pUniform = gl.getUniformLocation(graphic.shader.program, "uPMatrix");
@@ -62,7 +61,9 @@ Graphics.prototype.render = function(camera){
 
 		var mvUniform = gl.getUniformLocation(graphic.shader.program, "uMVMatrix");
 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
-		gl.drawArrays(gl[graphic.shader.shapes], 0, graphic.vertexIndices.length);
+		gl.drawArrays(graphic.shader.shapes, 0, graphic.vertexIndices.length);
+
+		gl.disableVertexAttribArray(graphic.shader.vertexPositionAttribute);
 	});
 
 };

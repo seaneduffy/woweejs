@@ -5,11 +5,11 @@ let viewport = require('../../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl;
 	
 var vertexShaderSource = 
-'attribute vec3 aVertexPosition;\
+'attribute vec3 aVertexPosition%ID;\
 uniform mat4 uMVMatrix;\
 uniform mat4 uPMatrix;\
 void main(void) {\
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition%ID, 1.0);\
 }';
 
 var fragmentShaderSource = 
@@ -24,7 +24,7 @@ function ColorShader(r, g, b, a, shapes) {
 	
 	this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
     
-    gl.shaderSource(this.vertexShader, vertexShaderSource);
+    gl.shaderSource(this.vertexShader, vertexShaderSource.replace(new RegExp(/\%ID/g), this.id+''));
 	
 	gl.compileShader(this.vertexShader);
 	
@@ -44,9 +44,7 @@ function ColorShader(r, g, b, a, shapes) {
 
 	gl.linkProgram(this.program);
 	
-	this.vertexPositionAttribute = gl.getAttribLocation(this.program, "aVertexPosition");
-	
-	gl.enableVertexAttribArray(this.vertexPositionAttribute);
+	this.vertexPositionAttribute = gl.getAttribLocation(this.program, "aVertexPosition"+this.id);
 }
 
 ColorShader.prototype = Object.create(Shader.prototype);

@@ -5,14 +5,14 @@ let viewport = require('../../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl;
 	
 var vertexShaderSource = 
-'attribute vec3 aVertexPosition;\
-attribute vec2 aTextureCoord;\
+'attribute vec3 aVertexPosition%ID;\
+attribute vec2 aTextureCoord%ID;\
 uniform mat4 uMVMatrix;\
 uniform mat4 uPMatrix;\
 varying highp vec2 vTextureCoord;\
 void main(void) {\
-	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);\
-	vTextureCoord = aTextureCoord;\
+	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition%ID, 1.0);\
+	vTextureCoord = aTextureCoord%ID;\
 }';
 
 var fragmentShaderSource = 
@@ -25,7 +25,7 @@ void main(void) {\
 function TextureShader() {
 	Shader.prototype.constructor.call(this);
 	this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(this.vertexShader, vertexShaderSource);
+    gl.shaderSource(this.vertexShader, vertexShaderSource.replace(new RegExp(/\%ID/g), this.id+''));
 	gl.compileShader(this.vertexShader);
 	
 	this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -38,10 +38,10 @@ function TextureShader() {
 
 	gl.linkProgram(this.program);
 	
-	this.vertexPositionAttribute = gl.getAttribLocation(this.program, "aVertexPosition");
-	gl.enableVertexAttribArray(this.vertexPositionAttribute);
-	this.textureCoordAttribute = gl.getAttribLocation(this.program, "aTextureCoord");
-	gl.enableVertexAttribArray(this.textureCoordAttribute);
+	this.vertexPositionAttribute = gl.getAttribLocation(this.program, "aVertexPosition"+this.id);
+	//gl.enableVertexAttribArray(this.vertexPositionAttribute);
+	this.textureCoordAttribute = gl.getAttribLocation(this.program, "aTextureCoord"+this.id);
+	//gl.enableVertexAttribArray(this.textureCoordAttribute);
 
 	this.shapes = gl.TRIANGLES;
 }

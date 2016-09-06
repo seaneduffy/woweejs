@@ -21,10 +21,13 @@ Mesh.prototype.initBuffers = function(){
 		this.indexBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.vertexIndices), gl.STATIC_DRAW);
+		window.vertexBuffer = this.vertexBuffer;
+		window.indexBuffer = this.indexBuffer;
 	}
 	
-	if(!!this.texture && !!this.texels && (this.textureBuffer == null || this.textureBuffer === 'undefined')) {
+	if(!!this.texels && (this.textureBuffer == null || this.textureBuffer === 'undefined')) {
 		this.textureBuffer = gl.createBuffer();
+		window.textureBuffer = this.textureBuffer;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texels), gl.STATIC_DRAW);
 	}

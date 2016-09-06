@@ -5,15 +5,23 @@ let glm = require('gl-matrix'),
 	quat = glm.quat,
 	mat4 = glm.mat4,
 	Cycle = wowee.Cycle,
-	Log = wowee.Log;
+	Log = wowee.Log,
+	DisplayObject3D = wowee.DisplayObject3D;
 
 function Ship() {
+
+	this.translationNode = new DisplayObject3D();
+	this.rotationNode = new DisplayObject3D();
+	this.displayObject = new DisplayObject3D();
+
+	this.translationNode.addChild(this.rotationNode);
+	this.rotationNode.addChild(this.displayObject);
 	
 	this.pitchAmount = 0;
 	this.yawAmount = 0;
 	this.speed = 0;
-	this.topSpeed = .05;
-	this.turnSpeed = Math.PI / 180 * 5;
+	this.topSpeed = .2;
+	this.turnSpeed = Math.PI / 180 * 45;
 	this.barrelSpeed = Math.PI / 180;
 	this.scratchVec = vec3.create();
 	this.scratchVec2 = vec3.create();
@@ -37,6 +45,7 @@ Ship.prototype.recenterPitch = function(){
 }
 
 Ship.prototype.pitch = function(amount){
+	this.pitchAmount = amount;
 	/*this.pitchAmount = amount;
 	this.displayObject.drx = this.turnSpeed * this.pitchAmount;
 	let rad = this.displayObject.rotationQuat[3] * 2;
@@ -55,76 +64,81 @@ Ship.prototype.yaw = function(amount){
 
 Ship.prototype.thrust = function(amount){
 
+	this.speed += amount;
 
-	mat4.getRotation(this.scratchQuat, this.displayObject.transform);
-	quat.normalize(this.scratchQuat, this.scratchQuat);
-	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, amount), this.scratchQuat);
-	vec3.add(this.velocity, this.velocity, this.scratchVec);
-	this.speed = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0));
 	if(this.speed > this.topSpeed) {
 		this.speed = this.topSpeed;
-		vec3.normalize(this.velocity, this.velocity);
-		vec3.scale(this.velocity,this.velocity, this.speed);
+	} else if(this.speed < 0) {
+		this.speed = 0;
 	}
 	
 };
 
 Ship.prototype.barrel = function(amount){
 	
-	this.displayObject.drz = amount * this.barrelSpeed;
+	//this.displayObject.drz = amount * this.barrelSpeed;
 	//vec3.add(this.velocity, this.velocity, vec3.set(this.scratchVec, amount * .2, 0, 0));
 	//mat4.rotateZ(this.displayObject.localTransform, this.displayObject.localTransform, 2 * Math.PI * amount);
 	//mat4.translate(this.displayObject.localTransform, this.displayObject.localTransform, vec3.set(this.scratchVec, amount, 0, 0));
 }
-
+var c = 0;
 Ship.prototype.move = function() {
-
-	vec3.rotateY(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.speed), vec3.set(this.scratchVec2, 0, 0, 0), this.yawAmount);
 	
-	quat.rotateY(this.displayObject.rotationQuat, this.displayObject.rotationQuat, vec3.angle(this.velocity, this.scratchVec));
+	let d = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0)),
+		yawDirection = this.yawAmount === 0 ? 0 : this.yawAmount / Math.abs(this.yawAmount),
+		pitchDirection = this.pitchAmount === 0 ? 0 : this.pitchAmount / Math.abs(this.pitchAmount);
+
+	if(d === 0) {
+		vec3.set(this.scratchVec, 0, 0, this.speed);
+	} else {
+		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0)), this.speed);
+	}
+
+	vec3.rotateY(this.scratchVec, this.scratchVec, this.velocity, this.yawAmount);
+
+	vec3.rotateX(this.scratchVec, this.scratchVec, this.velocity, this.pitchAmount);
+
+	vec3.add(this.scratchVec, this.scratchVec, this.velocity);
+
+	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
+
+	if(d > this.topSpeed) {
+		d = this.topSpeed;
+	} else if(d < 0) {
+		d = 0;
+	}
+
+	this.speed = d;
+
+	vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, this.scratchVec), this.speed);
+
+	vec3.set(this.scratchVec2, this.scratchVec[0], this.velocity[1], this.scratchVec[2]);
+
+	let diffAngleY = vec3.angle(this.scratchVec2, this.velocity) * -yawDirection;
+
+	vec3.set(this.scratchVec2, this.velocity[0], this.scratchVec[1], this.scratchVec[2]);
+
+	let diffAngleX = vec3.angle(this.scratchVec2, this.velocity) * -pitchDirection;
+
+	//d = vec3.dist(this.velocity, this.scratchVec);
+
+	//if(d > 0) {
+		quat.rotateY(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleY);
+		quat.rotateX(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleX);
+	//}
+
+	vec3.copy(this.velocity, this.scratchVec);
+
+	vec3.add(this.translationNode.translationVec, this.translationNode.translationVec, this.velocity);
+
+	this.translationNode.updateTransform();
+	
+	Log.log('velocity ', this.velocity[0]+' '+this.velocity[1]+' '+this.velocity[2]);
+	Log.log('speed ', this.speed);
 	Log.log('yaw ', this.yawAmount);
-	Log.log('rot ', vec3.angle(this.scratchVec, this.velocity) * 180 / Math.PI);
+	Log.log('pitch ', this.pitchAmount);
 
-	vec3.add(this.velocity, this.velocity, this.scratchVec);
-
-	this.speed = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0));
-
-	if(this.speed > this.topSpeed) {
-		vec3.normalize(this.velocity, this.velocity);
-		vec3.scale(this.velocity,this.velocity, this.topSpeed);
-	}
-	//Log.log('scratchVec ', this.scratchVec);
-
-	Log.log('velocity X', this.velocity[0]);
-	Log.log('velocity Y', this.velocity[1]);
-	Log.log('velocity Z', this.velocity[2]);
 	
-
-
-	/*vec3.rotateX(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.speed), vec3.set(this.scratchVec2, 0, 0, 0), this.pitchAmount);
-	
-	vec3.add(this.velocity, this.velocity, this.scratchVec);
-
-	this.speed = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0));
-
-	if(this.speed > this.topSpeed) {
-		vec3.normalize(this.velocity, this.velocity);
-		vec3.scale(this.velocity,this.velocity, this.speed);
-	}
-
-	quat.rotateX(this.displayObject.rotationQuat, this.displayObject.rotationQuat, vec3.angle(this.velocity, this.scratchVec));
-
-	Log.log('Rotation X ', this.displayObject.rotationQuat[1] * 2 * 180 / Math.PI);
-	Log.log('Rotation Y ', this.displayObject.rotationQuat[2] * 2 * 180 / Math.PI);
-	Log.log('Rotation Z ', this.displayObject.rotationQuat[3] * 2 * 180 / Math.PI);
-*/
-
-	vec3.add(this.displayObject.translationVec, this.displayObject.translationVec, this.velocity);
-	/*quat.set(this.rotationQuat, 
-	quat.rotateX(this.rotationQuat, this.rotationQuat, this.drx);
-	quat.rotateY(this.rotationQuat, this.rotationQuat, this.dry);
-	quat.rotateZ(this.rotationQuat, this.rotationQuat, this.drz);*/
-	this.displayObject.updateTransform();
 };
 
 module.exports = Ship;

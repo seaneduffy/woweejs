@@ -23,6 +23,7 @@
 		Camera = wowee.Camera,
 		Cycle = wowee.Cycle,
 		viewport = wowee.Viewport.getViewport(),
+		SceneNode = wowee.SceneNode,
 		gl = viewport.gl;
 
 	let markerCountX = 5,
@@ -46,15 +47,14 @@
 	.then(function(tex) {
 		tieTexture = tex;
 		let camera = new Camera(1080, 720);
-		viewport.camera = camera;
-		tie.displayObject = new DisplayObject3D();
 		tie.displayObject.addShader(textureShader);
 		tie.displayObject.texture = tieTexture;
 		tie.displayObject.mesh = tieMesh;
-		viewport.addChild(tie.displayObject);
-		camera.follow(tie.displayObject, 5);
+		viewport.addChild(tie.translationNode);
 		initMarkers();
 		initController();
+		viewport.camera = camera;
+		camera.follow(tie.displayObject, 5);
 		Cycle.start();
 	});
 

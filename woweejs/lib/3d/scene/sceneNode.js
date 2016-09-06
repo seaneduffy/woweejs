@@ -4,7 +4,8 @@ let glm = require('gl-matrix'),
 	vec3 = glm.vec3,
 	mat4 = glm.mat4,
 	quat = glm.quat,
-	Cycle = require('../../animation/cycle');
+	Cycle = require('../../animation/cycle'),
+	Log = require('../../log');
 
 function SceneNode() {
 	this.origin = vec3.create();
@@ -18,7 +19,6 @@ function SceneNode() {
 	this.mat4Identity = mat4.create();
 	this.vec3Identity = vec3.create();
 	this.scratchQuat = quat.create();
-	
 	
 	this.listeners = {
 		'transform': []
@@ -201,15 +201,12 @@ SceneNode.prototype.updateWorldTransform = function(t) {
 	this.updateTransform();
 	
 };
-
-let consoleTiePositionX = document.querySelector('#tie-position .x'),
-consoleTiePositionY = document.querySelector('#tie-position .y'),
-consoleTiePositionZ = document.querySelector('#tie-position .z'),
-consoleTieRotationX = document.querySelector('#tie-rotation .x'),
-consoleTieRotationY = document.querySelector('#tie-rotation .y'),
-consoleTieRotationZ = document.querySelector('#tie-rotation .z');
-
+var c = 0;
 SceneNode.prototype.updateTransform = function() {
+	/*Log.log('local x ', this.translationVec[0]);
+	Log.log('local y ', this.translationVec[1]);
+	Log.log('local z ', this.translationVec[2]);*/
+	
 	mat4.fromRotationTranslation(this.localTransform, this.rotationQuat, this.translationVec);
 	mat4.mul(this.transform, this.worldTransform, this.localTransform);
 	this.children.forEach( child=>{
