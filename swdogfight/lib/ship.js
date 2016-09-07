@@ -12,7 +12,7 @@ function Ship() {
 
 	this.translationNode = new DisplayObject3D();
 	this.rotationNode = new DisplayObject3D();
-	//this.displayObject = new DisplayObject3D();
+	this.displayObject = new DisplayObject3D();
 
 	this.translationNode.addChild(this.rotationNode);
 	//this.rotationNode.addChild(this.displayObject);
@@ -20,7 +20,8 @@ function Ship() {
 	this.pitchAmount = 0;
 	this.yawAmount = 0;
 	this.speed = 0;
-	this.topSpeed = .05;
+	this.topSpeed = 1;
+	this.acceleration = .01;
 	this.turnSpeed = Math.PI / 180 * 10;
 	this.barrelSpeed = Math.PI / 180;
 	this.scratchVec = vec3.create();
@@ -66,11 +67,16 @@ Ship.prototype.thrust = function(amount){
 
 	this.speed += amount;
 
+	
+
 	if(this.speed > this.topSpeed) {
 		this.speed = this.topSpeed;
 	} else if(this.speed < 0) {
 		this.speed = 0;
 	}
+
+	Log.log('speed', this.speed);
+	Log.log('top speed', this.topSpeed);
 	
 };
 
@@ -83,66 +89,78 @@ Ship.prototype.barrel = function(amount){
 }
 
 Ship.prototype.move = function() {
-	
+
+	// Velocity speed
 	let d = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0)),
+
+	// Get yaw direction
 		yawDirection = this.yawAmount === 0 ? 0 : this.yawAmount / Math.abs(this.yawAmount),
+
+	// Get pitch direction
 		pitchDirection = this.pitchAmount === 0 ? 0 : this.pitchAmount / Math.abs(this.pitchAmount);
 
 	if(d === 0) {
+
+	// If curr speed is 0, set temp velocity to base new speed
 		vec3.set(this.scratchVec, 0, 0, this.speed);
 	} else {
+
+	// If curr speed is not 0, set temp velocity to normalized and scaled curr velocity
 		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0)), this.speed);
 	}
 
+	// Temp velocity speed
 	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
 
+	// If temp velocity speed is 0, do nothing
 	if(d === 0 && this.speed === 0) {
 		return;
 	}
 
+	// Rotate temp velocity by yaw
 	vec3.rotateY(this.scratchVec, this.scratchVec, this.velocity, this.yawAmount);
 
+	// Rotate temp velocity by pitch
 	vec3.rotateX(this.scratchVec, this.scratchVec, this.velocity, this.pitchAmount);
 
+	// Add temp velocity to velocity 
 	vec3.add(this.scratchVec, this.scratchVec, this.velocity);
 
+	// Temp velocity speed
 	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
 
-	if(d > this.topSpeed) {
+	// Speed must be between 0 and top speed
+	/*if(d > this.topSpeed) {
 		d = this.topSpeed;
 	} else if(d < 0) {
 		d = 0;
 	}
-
-	this.speed = d;
-
+	this.speed = d;*/
 	vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, this.scratchVec), this.speed);
 
+	// Equalize Y value of temp and velocity in order to calculate Y angle
 	vec3.set(this.scratchVec2, this.scratchVec[0], this.velocity[1], this.scratchVec[2]);
 
 	let diffAngleY = vec3.angle(this.scratchVec2, this.velocity) * -yawDirection;
 
+	// Equalize X value of temp and velocity in order to calculate X angle
 	vec3.set(this.scratchVec2, this.velocity[0], this.scratchVec[1], this.scratchVec[2]);
 
 	let diffAngleX = vec3.angle(this.scratchVec2, this.velocity) * -pitchDirection;
 
-	//d = vec3.dist(this.velocity, this.scratchVec);
-
-	//if(d > 0) {
-		quat.rotateY(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleY);
-		quat.rotateX(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleX);
-	//}
-
+	quat.rotateY(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleY);
+	quat.rotateX(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleX);
+	
 	vec3.copy(this.velocity, this.scratchVec);
 
 	vec3.add(this.translationNode.translationVec, this.translationNode.translationVec, this.velocity);
 
 	this.translationNode.updateTransform();
 	
-	Log.log('velocity ', this.velocity[0]+' '+this.velocity[1]+' '+this.velocity[2]);
+	/*Log.log('velocity ', this.velocity[0]+' '+this.velocity[1]+' '+this.velocity[2]);
 	Log.log('speed ', this.speed);
 	Log.log('yaw ', this.yawAmount);
-	Log.log('pitch ', this.pitchAmount);
+	Log.log('pitch ', this.pitchAmount);*/
 
 	
 };

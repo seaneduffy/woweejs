@@ -1,6 +1,7 @@
 'use strict';
 
 let viewport = wowee.Viewport.getViewport(),
+	Cycle = wowee.Cycle,
 	PITCH = 'pitch',
 	PITCH_OFF = 'pitchoff',
 	YAW = 'yaw',
@@ -36,23 +37,34 @@ function Control(label){
 
 Control.prototype = Object.create(null, {});
 
-Control.prototype.activate = function(a){
+Control.prototype.activate = function(message){
 	if((!this.active || this.continuousActivation) && !!listeners[this.label]) {
 		this.active = true;
-		listeners[this.label].forEach( func=> {
-			func(a);
-		});
+		if(!this.continuousActivation) {
+			this.cycleSendMessage = this.sendMessage.bind(this, message);
+			Cycle.add(this.cycleSendMessage);
+		} else {
+			this.sendMessage();
+		}
 	}
 }
 
-Control.prototype.deactivate = function(a){
+Control.prototype.deactivate = function(message){
 	if(this.active && !!listeners[this.label+'off']) {
 		this.active = false;
-
 		listeners[this.label+'off'].forEach( func=> {
-			func(a);
+			func(message);
 		});
+		if(!this.active) {
+			Cycle.remove(this.cycleSendMessage);
+		}
 	}
+}
+
+Control.prototype.sendMessage = function(message){
+	listeners[this.label].forEach( func=> {
+		func(message);
+	});
 }
 
 controls[PITCH] = new Control(PITCH);

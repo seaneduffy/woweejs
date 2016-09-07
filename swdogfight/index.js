@@ -34,31 +34,42 @@
 		textureShader = new TextureShader(),
 		tieTexture = null,
 		tieMesh = null,
-		whiteShader = new ColorShader(1.0, 1.0, 1.0, 1.0, gl.LINES),
-		redShader = new ColorShader(1.0, 0, 0, 1.0, gl.LINES),
-		greenShader = new ColorShader(0, 1.0, 0, 1.0, gl.LINES),
-		blueShader = new ColorShader(0, 0, 1.0, 1.0, gl.LINES);
+		whiteShader = new ColorShader(1, 1, 1, 1, gl.LINES),
+		redShader = new ColorShader(1, 0, 0, 1, gl.LINES),
+		greenShader = new ColorShader(0, 1, 0, 1, gl.LINES),
+		blueShader = new ColorShader(0, 0, 1, 1, gl.LINES),
+		aRedShader = new ColorShader(1, 158/255, 0, 1, gl.LINES),
+		aGreenShader = new ColorShader(0, 186/255, 171/255, 1, gl.LINES),
+		aBlueShader = new ColorShader(69/255, 196/255, 220/255, 1, gl.LINES);
 
-	/*Mesh.load('/tie.json')
+	Mesh.load('/tie.json')
 	.then(function(mesh){
 		tieMesh = mesh;
 		return Texture.load('/tie_fighter.png');
 	})
 	.then(function(tex) {
-		tieTexture = tex;*/
+		tieTexture = tex;
 		let camera = new Camera(1080, 720);
-		tie.displayObject = createAxesGraphic();
-		tie.rotationNode.addChild(tie.displayObject);
-		/*tie.displayObject.addShader(textureShader);
+		let a = new Graphics();
+		a.drawLine([[0,0,0],[1,0,0]],aRedShader);
+		a.drawLine([[0,0,0],[0,1,0]],aGreenShader);
+		a.drawLine([[0,0,0],[0,0,1]],aBlueShader);
+		tie.rotationNode.addChild(a);
+		let b = createAxesGraphic();
+		b.drawLine([[0,0,0],[1.5,0,0]],redShader);
+		b.drawLine([[0,0,0],[0,1.5,0]],greenShader);
+		b.drawLine([[0,0,0],[0,0,1.5]],blueShader);
+		tie.translationNode.addChild(b);
+		tie.displayObject.addShader(textureShader);
 		tie.displayObject.texture = tieTexture;
-		tie.displayObject.mesh = tieMesh;*/
+		tie.displayObject.mesh = tieMesh;
 		viewport.addChild(tie.translationNode);
 		initMarkers();
 		initController();
 		viewport.camera = camera;
-		camera.follow(tie.displayObject, 5);
+		camera.follow(tie.rotationNode, 5);
 		Cycle.start();
-	//});
+	});
 
 	function initController(){
 		Controller.on(Controller.PITCH, function(amount){
@@ -74,10 +85,10 @@
 			tie.yaw(0);
 		});		
 		Controller.on(Controller.THRUST, function(){
-			tie.thrust(tie.topSpeed);
+			tie.thrust(tie.acceleration);
 		});
 		Controller.on(Controller.THRUST_OFF, function(){
-			tie.thrust(0);
+			tie.thrust(-tie.acceleration);
 		});
 		Controller.on(Controller.BRAKE, function(){
 			tie.thrust(-tie.speed);
