@@ -88,10 +88,13 @@
 			tie.thrust(tie.acceleration);
 		});
 		Controller.on(Controller.THRUST_OFF, function(){
-			tie.thrust(-tie.acceleration);
+			tie.thrust(0);
 		});
 		Controller.on(Controller.BRAKE, function(){
-			tie.thrust(-tie.speed);
+			tie.thrust(-tie.acceleration);
+		});
+		Controller.on(Controller.BRAKE_OFF, function(){
+			tie.thrust(0);
 		});
 		Controller.on(Controller.ROLL, function(amount){
 			tie.barrel(amount);

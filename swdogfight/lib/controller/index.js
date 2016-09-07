@@ -44,7 +44,7 @@ Control.prototype.activate = function(message){
 			this.cycleSendMessage = this.sendMessage.bind(this, message);
 			Cycle.add(this.cycleSendMessage);
 		} else {
-			this.sendMessage();
+			this.sendMessage(message);
 		}
 	}
 }

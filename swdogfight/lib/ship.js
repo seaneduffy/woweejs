@@ -46,7 +46,7 @@ Ship.prototype.recenterPitch = function(){
 }
 
 Ship.prototype.pitch = function(amount){
-	this.pitchAmount = amount;
+	this.pitchAmount = this.turnSpeed * amount;
 	/*this.pitchAmount = amount;
 	this.displayObject.drx = this.turnSpeed * this.pitchAmount;
 	let rad = this.displayObject.rotationQuat[3] * 2;
@@ -60,6 +60,7 @@ Ship.prototype.pitch = function(amount){
 };
 
 Ship.prototype.yaw = function(amount){
+	console.log(amount);
 	this.yawAmount = this.turnSpeed * amount;
 };
 
@@ -88,6 +89,8 @@ Ship.prototype.barrel = function(amount){
 	//mat4.translate(this.displayObject.localTransform, this.displayObject.localTransform, vec3.set(this.scratchVec, amount, 0, 0));
 }
 
+var c = 0;
+
 Ship.prototype.move = function() {
 
 	// Velocity speed
@@ -108,7 +111,7 @@ Ship.prototype.move = function() {
 	// If curr speed is not 0, set temp velocity to normalized and scaled curr velocity
 		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0)), this.speed);
 	}
-
+	
 	// Temp velocity speed
 	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
 
@@ -117,11 +120,23 @@ Ship.prototype.move = function() {
 		return;
 	}
 
+	/*if(c < 100) {
+		console.log(c);
+		console.log(this.velocity, this.yawAmount, this.pitchAmount);
+		console.log('');
+	}*/
+
 	// Rotate temp velocity by yaw
 	vec3.rotateY(this.scratchVec, this.scratchVec, this.velocity, this.yawAmount);
 
 	// Rotate temp velocity by pitch
 	vec3.rotateX(this.scratchVec, this.scratchVec, this.velocity, this.pitchAmount);
+
+	/*if(c < 100) {
+		console.log(c);
+		console.log(this.scratchVec);
+		console.log('');
+	}*/
 
 	// Add temp velocity to velocity 
 	vec3.add(this.scratchVec, this.scratchVec, this.velocity);
