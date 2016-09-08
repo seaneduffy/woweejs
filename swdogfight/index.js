@@ -54,20 +54,19 @@
 		a.drawLine([[0,0,0],[1,0,0]],aRedShader);
 		a.drawLine([[0,0,0],[0,1,0]],aGreenShader);
 		a.drawLine([[0,0,0],[0,0,1]],aBlueShader);
-		tie.rotationNode.addChild(a);
-		let b = createAxesGraphic();
+		tie.displayObject.addChild(a);
+		/*let b = createAxesGraphic();
 		b.drawLine([[0,0,0],[1.5,0,0]],redShader);
 		b.drawLine([[0,0,0],[0,1.5,0]],greenShader);
 		b.drawLine([[0,0,0],[0,0,1.5]],blueShader);
-		tie.translationNode.addChild(b);
 		tie.displayObject.addShader(textureShader);
 		tie.displayObject.texture = tieTexture;
-		tie.displayObject.mesh = tieMesh;
-		viewport.addChild(tie.translationNode);
+		tie.displayObject.mesh = tieMesh;*/
+		viewport.addChild(tie.displayObject);
 		initMarkers();
 		initController();
 		viewport.camera = camera;
-		camera.follow(tie.rotationNode, 5);
+		camera.follow(tie.displayObject, 5);
 		Cycle.start();
 	});
 
@@ -96,8 +95,8 @@
 		Controller.on(Controller.BRAKE_OFF, function(){
 			tie.thrust(0);
 		});
-		Controller.on(Controller.ROLL, function(amount){
-			tie.barrel(amount);
+		Controller.on(Controller.ROLL, function(direction){
+			tie.barrel(direction);
 		});
 		Controller.on(Controller.ROLL_OFF, function(){
 			tie.barrel(0);

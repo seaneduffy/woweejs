@@ -151,11 +151,6 @@ Camera.prototype.followMove = function() {
 
 	//vec3.copy(this.position, this.targetPosition);
 
-
-	Log.log('Target x', this.targetPosition[0]);
-	Log.log('Target y', this.targetPosition[1]);
-	Log.log('Target z', this.targetPosition[2]);
-
 	let d = vec3.distance(this.targetPosition, this.position);
 	if(d <= .3) {
 		vec3.copy(this.position, this.targetPosition);

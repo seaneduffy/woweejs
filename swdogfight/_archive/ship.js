@@ -10,7 +10,12 @@ let glm = require('gl-matrix'),
 
 function Ship() {
 
+	this.translationNode = new DisplayObject3D();
+	this.rotationNode = new DisplayObject3D();
 	this.displayObject = new DisplayObject3D();
+
+	this.translationNode.addChild(this.rotationNode);
+	//this.rotationNode.addChild(this.displayObject);
 	
 	this.pitchAmount = 0;
 	this.yawAmount = 0;
@@ -81,7 +86,6 @@ Ship.prototype.barrel = function(direction){
 
 Ship.prototype.move = function() {
 
-
 	// Velocity speed
 	let d = vec3.dist(this.velocity, vec3.set(this.scratchVec, 0, 0, 0)),
 
@@ -120,6 +124,8 @@ Ship.prototype.move = function() {
 	// Rotate temp velocity by pitch
 	vec3.rotateX(this.scratchVec, this.scratchVec, this.velocity, this.pitchAmount);
 
+	
+
 	// Add temp velocity to velocity 
 	vec3.add(this.scratchVec, this.scratchVec, this.velocity);
 
@@ -138,17 +144,23 @@ Ship.prototype.move = function() {
 
 	let diffAngleX = vec3.angle(this.scratchVec2, this.velocity) * -pitchDirection;
 
-	quat.rotateY(this.displayObject.rotationQuat, this.displayObject.rotationQuat, diffAngleY);
-	quat.rotateX(this.displayObject.rotationQuat, this.displayObject.rotationQuat, diffAngleX);
+	quat.rotateY(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleY);
+	quat.rotateX(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, diffAngleX);
 
 	// Rotate temp velocity by barrel
-	quat.rotateZ(this.displayObject.rotationQuat, this.displayObject.rotationQuat, this.barrelAmount);
+	quat.rotateZ(this.rotationNode.rotationQuat, this.rotationNode.rotationQuat, this.barrelAmount);
 	
 	vec3.copy(this.velocity, this.scratchVec);
 
-	vec3.add(this.displayObject.translationVec, this.displayObject.translationVec, this.velocity);
+	vec3.add(this.translationNode.translationVec, this.translationNode.translationVec, this.velocity);
 
-	this.displayObject.updateTransform();
+	this.translationNode.updateTransform();
+	
+	/*Log.log('velocity ', this.velocity[0]+' '+this.velocity[1]+' '+this.velocity[2]);
+	Log.log('speed ', this.speed);
+	Log.log('yaw ', this.yawAmount);
+	Log.log('pitch ', this.pitchAmount);*/
+
 	
 };
 
