@@ -51,9 +51,9 @@
 		tieTexture = tex;
 		let camera = new Camera(1080, 720);
 		let a = new Graphics();
-		a.drawLine([[0,0,0],[1,0,0]],aRedShader);
-		a.drawLine([[0,0,0],[0,1,0]],aGreenShader);
-		a.drawLine([[0,0,0],[0,0,1]],aBlueShader);
+		a.drawLine([[0,0,0],[1,0,0]],redShader);
+		a.drawLine([[0,0,0],[0,1,0]],greenShader);
+		a.drawLine([[0,0,0],[0,0,1]],blueShader);
 		tie.displayObject.addChild(a);
 		/*let b = createAxesGraphic();
 		b.drawLine([[0,0,0],[1.5,0,0]],redShader);

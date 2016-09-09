@@ -101,7 +101,7 @@ Ship.prototype.move = function() {
 	} else {
 
 	// If curr speed is not 0, set temp velocity to normalized and scaled curr velocity
-		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 1)), this.speed);
+		vec3.scale(this.scratchVec, vec3.normalize(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0)), this.speed);
 	}
 	
 	// Temp velocity speed
@@ -112,23 +112,16 @@ Ship.prototype.move = function() {
 		return;
 	}
 
-	this.scratchQuat = quat.create();
+	Log.log('Barrel amount ', this.barrelAmount);
 
-	// Rotate by yaw
-	quat.rotateY(this.scratchQuat, this.scratchQuat, this.yawAmount);
+	// Rotate temp velocity by yaw
+	vec3.rotateY(this.scratchVec, this.scratchVec, this.velocity, this.yawAmount);
 
-	// Rotate by pitch
-	quat.rotateX(this.scratchQuat, this.scratchQuat, this.pitchAmount);
-
-
-	//console.log('vec', this.scratchVec);
-	//console.log('quat', this.scratchQuat);
-
-	// Rotate temp velocity by temp quat
-	vec3.transformQuat(this.scratchVec, this.scratchVec, this.scratchQuat);
+	// Rotate temp velocity by pitch
+	vec3.rotateX(this.scratchVec, this.scratchVec, this.velocity, this.pitchAmount);
 
 	// Add temp velocity to velocity 
-	//vec3.add(this.scratchVec, this.scratchVec, this.velocity);
+	vec3.add(this.scratchVec, this.scratchVec, this.velocity);
 
 	// Temp velocity speed
 	d = vec3.dist(this.scratchVec, vec3.set(this.scratchVec2, 0, 0, 0));
