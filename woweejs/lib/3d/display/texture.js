@@ -17,7 +17,6 @@ function loadTexture(src){
 		}
 		load(src, 'image').then(image=>{
 			let t = gl.createTexture();
-			window.texture = t;
 			gl.bindTexture(gl.TEXTURE_2D, t);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);

@@ -1,6 +1,7 @@
 'use strict';
 
 let viewport = wowee.Viewport.getViewport(),
+	Log = wowee.Log,
 	Cycle = wowee.Cycle,
 	PITCH = 'pitch',
 	PITCH_OFF = 'pitchoff',

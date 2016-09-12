@@ -54,19 +54,17 @@
 		a.drawLine([[0,0,0],[1,0,0]],redShader);
 		a.drawLine([[0,0,0],[0,1,0]],greenShader);
 		a.drawLine([[0,0,0],[0,0,1]],blueShader);
-		tie.displayObject.addChild(a);
-		/*let b = createAxesGraphic();
-		b.drawLine([[0,0,0],[1.5,0,0]],redShader);
-		b.drawLine([[0,0,0],[0,1.5,0]],greenShader);
-		b.drawLine([[0,0,0],[0,0,1.5]],blueShader);
-		tie.displayObject.addShader(textureShader);
+		//tie.displayObject.addChild(a);
+		tie.displayObject.mesh = tieMesh;
 		tie.displayObject.texture = tieTexture;
-		tie.displayObject.mesh = tieMesh;*/
+		tie.displayObject.addShader(textureShader);
 		viewport.addChild(tie.displayObject);
 		initMarkers();
 		initController();
 		viewport.camera = camera;
-		camera.follow(tie.displayObject, 5);
+		camera.followDistance = 5;
+		camera.followSpeed = 1;
+		camera.follow(tie.displayObject);
 		Cycle.start();
 	});
 
@@ -84,13 +82,13 @@
 			tie.yaw(0);
 		});		
 		Controller.on(Controller.THRUST, function(){
-			tie.thrust(tie.acceleration);
+			tie.thrust(1);
 		});
 		Controller.on(Controller.THRUST_OFF, function(){
 			tie.thrust(0);
 		});
 		Controller.on(Controller.BRAKE, function(){
-			tie.thrust(-tie.acceleration);
+			tie.thrust(-1);
 		});
 		Controller.on(Controller.BRAKE_OFF, function(){
 			tie.thrust(0);

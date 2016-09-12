@@ -19,8 +19,8 @@ function Camera(){
 
 	this.up = UP;
 	
-	this._x = 3;
-	this._y = 3;
+	this._x = 0;
+	this._y = 0;
 	this._z = -3;
 	
 	this.position = new Float32Array(3);
@@ -121,10 +121,8 @@ Camera.prototype = Object.create(SceneNode, {
 });
 Camera.prototype.constructor = Camera;
 
-Camera.prototype.follow = function(node, distance, marker) {
+Camera.prototype.follow = function(node) {
 	this.followNode = node;
-	this.followMarker = marker;
-	this.followDistance = distance;
 	this.cycleFollowMove = this.followMove.bind(this);
 	Cycle.add(this.cycleFollowMove);
 }
@@ -149,17 +147,7 @@ Camera.prototype.followMove = function() {
 
 	vec3.sub(this.targetPosition, this.front, this.scratchVec);
 
-	//vec3.copy(this.position, this.targetPosition);
-
-	let d = vec3.distance(this.targetPosition, this.position);
-	if(d <= .3) {
-		vec3.copy(this.position, this.targetPosition);
-	} else {
-		vec3.sub(this.scratchVec, this.targetPosition, this.position);
-		vec3.normalize(this.scratchVec, this.scratchVec);
-		vec3.scale(this.scratchVec, this.scratchVec, .4);
-		vec3.add(this.position, this.position, this.scratchVec);
-	}
+	vec3.copy(this.position, this.targetPosition);
 
 	this.setView();
 	
