@@ -93,11 +93,14 @@
 		Controller.on(Controller.BRAKE_OFF, function(){
 			tie.thrust(0);
 		});
-		Controller.on(Controller.ROLL, function(direction){
+		Controller.on(Controller.BARREL, function(direction){
 			tie.barrel(direction);
 		});
+		Controller.on(Controller.ROLL, function(direction){
+			tie.roll(direction);
+		});
 		Controller.on(Controller.ROLL_OFF, function(){
-			tie.barrel(0);
+			tie.roll(0);
 		});
 	}
 

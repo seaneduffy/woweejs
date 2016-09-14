@@ -9,6 +9,7 @@ let viewport = wowee.Viewport.getViewport(),
 	YAW_OFF = 'yawoff',
 	ROLL = 'roll',
 	ROLL_OFF = 'rolloff',
+	BARREL = 'barrel',
 	THRUST = 'thrust',
 	THRUST_OFF = 'thrustoff',
 	BRAKE = 'brake',
@@ -17,6 +18,12 @@ let viewport = wowee.Viewport.getViewport(),
 yawLimit = .05,
 
 pitchLimit = .05,
+
+barrelLimit = .3,
+
+barrelReadyLeft = false,
+
+barrelReadyRight = false,
 
 listeners = {},
 
@@ -75,6 +82,8 @@ controls[YAW].continuousActivation = true;
 controls[ROLL] = new Control(ROLL);
 controls[THRUST] = new Control(THRUST);
 controls[BRAKE] = new Control(BRAKE);
+controls[BARREL] = new Control(BARREL);
+controls[BARREL].continuousActivation = true;
 
 document.body.addEventListener( 'mousemove', event => {
 	let per = event.pageX / viewport.width,
@@ -87,6 +96,17 @@ document.body.addEventListener( 'mousemove', event => {
 		controls[YAW].activate(amount);
 	} else {
 		controls[YAW].deactivate();
+	}
+
+	if(amount < -barrelLimit) {
+		barrelReadyRight = true;
+	} else {
+		barrelReadyRight = false;
+	}
+	if(amount > barrelLimit) {
+		barrelReadyLeft = true;
+	} else {
+		barrelReadyLeft = false;
 	}
 
 	per = event.pageY / viewport.height;
@@ -106,9 +126,17 @@ document.body.addEventListener( 'keydown', event => {
 	} else if(event.code === 'KeyS') {
 		controls[BRAKE].activate();
 	} else if(event.code === 'KeyA') {
-		controls[ROLL].activate(-1);
+		if(barrelReadyLeft) {
+			controls[BARREL].activate(-1);
+		} else {
+			controls[ROLL].activate(-1);
+		}
 	} else if(event.code === 'KeyD') {
-		controls[ROLL].activate(1);
+		if(barrelReadyRight) {
+			controls[BARREL].activate(1);
+		} else {
+			controls[ROLL].activate(1);
+		}
 	}
 });
 
@@ -133,5 +161,6 @@ module.exports = {
 	THRUST: THRUST,
 	THRUST_OFF: THRUST_OFF,
 	BRAKE: BRAKE,
-	BRAKE_OFF: BRAKE_OFF
+	BRAKE_OFF: BRAKE_OFF,
+	BARREL: BARREL
 };

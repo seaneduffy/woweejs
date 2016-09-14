@@ -1,6 +1,7 @@
 'use strict';
 
-let cycleFunctions = new Array(),
+let Log = require('../log'),
+	cycleFunctions = new Array(),
 	delayFunctions = new Array(),
 	active = false,
 	frameRate = 1,
@@ -17,32 +18,27 @@ function cycle() {
 		let time = Date.now(),
 			dTime = time - startTime;
 		
-		//if(dTime >= frameRate) {
+		startTime = time;
+		
+		cycleFunctions.forEach(a=>{
+			a.dTime += frameRate;
+			a.time += frameRate;
+			a.func(a.time);
+			a.dTime = 0;
+		});
+		
+		let arr = [];
 
-			startTime = time;
-			
-			cycleFunctions.forEach(a=>{
-				a.dTime += frameRate;
-				a.time += frameRate;
-				//if(a.dTime >= a.rate) {
-					a.func(a.time);
-					a.dTime = 0;
-				//}
-			});
-			
-			let arr = [];
+		delayFunctions.forEach(a=>{
+			a.dTime += frameRate;
+			if(a.dTime >= a.delay) {
+				a.func();
+			} else {
+				arr.push(a);
+			}
+		});
 
-			delayFunctions.forEach(a=>{
-				a.dTime += frameRate;
-				if(a.dTime >= a.delay) {
-					a.func();
-				} else {
-					arr.push(a.func);
-				}
-			});
-
-			delayFunctions = arr;
-		//}
+		delayFunctions = arr;
 	}
 }
 
