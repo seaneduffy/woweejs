@@ -54,10 +54,10 @@
 		a.drawLine([[0,0,0],[1,0,0]],redShader);
 		a.drawLine([[0,0,0],[0,1,0]],greenShader);
 		a.drawLine([[0,0,0],[0,0,1]],blueShader);
-		//tie.displayObject.addChild(a);
-		tie.displayObject.mesh = tieMesh;
+		tie.displayObject.addChild(a);
+		/*tie.displayObject.mesh = tieMesh;
 		tie.displayObject.texture = tieTexture;
-		tie.displayObject.addShader(textureShader);
+		tie.displayObject.addShader(textureShader);*/
 		viewport.addChild(tie.displayObject);
 		initMarkers();
 		initController();
@@ -101,6 +101,9 @@
 		});
 		Controller.on(Controller.ROLL_OFF, function(){
 			tie.roll(0);
+		});
+		Controller.on(Controller.FIRE, function(){
+			tie.fire();
 		});
 	}
 

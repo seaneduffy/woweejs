@@ -14,6 +14,7 @@ let viewport = wowee.Viewport.getViewport(),
 	THRUST_OFF = 'thrustoff',
 	BRAKE = 'brake',
 	BRAKE_OFF = 'brakeoff',
+	FIRE = 'fire',
 
 yawLimit = .05,
 
@@ -84,6 +85,8 @@ controls[THRUST] = new Control(THRUST);
 controls[BRAKE] = new Control(BRAKE);
 controls[BARREL] = new Control(BARREL);
 controls[BARREL].continuousActivation = true;
+controls[FIRE] = new Control(FIRE);
+controls[FIRE].continuousActivation = true;
 
 document.body.addEventListener( 'mousemove', event => {
 	let per = event.pageX / viewport.width,
@@ -137,6 +140,8 @@ document.body.addEventListener( 'keydown', event => {
 		} else {
 			controls[ROLL].activate(1);
 		}
+	} else if(event.code === 'Space') {
+		controls[FIRE].activate();
 	}
 });
 
@@ -162,5 +167,6 @@ module.exports = {
 	THRUST_OFF: THRUST_OFF,
 	BRAKE: BRAKE,
 	BRAKE_OFF: BRAKE_OFF,
-	BARREL: BARREL
+	BARREL: BARREL,
+	FIRE: FIRE
 };

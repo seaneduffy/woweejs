@@ -6,7 +6,8 @@ let glm = require('gl-matrix'),
 	mat4 = glm.mat4,
 	Cycle = wowee.Cycle,
 	Log = wowee.Log,
-	DisplayObject3D = wowee.DisplayObject3D;
+	DisplayObject3D = wowee.DisplayObject3D,
+	Laser = require('./laser');
 
 function Ship() {
 
@@ -53,6 +54,11 @@ Ship.prototype.recenterPitch = function(){
 		this.displayObject.drx = this.turnSpeed * -rad / Math.abs(rad);
 	}
 }
+
+Ship.prototype.fire = function() {
+	console.log('shoot');
+	let laser = new Laser();
+};
 
 Ship.prototype.pitch = function(amount){
 	this.pitchAmount = this.turnSpeed * amount;
