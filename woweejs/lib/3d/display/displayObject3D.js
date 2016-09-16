@@ -131,36 +131,6 @@ DisplayObject3D.prototype.addShader = function(s) {
 	this.shaders.push(s);
 }
 
-DisplayObject3D.prototype.switchPrograms = function(program) {
-
-	if(!!DisplayObject3D.currProgram) {
-
-		let currentAttributes = gl.getProgramParameter(DisplayObject3D.currProgram, gl.ACTIVE_ATTRIBUTES),
-			newAttributes = gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES);
-		
-		/*if (newAttributes > currentAttributes) {
-			for (var i = currentAttributes; i < newAttributes; i++) {
-				gl.enableVertexAttribArray(i);
-			}
-		} else if (newAttributes < currentAttributes) {
-			for (var i = newAttributes; i < currentAttributes; i++) {
-				gl.disableVertexAttribArray(i);
-			}
-		}*/
-
-		if (newAttributes < 2) {
-			gl.enableVertexAttribArray(1);
-		} else {
-			gl.disableVertexAttribArray(1);
-		}
-
-	}
-
-	gl.useProgram(program);
-
-	DisplayObject3D.currProgram = program;
-}
-
 DisplayObject3D.prototype.render = function(camera){
 
 	this.children.forEach( child=>{

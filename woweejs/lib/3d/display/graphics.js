@@ -45,8 +45,6 @@ Graphics.prototype.render = function(camera){
 
 	this.graphics.forEach( graphic => {
 
-		//this.switchPrograms(graphic.shader.program);
-
 		gl.enableVertexAttribArray(graphic.shader.vertexPositionAttribute);
 
 		gl.useProgram(graphic.shader.program);

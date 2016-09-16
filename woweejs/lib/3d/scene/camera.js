@@ -42,7 +42,7 @@ Camera.prototype = Object.create(SceneNode, {
 	'viewport': {
 		set: function(viewport) {
 			this._viewport = viewport;
-			mat4.perspective(this.projection, Math.PI / 180 * 45, this.viewport.width / this.viewport.height, 1, 100);
+			mat4.perspective(this.projection, Math.PI / 180 * 45, this.viewport.width / this.viewport.height, .1, 1000);
 			this.setView();
 		},
 		get: function() {

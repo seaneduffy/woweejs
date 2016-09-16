@@ -2,8 +2,10 @@
 
 (function(){
 
-	let Controller = require('./lib/controller'),
-		Ship = require('./lib/ship');
+	let glm = require('gl-matrix'),
+		Controller = require('./lib/controller'),
+		Ship = require('./lib/ship'),
+		Starfield = require('./lib/starfield');
 	
 	let game = wowee.init({
 		root: document.getElementById("game"), 
@@ -24,6 +26,8 @@
 		Cycle = wowee.Cycle,
 		viewport = wowee.Viewport.getViewport(),
 		SceneNode = wowee.SceneNode,
+		vec3 = glm.vec3,
+		quat = glm.quat,
 		gl = viewport.gl;
 
 	let markerCountX = 5,
@@ -54,17 +58,18 @@
 		a.drawLine([[0,0,0],[1,0,0]],redShader);
 		a.drawLine([[0,0,0],[0,1,0]],greenShader);
 		a.drawLine([[0,0,0],[0,0,1]],blueShader);
-		//tie.displayObject.addChild(a);
-		tie.displayObject.mesh = tieMesh;
-		tie.displayObject.texture = tieTexture;
-		tie.displayObject.addShader(textureShader);
+		tie.displayObject.addChild(a);
+		//tie.displayObject.mesh = tieMesh;
+		//tie.displayObject.texture = tieTexture;
+		//tie.displayObject.addShader(textureShader);
 		viewport.addChild(tie.displayObject);
-		initMarkers();
 		initController();
 		viewport.camera = camera;
 		camera.followDistance = 5;
 		camera.followSpeed = 1;
 		camera.follow(tie.displayObject);
+		let starfield = new Starfield();
+		starfield.create();
 		Cycle.start();
 	});
 

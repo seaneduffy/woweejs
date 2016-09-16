@@ -46,7 +46,7 @@ Ship.prototype.recenterPitch = function(){
 }
 
 Ship.prototype.fire = function() {
-	let laser = new Laser(this.displayObject.transform, this.displayObject.zVec);
+	let laser = new Laser(this.displayObject.translationVec, this.displayObject.zVec);
 };
 
 Ship.prototype.pitch = function(amount){
