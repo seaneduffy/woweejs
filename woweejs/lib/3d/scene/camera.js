@@ -129,17 +129,15 @@ Camera.prototype.follow = function(node) {
 
 Camera.prototype.followMove = function() {
 
-	//mat4.getRotation(this.scratchQuat, this.followNode.transform);
 	mat4.getRotation(this.scratchQuat, this.followNode.transform);
 
 	quat.normalize(this.scratchQuat, this.scratchQuat);
 
 	mat4.getTranslation(this.front, this.followNode.transform);
-	//console.log(this.scratchQuat);
 
 	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.followDistance), this.scratchQuat);
 
-	this.scratchVec[1] = 0;
+	//this.scratchVec[1] = 0;
 
 	vec3.normalize(this.scratchVec, this.scratchVec);
 

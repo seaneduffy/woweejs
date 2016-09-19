@@ -25,7 +25,8 @@ Starfield.prototype.create = function(){
 	let pos = vec3.create(),
 		rot = quat.create(),
 		scratch = vec3.create(),
-		rad = 0;
+		rad = 0,
+		dist = 0;
 	for(let i=0; i<100; i++) {
 		let star = new DisplayObject3D(),
 			whiteSolidShader = new ColorShader(1, 1, 1, 1, gl.TRIANGLES),
@@ -57,7 +58,10 @@ Starfield.prototype.create = function(){
 				[-1.0,  1.0, -1.0]
 			],whiteSolidShader);
 		star.addChild(starGraphic);
+
 		vec3.set(pos, 0, 0, 998);
+
+		dist = 998 - Math.random() * 30;
 
 		rad = Math.random() * Math.PI * 2;
 		quat.setAxisAngle(rot, vec3.set(scratch, 0, 0, 1), rad);

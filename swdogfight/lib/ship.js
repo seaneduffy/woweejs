@@ -12,9 +12,9 @@ let glm = require('gl-matrix'),
 function Ship() {
 
 	
-	this.speedMax = 2;
+	this.speedMax = 4;
 	this.thrustAmount = 0;
-	this.acceleration = .5;
+	this.acceleration = .3;
 	this.turnSpeed = Math.PI / 180 * -10;
 	this.rollSpeed = Math.PI / 180 * 14;
 	this.barrelSpeed = 200;

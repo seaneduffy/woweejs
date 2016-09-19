@@ -74,7 +74,6 @@ DisplayObject3D.prototype = Object.create(SceneNode.prototype, {
 DisplayObject3D.prototype.constructor = DisplayObject3D;
 
 DisplayObject3D.prototype.move = function(){
-
 	vec3.add(this.translationVec, this.translationVec, this.velocity);
 	this.updateTransform();
 }

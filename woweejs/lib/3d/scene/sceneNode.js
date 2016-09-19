@@ -11,6 +11,7 @@ function SceneNode() {
 	this.origin = vec3.create();
 	this.rotationQuat = quat.create();
 	this.rotationMat = mat4.create();
+	this.scaleMat = mat4.create();
 	this.scaleVec = vec3.create();
 	this.translationVec = vec3.create();
 	this.localTransform = mat4.create();
@@ -27,6 +28,14 @@ function SceneNode() {
 }
 
 Object.defineProperties(SceneNode.prototype, {
+	'id': {
+		get: function(){
+			return this._id;
+		},
+		set: function(id){
+			this._id = id;
+		}
+	},
 	'rotationX': {
 		get: function(){
 			if(!!this._rotationX) {
@@ -138,10 +147,10 @@ Object.defineProperties(SceneNode.prototype, {
 		},
 		set: function(scale) {
 			scale = scale / this.scale;
-			mat4.scale(this.localTransform, this.localTransform, vec3.set(this.scaleVec, scale, scale, scale));
+			mat4.identity(this.scaleMat);
+			mat4.scale(this.scaleMat, this.scaleMat, vec3.set(this.scaleVec, scale, scale, scale));
 			this._scale = scale;
-
-			this.updateTransform();
+			//this.updateTransform();
 		}
 	},
 	'children': {
@@ -203,11 +212,9 @@ SceneNode.prototype.updateWorldTransform = function(t) {
 };
 var c = 0;
 SceneNode.prototype.updateTransform = function() {
-	/*Log.log('local x ', this.translationVec[0]);
-	Log.log('local y ', this.translationVec[1]);
-	Log.log('local z ', this.translationVec[2]);*/
 	
 	mat4.fromRotationTranslation(this.localTransform, this.rotationQuat, this.translationVec);
+	mat4.mul(this.localTransform, this.localTransform, this.scaleMat);
 	mat4.mul(this.transform, this.worldTransform, this.localTransform);
 	this.children.forEach( child=>{
 		child.updateWorldTransform(this.transform);

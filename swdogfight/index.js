@@ -3,65 +3,84 @@
 (function(){
 
 	let glm = require('gl-matrix'),
-		Controller = require('./lib/controller'),
-		Ship = require('./lib/ship'),
-		Starfield = require('./lib/starfield');
-	
-	let game = wowee.init({
+	vec3 = glm.vec3,
+	quat = glm.quat,
+	mat4 = glm.mat4,
+
+	Texture = wowee.Texture,
+	TextureShader = wowee.TextureShader,
+	ColorShader = wowee.ColorShader,
+	DisplayObject3D = wowee.DisplayObject3D,
+	Mesh = wowee.Mesh,
+	Graphics = wowee.Graphics,
+	Camera = wowee.Camera,
+	Cycle = wowee.Cycle,
+	viewport = wowee.Viewport.getViewport(),
+	SceneNode = wowee.SceneNode,
+	gl = viewport.gl,
+
+	Controller = require('./lib/controller'),
+	Ship = require('./lib/ship'),
+	Starfield = require('./lib/starfield'),
+	Drag = require('./lib/drag'),
+
+	game = wowee.init({
 		root: document.getElementById("game"), 
 		width: 900, 
 		height: 600,
 		frame_rate: 400,
 		background: "black",
 		material_path: "/"
-	});
-
-	let Texture = wowee.Texture,
-		TextureShader = wowee.TextureShader,
-		ColorShader = wowee.ColorShader,
-		DisplayObject3D = wowee.DisplayObject3D,
-		Mesh = wowee.Mesh,
-		Graphics = wowee.Graphics,
-		Camera = wowee.Camera,
-		Cycle = wowee.Cycle,
-		viewport = wowee.Viewport.getViewport(),
-		SceneNode = wowee.SceneNode,
-		vec3 = glm.vec3,
-		quat = glm.quat,
-		gl = viewport.gl;
-
-	let markerCountX = 5,
-		markerCountZ = 5,
-		markerDimensions = 200;
+	}),
 	
-	let tie = new Ship(),
-		textureShader = new TextureShader(),
-		tieTexture = null,
-		tieMesh = null,
-		whiteShader = new ColorShader(1, 1, 1, 1, gl.LINES),
-		redShader = new ColorShader(1, 0, 0, 1, gl.LINES),
-		greenShader = new ColorShader(0, 1, 0, 1, gl.LINES),
-		blueShader = new ColorShader(0, 0, 1, 1, gl.LINES),
-		aRedShader = new ColorShader(1, 158/255, 0, 1, gl.LINES),
-		aGreenShader = new ColorShader(0, 186/255, 171/255, 1, gl.LINES),
-		aBlueShader = new ColorShader(69/255, 196/255, 220/255, 1, gl.LINES);
+	tie = new Ship(),
+	textureShader = new TextureShader(),
+	tieTexture = null,
+	tieMesh = null,
+	planetMesh = null,
+	planetTexture = null,
+	whiteShader = new ColorShader(1, 1, 1, 1, gl.LINES),
+	redShader = new ColorShader(1, 0, 0, 1, gl.LINES),
+	greenShader = new ColorShader(0, 1, 0, 1, gl.LINES),
+	blueShader = new ColorShader(0, 0, 1, 1, gl.LINES),
+	aRedShader = new ColorShader(1, 158/255, 0, 1, gl.LINES),
+	aGreenShader = new ColorShader(0, 186/255, 171/255, 1, gl.LINES),
+	aBlueShader = new ColorShader(69/255, 196/255, 220/255, 1, gl.LINES),
+	scratchMat = mat4.create(),
+	drag = new Drag(.1);
 
-	Mesh.load('/tie.json')
+	Mesh.load('planet1.json')
+	.then(function(mesh){
+		planetMesh = mesh;
+		return Texture.load('/planet1.png');
+	})
+	.then(function(tex){
+		planetTexture = tex;
+		return Mesh.load('/tie.json');	
+	})
 	.then(function(mesh){
 		tieMesh = mesh;
 		return Texture.load('/tie_fighter.png');
 	})
 	.then(function(tex) {
+
 		tieTexture = tex;
 		let camera = new Camera(1080, 720);
-		let a = new Graphics();
-		a.drawLine([[0,0,0],[1,0,0]],redShader);
-		a.drawLine([[0,0,0],[0,1,0]],greenShader);
-		a.drawLine([[0,0,0],[0,0,1]],blueShader);
-		tie.displayObject.addChild(a);
-		//tie.displayObject.mesh = tieMesh;
-		//tie.displayObject.texture = tieTexture;
-		//tie.displayObject.addShader(textureShader);
+
+		tie.displayObject.mesh = tieMesh;
+		tie.displayObject.texture = tieTexture;
+		tie.displayObject.addShader(textureShader);
+		drag.add(tie.displayObject);
+
+		let planet = new DisplayObject3D();
+		planet.mesh = planetMesh;
+		planet.texture = planetTexture;
+		planet.addShader(textureShader);
+		planet.id = 'planet';
+		planet.scale = 300;
+		vec3.set(planet.translationVec, -500, 0, 500);
+		viewport.addChild(planet);
+		
 		viewport.addChild(tie.displayObject);
 		initController();
 		viewport.camera = camera;
@@ -113,9 +132,14 @@
 	}
 
 	function initMarkers(){
+
+		let markerCountX = 5,
+			markerCountZ = 5,
+			markerDimensions = 200;
+
 		for(let i = 0; i<markerCountX; i++) {
 			for(let j=0; j<markerCountZ; j++) {
-				let marker = createAxesGraphic();
+				let marker = createAxesGraphic(.5);
 				marker.x = -markerDimensions / 2 + markerDimensions / markerCountX * i;
 				marker.z = -markerDimensions / 2 + markerDimensions / markerCountZ * j;
 				viewport.addChild(marker);
@@ -123,11 +147,11 @@
 		}
 	}
 
-	function createAxesGraphic(){
+	function createAxesGraphic(scale){
 		let g = new Graphics();
-		g.drawLine([[0,0,0],[.5,0,0]],redShader);
-		g.drawLine([[0,0,0],[0,.5,0]],greenShader);
-		g.drawLine([[0,0,0],[0,0,.5]],blueShader);
+		g.drawLine([[0,0,0],[scale,0,0]],redShader);
+		g.drawLine([[0,0,0],[0,scale,0]],greenShader);
+		g.drawLine([[0,0,0],[0,0,scale]],blueShader);
 		return g;
 	}
 	
