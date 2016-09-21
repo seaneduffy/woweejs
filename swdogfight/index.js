@@ -67,9 +67,13 @@
 		tieTexture = tex;
 		let camera = new Camera(1080, 720);
 
-		tie.displayObject.mesh = tieMesh;
+		let axes = createAxesGraphic(1);
+
+		/*tie.displayObject.mesh = tieMesh;
 		tie.displayObject.texture = tieTexture;
-		tie.displayObject.addShader(textureShader);
+		tie.displayObject.addShader(textureShader);*/
+		
+		tie.displayObject.addChild(axes);
 		drag.add(tie.displayObject);
 
 		let planet = new DisplayObject3D();
@@ -104,7 +108,7 @@
 		});
 		Controller.on(Controller.YAW_OFF, function(){
 			tie.yaw(0);
-		});		
+		});
 		Controller.on(Controller.THRUST, function(){
 			tie.thrust(1);
 		});

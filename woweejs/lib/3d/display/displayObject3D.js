@@ -15,6 +15,19 @@ let glm = require('gl-matrix'),
 
 	window.gl = viewport.gl;
 
+DisplayObject3D.ATTRIB_INDEX_POSITION  = 0;
+DisplayObject3D.ATTRIB_INDEX_NORMAL    = 1;
+DisplayObject3D.ATTRIB_INDEX_TANGENT   = 2;
+DisplayObject3D.ATTRIB_INDEX_BITANGENT = 3;
+DisplayObject3D.ATTRIB_INDEX_TEXCOORDS = 4;
+DisplayObject3D.ATTRIB_INDEX_COLOR     = 5;
+DisplayObject3D.VERT_OFFSET_POSITION  = 0;
+DisplayObject3D.VERT_OFFSET_NORMAL    = (3 * 4);
+DisplayObject3D.VERT_OFFSET_TANGENT   = (3 * 4) + (3 * 4);
+DisplayObject3D.VERT_OFFSET_BITANGENT = (3 * 4) + (3 * 4) + (3 * 4);
+DisplayObject3D.VERT_OFFSET_TEXCOORDS = (3 * 4) + (3 * 4) + (3 * 4) + (3 * 4);
+DisplayObject3D.VERT_OFFSET_COLOR     = (3 * 4) + (3 * 4) + (3 * 4) + (3 * 4) + (2 * 4);
+
 function DisplayObject3D() {
 
 	SceneNode.prototype.constructor.call(this);
@@ -132,6 +145,36 @@ DisplayObject3D.prototype.addShader = function(s) {
 
 DisplayObject3D.prototype.render = function(camera){
 
+	// vec3
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_POSITION);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_POSITION, 3,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_POSITION);
+
+	// vec3
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_NORMAL);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_NORMAL, 3,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_NORMAL);
+
+	// vec3
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TANGENT);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TANGENT, 3,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TANGENT);
+
+	// vec3
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_BITANGENT);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_BITANGENT, 3,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_BITANGENT);
+
+	// vec2
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS, 2,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TEXCOORDS);
+
+	// vec4
+	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_COLOR);
+	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_COLOR, 4,
+		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_COLOR);
+
 	this.children.forEach( child=>{
 		child.updateWorldTransform(this.transform);
 	});
@@ -141,9 +184,6 @@ DisplayObject3D.prototype.render = function(camera){
 	}
 
 	this.shaders.forEach( shader => {
-
-		gl.enableVertexAttribArray(shader.vertexPositionAttribute);
-		gl.enableVertexAttribArray(shader.textureCoordAttribute);
 		
 		gl.useProgram(shader.program);
 
@@ -168,9 +208,6 @@ DisplayObject3D.prototype.render = function(camera){
 		var mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
 		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
 		gl.drawArrays(shader.shapes, 0, this.mesh.vertexLength);
-
-		gl.disableVertexAttribArray(shader.vertexPositionAttribute);
-		gl.disableVertexAttribArray(shader.textureCoordAttribute);
 	});
 
 };
