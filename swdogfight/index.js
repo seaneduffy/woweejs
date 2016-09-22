@@ -8,8 +8,6 @@
 	mat4 = glm.mat4,
 
 	Texture = wowee.Texture,
-	TextureShader = wowee.TextureShader,
-	ColorShader = wowee.ColorShader,
 	DisplayObject3D = wowee.DisplayObject3D,
 	Mesh = wowee.Mesh,
 	Graphics = wowee.Graphics,
@@ -35,7 +33,6 @@
 	}),
 	
 	tie = new Ship(),
-	textureShader = new TextureShader(),
 	tieTexture = null,
 	tieMesh = null,
 	planetMesh = null,
@@ -50,30 +47,37 @@
 	scratchMat = mat4.create(),
 	drag = new Drag(.1);
 
-	let shader = new Shader(),
-		material = new Material();
+	let tieShader = new Shader(),
+		tieMaterial = new Material(),
+		planetMaterial = new Material(),
+		planetShader = new Shader();
 
-	material.diffuseColor = [1, 1, 1, 1];
+	tieMaterial.diffuseColor = [1, 1, 1, 1];
+	planetMaterial.diffuseColor = [1, 0, 0, 1];
 
-	shader.init('tint.vert', 'tint.frag')
+	tieShader.init('tint.vert', 'tint.frag')
 	.then(function(){
-		material.shader = shader;
-		return Mesh.load('planet1.json');	
+		tieMaterial.shader = tieShader;
+		return planetShader.init('tint.vert', 'tint.frag');
+	})
+	.then(function(){
+		planetMaterial.shader = planetShader;
+		return Mesh.load('planet1.json');
 	})
 	.then(function(mesh){
 		planetMesh = mesh;
 		return Texture.load('/planet1.png');
 	})
 	.then(function(tex){
-		planetTexture = tex;
-		return Mesh.load('/tie.json');	
+		//planetTexture = tex;
+		return Mesh.load('/tie.json');
 	})
 	.then(function(mesh){
 		tieMesh = mesh;
 		return Texture.load('/tie_fighter.png');
 	})
 	.then(function(tex) {
-		tie.displayObject.material = material;
+		tie.displayObject.material = tieMaterial;
 		//tieTexture = tex;
 		let camera = new Camera(1080, 720);
 
@@ -82,20 +86,16 @@
 		tie.displayObject.mesh = tieMesh;
 		//tie.displayObject.texture = tieTexture;
 		//tie.displayObject.addShader(textureShader);
-		
 		//tie.displayObject.addChild(axes);
 		drag.add(tie.displayObject);
-
 		let planet = new DisplayObject3D();
 		planet.mesh = planetMesh;
-		planet.material = material;
-		/*planet.texture = planetTexture;
-		planet.addShader(textureShader);*/
-		planet.id = 'planet';
+		planet.material = planetMaterial;
 		planet.scale = 300;
 		vec3.set(planet.translationVec, -500, 0, 500);
 		viewport.addChild(planet);
-		
+		/*planet.addShader(textureShader);
+		planet.texture = planetTexture;*/
 		viewport.addChild(tie.displayObject);
 		initController();
 		viewport.camera = camera;

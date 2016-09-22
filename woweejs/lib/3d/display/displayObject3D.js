@@ -187,7 +187,7 @@ DisplayObject3D.prototype.render = function(camera){
 		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_COLOR);
 
 
-	this.material.apply(mat4.mul(this.renderMat, this.transform, camera.pvMatrix));
+	this.material.apply(mat4.mul(this.renderMat, camera.pvMatrix, this.transform));
 
 	//this.material.apply(camera.pvMatrix);
 

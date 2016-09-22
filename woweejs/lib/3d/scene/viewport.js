@@ -16,6 +16,9 @@ function Viewport() {
 	this.gl = WebGLDebugUtils.makeDebugContext(this._canvas.getContext('webgl'));
 	this.gl.enable(this.gl.CULL_FACE);
 	this.gl.cullFace(this.gl.BACK);
+	this.gl.frontFace(this.gl.CCW);
+	this.gl.depthFunc(this.gl.LEQUAL);
+	//this.gl.cullFace(this.gl.BACK);
 	this.gl.enable(this.gl.DEPTH_TEST);
 }
 
