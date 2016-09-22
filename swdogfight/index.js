@@ -17,6 +17,8 @@
 	Cycle = wowee.Cycle,
 	viewport = wowee.Viewport.getViewport(),
 	SceneNode = wowee.SceneNode,
+	Shader = wowee.Shader,
+	Material = wowee.Material,
 	gl = viewport.gl,
 
 	Controller = require('./lib/controller'),
@@ -29,8 +31,7 @@
 		width: 900, 
 		height: 600,
 		frame_rate: 400,
-		background: "black",
-		material_path: "/"
+		background: "black"
 	}),
 	
 	tie = new Ship(),
@@ -39,17 +40,26 @@
 	tieMesh = null,
 	planetMesh = null,
 	planetTexture = null,
-	whiteShader = new ColorShader(1, 1, 1, 1, gl.LINES),
+	/*whiteShader = new ColorShader(1, 1, 1, 1, gl.LINES),
 	redShader = new ColorShader(1, 0, 0, 1, gl.LINES),
 	greenShader = new ColorShader(0, 1, 0, 1, gl.LINES),
 	blueShader = new ColorShader(0, 0, 1, 1, gl.LINES),
 	aRedShader = new ColorShader(1, 158/255, 0, 1, gl.LINES),
 	aGreenShader = new ColorShader(0, 186/255, 171/255, 1, gl.LINES),
-	aBlueShader = new ColorShader(69/255, 196/255, 220/255, 1, gl.LINES),
+	aBlueShader = new ColorShader(69/255, 196/255, 220/255, 1, gl.LINES),*/
 	scratchMat = mat4.create(),
 	drag = new Drag(.1);
 
-	Mesh.load('planet1.json')
+	let shader = new Shader(),
+		material = new Material();
+
+	material.diffuseColor = [1, 1, 1, 1];
+
+	shader.init('tint.vert', 'tint.frag')
+	.then(function(){
+		material.shader = shader;
+		return Mesh.load('planet1.json');	
+	})
 	.then(function(mesh){
 		planetMesh = mesh;
 		return Texture.load('/planet1.png');
@@ -63,23 +73,24 @@
 		return Texture.load('/tie_fighter.png');
 	})
 	.then(function(tex) {
-
-		tieTexture = tex;
+		tie.displayObject.material = material;
+		//tieTexture = tex;
 		let camera = new Camera(1080, 720);
 
-		let axes = createAxesGraphic(1);
+		//let axes = createAxesGraphic(1);
 
-		/*tie.displayObject.mesh = tieMesh;
-		tie.displayObject.texture = tieTexture;
-		tie.displayObject.addShader(textureShader);*/
+		tie.displayObject.mesh = tieMesh;
+		//tie.displayObject.texture = tieTexture;
+		//tie.displayObject.addShader(textureShader);
 		
-		tie.displayObject.addChild(axes);
+		//tie.displayObject.addChild(axes);
 		drag.add(tie.displayObject);
 
 		let planet = new DisplayObject3D();
 		planet.mesh = planetMesh;
-		planet.texture = planetTexture;
-		planet.addShader(textureShader);
+		planet.material = material;
+		/*planet.texture = planetTexture;
+		planet.addShader(textureShader);*/
 		planet.id = 'planet';
 		planet.scale = 300;
 		vec3.set(planet.translationVec, -500, 0, 500);
@@ -91,8 +102,8 @@
 		camera.followDistance = 5;
 		camera.followSpeed = 1;
 		camera.follow(tie.displayObject);
-		let starfield = new Starfield();
-		starfield.create();
+		/*let starfield = new Starfield();
+		starfield.create();*/
 		Cycle.start();
 	});
 

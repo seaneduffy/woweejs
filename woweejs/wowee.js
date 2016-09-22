@@ -15,7 +15,9 @@ window.wowee = (function(){
 		Log = require('./lib/log'),
 		Texture = require('./lib/3d/display/texture'),
 		TextureShader = require('./lib/3d/display/shaders/texture'),
-		ColorShader = require('./lib/3d/display/shaders/color');
+		ColorShader = require('./lib/3d/display/shaders/color'),
+		Material = require('./lib/3d/display/material'),
+		Shader = require('./lib/3d/display/shaders/shader');
 
 	function init(config) {
 		
@@ -46,6 +48,8 @@ window.wowee = (function(){
 		TextureShader : TextureShader,
 		Texture : Texture,
 		ColorShader : ColorShader,
+		Shader: Shader,
+		Material: Material,
 		init: init
 	}
 	

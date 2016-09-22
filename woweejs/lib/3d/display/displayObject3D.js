@@ -43,6 +43,7 @@ function DisplayObject3D() {
 	this.rollQuat = quat.create();
 	this.forceVec = vec3.create();
 	this.velocity = vec3.create();
+	this.renderMat = mat4.create();
 	this.cycleMove = this.move.bind(this);
 	Cycle.add(this.cycleMove);
 	
@@ -145,36 +146,6 @@ DisplayObject3D.prototype.addShader = function(s) {
 
 DisplayObject3D.prototype.render = function(camera){
 
-	// vec3
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_POSITION);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_POSITION, 3,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_POSITION);
-
-	// vec3
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_NORMAL);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_NORMAL, 3,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_NORMAL);
-
-	// vec3
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TANGENT);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TANGENT, 3,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TANGENT);
-
-	// vec3
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_BITANGENT);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_BITANGENT, 3,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_BITANGENT);
-
-	// vec2
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS, 2,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TEXCOORDS);
-
-	// vec4
-	this.detail.gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_COLOR);
-	this.detail.gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_COLOR, 4,
-		this.detail.gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_COLOR);
-
 	this.children.forEach( child=>{
 		child.updateWorldTransform(this.transform);
 	});
@@ -183,32 +154,56 @@ DisplayObject3D.prototype.render = function(camera){
 		return;
 	}
 
-	this.shaders.forEach( shader => {
-		
-		gl.useProgram(shader.program);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
 
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.vertexBuffer);
-		gl.vertexAttribPointer(shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+	// vec3
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_POSITION);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_POSITION, 3,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_POSITION);
 
-		if(!!this.texture) {
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
-			gl.vertexAttribPointer(shader.textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D, this.texture);
-			gl.uniform1i(gl.getUniformLocation(shader.program, "uSampler"), 0);
-		} else {
-			gl.uniform1f(gl.getUniformLocation(shader.program, "uSampler"), 0);
-		}
+	// vec3
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_NORMAL);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_NORMAL, 3,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_NORMAL);
 
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
+	// vec3
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TANGENT);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TANGENT, 3,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TANGENT);
 
-		var pUniform = gl.getUniformLocation(shader.program, "uPMatrix");
-		gl.uniformMatrix4fv(pUniform, false, new Float32Array(camera.pvMatrix));
+	// vec3
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_BITANGENT);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_BITANGENT, 3,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_BITANGENT);
 
-		var mvUniform = gl.getUniformLocation(shader.program, "uMVMatrix");
-		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
-		gl.drawArrays(shader.shapes, 0, this.mesh.vertexLength);
-	});
+	// vec2
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS, 2,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TEXCOORDS);
+
+	// vec4
+	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_COLOR);
+	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_COLOR, 4,
+		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_COLOR);
+
+
+	this.material.apply(mat4.mul(this.renderMat, this.transform, camera.pvMatrix));
+
+	//this.material.apply(camera.pvMatrix);
+
+	if(!!this.texture) {
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	}
+
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.vertexBuffer);
+
+	
+
+	gl.drawArrays(gl.TRIANGLES, 0, this.mesh.vertexLength);
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
 };
 

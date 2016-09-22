@@ -15,7 +15,11 @@ module.exports = function(uri, dataType) {
 			xobj.open('GET', uri, true);   
 			xobj.onreadystatechange = function(){
 				if (xobj.readyState == 4 && xobj.status == "200") {
-					resolve(JSON.parse(xobj.responseText));
+					if(dataType === 'text') {
+						resolve(xobj.responseText);
+					} else {
+						resolve(JSON.parse(xobj.responseText));
+					}
 				}
 			}
 			xobj.send(null);
