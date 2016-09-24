@@ -17,7 +17,7 @@ window.wowee = (function(){
 		TextureShader = require('./lib/3d/display/shaders/texture'),
 		ColorShader = require('./lib/3d/display/shaders/color'),
 		Material = require('./lib/3d/display/material'),
-		Shader = require('./lib/3d/display/shaders/shader');
+		Shader = require('./lib/3d/display/shader');
 
 	function init(config) {
 		

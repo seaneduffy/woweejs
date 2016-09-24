@@ -55,10 +55,10 @@
 	tieMaterial.diffuseColor = [1, 1, 1, 1];
 	planetMaterial.diffuseColor = [1, 0, 0, 1];
 
-	tieShader.init('tint.vert', 'tint.frag')
+	tieShader.init('/shaders/tint.vert', '/shaders/tint.frag')
 	.then(function(){
 		tieMaterial.shader = tieShader;
-		return planetShader.init('tint.vert', 'tint.frag');
+		return planetShader.init('/shaders/tint.vert', '/shaders/tint.frag');
 	})
 	.then(function(){
 		planetMaterial.shader = planetShader;

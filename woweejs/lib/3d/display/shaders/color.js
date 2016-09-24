@@ -1,7 +1,7 @@
 'use strict';
 
 let viewport = require('../../../3d/scene/viewport').getViewport(),
-	Shader = require('../../../3d/display/shaders/shader'),
+	Shader = require('../../../3d/display/shader'),
 	gl = viewport.gl;
 	
 var vertexShaderSource = 

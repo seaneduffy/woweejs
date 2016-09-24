@@ -10,11 +10,6 @@ precision mediump float;
 
 // Vertex in:
 attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec3 a_tangent;
-attribute vec3 a_bitangent;
-attribute vec2 a_texcoords;
-attribute vec4 a_color;
 
 // Render params:
 uniform mat4 u_rp_mvp_matrix;

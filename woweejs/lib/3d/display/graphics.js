@@ -2,8 +2,6 @@
 
 let viewport = require('../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl,
-	ColorShader = require('../../3d/display/shaders/color'),
-	TextureShader = require('../../3d/display/shaders/texture'),
 	DisplayObject3D = require('../../3d/display/displayObject3D'),
 	Log = require('../../log');
 

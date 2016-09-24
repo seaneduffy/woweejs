@@ -8,25 +8,10 @@ let glm = require('gl-matrix'),
 	Cycle = require('../../animation/cycle'),
 	SceneNode = require('../../3d/scene/sceneNode'),
 	Mesh = require('../../3d/display/mesh'),
-	TextureShader = require('../../3d/display/shaders/texture'),
-	ColorShader = require('../../3d/display/shaders/color'),
 	viewport = require('../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl;
 
 	window.gl = viewport.gl;
-
-DisplayObject3D.ATTRIB_INDEX_POSITION  = 0;
-DisplayObject3D.ATTRIB_INDEX_NORMAL    = 1;
-DisplayObject3D.ATTRIB_INDEX_TANGENT   = 2;
-DisplayObject3D.ATTRIB_INDEX_BITANGENT = 3;
-DisplayObject3D.ATTRIB_INDEX_TEXCOORDS = 4;
-DisplayObject3D.ATTRIB_INDEX_COLOR     = 5;
-DisplayObject3D.VERT_OFFSET_POSITION  = 0;
-DisplayObject3D.VERT_OFFSET_NORMAL    = (3 * 4);
-DisplayObject3D.VERT_OFFSET_TANGENT   = (3 * 4) + (3 * 4);
-DisplayObject3D.VERT_OFFSET_BITANGENT = (3 * 4) + (3 * 4) + (3 * 4);
-DisplayObject3D.VERT_OFFSET_TEXCOORDS = (3 * 4) + (3 * 4) + (3 * 4) + (3 * 4);
-DisplayObject3D.VERT_OFFSET_COLOR     = (3 * 4) + (3 * 4) + (3 * 4) + (3 * 4) + (2 * 4);
 
 function DisplayObject3D() {
 
@@ -43,7 +28,8 @@ function DisplayObject3D() {
 	this.rollQuat = quat.create();
 	this.forceVec = vec3.create();
 	this.velocity = vec3.create();
-	this.renderMat = mat4.create();
+	this.mvpMat4 = mat4.create();
+	this.invModelMat4 = mat4.create();
 	this.cycleMove = this.move.bind(this);
 	Cycle.add(this.cycleMove);
 	
@@ -156,54 +142,23 @@ DisplayObject3D.prototype.render = function(camera){
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
 
-	// vec3
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_POSITION);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_POSITION, 3,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_POSITION);
-
-	// vec3
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_NORMAL);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_NORMAL, 3,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_NORMAL);
-
-	// vec3
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TANGENT);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TANGENT, 3,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TANGENT);
-
-	// vec3
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_BITANGENT);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_BITANGENT, 3,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_BITANGENT);
-
-	// vec2
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_TEXCOORDS, 2,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_TEXCOORDS);
-
-	// vec4
-	gl.enableVertexAttribArray(DisplayObject3D.ATTRIB_INDEX_COLOR);
-	gl.vertexAttribPointer(DisplayObject3D.ATTRIB_INDEX_COLOR, 4,
-		gl.FLOAT, false, DisplayObject3D.VERTEX_SIZE_BYTES, DisplayObject3D.VERT_OFFSET_COLOR);
-
-
-	this.material.apply(mat4.mul(this.renderMat, camera.pvMatrix, this.transform));
-
-	//this.material.apply(camera.pvMatrix);
-
-	if(!!this.texture) {
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	}
-
+	/*gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
+	gl.activeTexture(gl.TEXTURE0);
+	gl.bindTexture(gl.TEXTURE_2D, this.texture);*/
+	
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.vertexBuffer);
 
+	mat4.mul(this.mvpMat4, camera.pvMatrix, this.transform);
 	
+	mat4.invert(this.invModelMat4, this.transform);
+
+	this.material.apply(this.mvpMat4, this.transform, this.invModelMat4, camera.pvMatrix);
 
 	gl.drawArrays(gl.TRIANGLES, 0, this.mesh.vertexLength);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+	this.material.remove();
 
 };
 

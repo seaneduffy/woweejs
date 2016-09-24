@@ -27,7 +27,6 @@ Mesh.prototype.initBuffers = function(){
 	
 	if(!!this.texels && (this.textureBuffer == null || this.textureBuffer === 'undefined')) {
 		this.textureBuffer = gl.createBuffer();
-		window.textureBuffer = this.textureBuffer;
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texels), gl.STATIC_DRAW);
 	}
