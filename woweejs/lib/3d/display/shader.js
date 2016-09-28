@@ -66,7 +66,6 @@ Shader.prototype.createProgram = function() {
 	this.program = gl.createProgram();
 	gl.attachShader(this.program, this.vertexShader);
 	gl.attachShader(this.program, this.fragmentShader);
-
 	gl.linkProgram(this.program);
 
 };
@@ -146,7 +145,7 @@ Shader.prototype.bind = function() {
 		vertOffset = null;
 
 	for(attribName in this.vertexAttribs){
-
+		console.log(attribName);
 		if(attribName === Shader.ATTRIB_NAME_POSITION) {
 			vertSize = Shader.VERT_SIZE_POSITION;
 			vertOffset = Shader.VERT_OFFSET_POSITION;

@@ -1,8 +1,8 @@
-attribute vec3 a_vert_pos;
-attribute vec2 a_tex_coord;
+attribute vec3 a_position;
+attribute vec2 a_texcoords;
 uniform mat4 u_rp_mvp_matrix;
-varying highp vec2 v_tex_coord;
+varying highp vec2 v_texcoords;
 void main(void) {
-	gl_Position = u_rp_mvp_matrix * vec4(a_vert_position, 1.0);
-	vTextureCoord = a_tex_coord;
+	gl_Position = u_rp_mvp_matrix * vec4(a_position, 1.0);
+	v_texcoords = a_texcoords;
 }

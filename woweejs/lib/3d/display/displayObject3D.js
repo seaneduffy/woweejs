@@ -140,14 +140,14 @@ DisplayObject3D.prototype.render = function(camera){
 		return;
 	}
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
-
 	if(!!this.mesh.textureBuffer && !!this.texture) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
 		gl.activeTexture(gl.TEXTURE0);
 		gl.bindTexture(gl.TEXTURE_2D, this.texture);	
 	}
 	
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
+
 	gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.vertexBuffer);
 
 	mat4.mul(this.mvpMat4, camera.pvMatrix, this.transform);

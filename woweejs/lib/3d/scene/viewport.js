@@ -12,14 +12,12 @@ function Viewport() {
 	this._canvas.style.zIndex = 0;
 	this._canvas.style.position = 'absolute';
 	this._canvas.style.transform = 'translate(0, 0)';
-	//this.context = this._canvas.getContext('2d');
 	this.gl = WebGLDebugUtils.makeDebugContext(this._canvas.getContext('webgl'));
-	this.gl.enable(this.gl.CULL_FACE);
+	/*this.gl.enable(this.gl.CULL_FACE);
 	this.gl.cullFace(this.gl.BACK);
 	this.gl.frontFace(this.gl.CCW);
 	this.gl.depthFunc(this.gl.LEQUAL);
-	//this.gl.cullFace(this.gl.BACK);
-	this.gl.enable(this.gl.DEPTH_TEST);
+	this.gl.enable(this.gl.DEPTH_TEST);*/
 }
 
 Viewport.prototype = Object.create(SceneNode.prototype, {
