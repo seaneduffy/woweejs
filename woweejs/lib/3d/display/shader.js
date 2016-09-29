@@ -145,7 +145,6 @@ Shader.prototype.bind = function() {
 		vertOffset = null;
 
 	for(attribName in this.vertexAttribs){
-		console.log(attribName);
 		if(attribName === Shader.ATTRIB_NAME_POSITION) {
 			vertSize = Shader.VERT_SIZE_POSITION;
 			vertOffset = Shader.VERT_OFFSET_POSITION;
@@ -165,7 +164,6 @@ Shader.prototype.bind = function() {
 			vertSize = Shader.VERT_SIZE_COLOR;
 			vertOffset = Shader.VERT_OFFSET_COLOR;
 		}
-
 		gl.enableVertexAttribArray(this.vertexAttribs[attribName]);
 		gl.vertexAttribPointer(this.vertexAttribs[attribName], vertSize,
 			gl.FLOAT, false, Shader.VERTEX_SIZE_BYTES, vertOffset);

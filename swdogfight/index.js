@@ -36,18 +36,17 @@
 	//planetMesh = null,
 	//planetTexture = null,
 	scratchMat = mat4.create(),
-	drag = new Drag(.1),
-	tieShader = new Shader(),
-	tieMaterial = new Material();
+	drag = new Drag(.1);
+
 	//planetMaterial = new Material(),
 	//planetShader = new Shader();
-
-	tieMaterial.diffuseColor = [1, 1, 1, 1];
 	//planetMaterial.diffuseColor = [1, 0, 0, 1];
+	tie.displayObject.material = new Material();
+	tie.displayObject.material.diffuseColor = [1, 1, 1, 1];
+	tie.displayObject.material.shader = new Shader();
 
-	tieShader.init('/shaders/simple_tex.vert', '/shaders/simple_tex.frag')
+	tie.displayObject.material.shader.init('/shaders/simple_tex.vert', '/shaders/simple_tex.frag')
 	.then(function(){
-		tieMaterial.shader = tieShader;
 		//return planetShader.init('/shaders/tint.vert', '/shaders/tint.frag');
 	/*})
 	.then(function(){
@@ -64,16 +63,16 @@
 	})
 	.then(function(mesh){
 		tie.displayObject.mesh = mesh;
-		return Texture.load('/tie_fighter.png');
+		return tie.displayObject.loadTextureImage('/tie_fighter.png');
 	})
-	.then(function(tex) {
-		tie.displayObject.material = tieMaterial;
-		tie.displayObject.texture = tex;
+	.then(function() {
+		tie.displayObject.initTexture();
+		tie.displayObject.initFramebuffer();
 		drag.add(tie.displayObject);
 		viewport.addChild(tie.displayObject);
 
 		let camera = new Camera(1080, 720);
-		
+
 		/*let planet = new DisplayObject3D();
 		planet.mesh = planetMesh;
 		planet.material = planetMaterial;
