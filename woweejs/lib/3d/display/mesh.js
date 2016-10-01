@@ -5,8 +5,7 @@ let glm = require('gl-matrix'),
 	viewport = require('../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl,
 	materialPath = null,
-
-	meshes = {};
+	meshData = {};
 	
 function Mesh() {}
 
@@ -30,29 +29,31 @@ Mesh.prototype.initBuffers = function(){
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texels), gl.STATIC_DRAW);
 	}
-}
+};
 
-function loadMesh(src){
+Mesh.prototype.init = function(data) {
+	this.data = data;
+	this.vertexLength = data.vertexIndices.length;
+	this.vertexIndices = data.vertexIndices;
+	this.vertices = data.vertices;
+	this.texels = data.texels;
+	this.initBuffers();
+};
+
+Mesh.prototype.load = function(src){
 
 	return new Promise((resolve, reject)=>{
 
-		if(!!meshes[src]) {
-			resolve(meshes[src]);
+		if(!!meshData[src]) {
+			this.init(meshData[src]);
+			resolve();
 		}
 		load(src).then(data=>{
-			let m = new Mesh();
-			m.data = data;
-			m.dataLoaded = src;
-			m.vertexLength = data.vertexIndices.length;
-			m.vertexIndices = data.vertexIndices;
-			m.vertices = data.vertices;
-			m.texels = data.texels;
-			m.initBuffers();
-			resolve(m);
+			meshData[src] = data;
+			this.init(data);
+			resolve();
 		});
 	});
-}
+};
 
-module.exports = {
-	load : loadMesh
-}
+module.exports = Mesh;

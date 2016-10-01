@@ -30,6 +30,7 @@ function Camera(){
 	this.pvMatrix = new Float32Array(16);
 	this.targetPosition = new Float32Array(3);
 	this.scratchVec = new Float32Array(3);
+	this.scratchVec2 = new Float32Array(3);
 	this.scratchMat = new Float32Array(16);
 	this.scratchQuat = new Float32Array(4);
 
@@ -137,7 +138,7 @@ Camera.prototype.followMove = function() {
 
 	vec3.transformQuat(this.scratchVec, vec3.set(this.scratchVec, 0, 0, this.followDistance), this.scratchQuat);
 
-	//this.scratchVec[1] = 0;
+	this.scratchVec[1] = 0;
 
 	vec3.normalize(this.scratchVec, this.scratchVec);
 
@@ -145,7 +146,25 @@ Camera.prototype.followMove = function() {
 
 	vec3.sub(this.targetPosition, this.front, this.scratchVec);
 
-	vec3.copy(this.position, this.targetPosition);
+	let d = vec3.dist(this.targetPosition, this.position);
+
+	if(d < this.followDistance * .1) {
+		vec3.copy(this.position, this.targetPosition);		
+	} else {
+		vec3.sub(this.scratchVec, this.targetPosition, this.position);
+		vec3.normalize(this.scratchVec, this.scratchVec);
+
+		let d2 = d - this.followSpeed;
+
+		if(d2 >= this.followDistance) {
+			vec3.scale(this.scratchVec, this.scratchVec, this.followDistance);
+		} else {
+			vec3.scale(this.scratchVec, this.scratchVec, d2);
+		}
+
+		vec3.sub(this.position, this.targetPosition, this.scratchVec);
+
+	}
 
 	this.setView();
 	

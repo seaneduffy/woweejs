@@ -33,36 +33,36 @@
 	}),
 	
 	tie = new Ship(),
-	//planetMesh = null,
-	//planetTexture = null,
+	planet = new DisplayObject3D(),
 	scratchMat = mat4.create(),
-	drag = new Drag(.1);
+	drag = new Drag(.1),
+	simpleTexture = new Shader(),
+	tintShader = new Shader();
 
-	//planetMaterial = new Material(),
-	//planetShader = new Shader();
 	//planetMaterial.diffuseColor = [1, 0, 0, 1];
 	tie.displayObject.material = new Material();
 	tie.displayObject.material.diffuseColor = [1, 1, 1, 1];
-	tie.displayObject.material.shader = new Shader();
+	tie.displayObject.material.shader = simpleTexture;
+	tie.displayObject.mesh = new Mesh();
 
-	tie.displayObject.material.shader.init('/shaders/simple_tex.vert', '/shaders/simple_tex.frag')
+	planet.material = new Material();
+	planet.mesh = new Mesh();
+	planet.material.shader = simpleTexture;
+
+	tintShader.init('/shaders/tint.vert', '/shaders/tint.frag')
 	.then(function(){
-		//return planetShader.init('/shaders/tint.vert', '/shaders/tint.frag');
-	/*})
+		return simpleTexture.init('/shaders/simple_tex.vert', '/shaders/simple_tex.frag');
+	})
 	.then(function(){
-		planetMaterial.shader = planetShader;
-		return Mesh.load('planet1.json');
+		return planet.mesh.load('planet1.json');
 	})
-	.then(function(mesh){
-		planetMesh = mesh;
-		return Texture.load('/planet1.png');
+	.then(function(){
+		return planet.loadTextureImage('/planet1.png');
 	})
-	.then(function(tex){
-		//planetTexture = tex;*/
-		return Mesh.load('/tie.json');
+	.then(function(){
+		return tie.displayObject.mesh.load('/tie.json');
 	})
-	.then(function(mesh){
-		tie.displayObject.mesh = mesh;
+	.then(function(){
 		return tie.displayObject.loadTextureImage('/tie_fighter.png');
 	})
 	.then(function() {
@@ -71,30 +71,27 @@
 		drag.add(tie.displayObject);
 		viewport.addChild(tie.displayObject);
 
-		let camera = new Camera(1080, 720);
-
-		/*let planet = new DisplayObject3D();
-		planet.mesh = planetMesh;
-		planet.material = planetMaterial;
+		planet.initTexture();
+		planet.initFramebuffer();
 		planet.scale = 300;
 		vec3.set(planet.translationVec, -500, 0, 500);
-		viewport.addChild(planet);*/
-		
-		
+		viewport.addChild(planet);
+
+		let camera = new Camera(1080, 720);
 		
 		initController();
 		
 		viewport.camera = camera;
 		camera.followDistance = 5;
-		camera.followSpeed = 1;
+		camera.followSpeed = .2;
 		camera.follow(tie.displayObject);
 		
-		/*let starfield = new Starfield();
-		starfield.create();*/
+		let starfield = new Starfield();
+		starfield.create(tintShader);
 		
 		viewport.render();
 		
-		//Cycle.start();
+		Cycle.start();
 	});
 
 	function initController(){

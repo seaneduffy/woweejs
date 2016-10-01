@@ -136,7 +136,7 @@ Shader.prototype.createShader = function(type) {
 	}
 };
 
-Shader.prototype.bind = function() {
+Shader.prototype.bind = function(vertexBuffer, textureBuffer) {
 
 	gl.useProgram(this.program);
 
@@ -148,25 +148,31 @@ Shader.prototype.bind = function() {
 		if(attribName === Shader.ATTRIB_NAME_POSITION) {
 			vertSize = Shader.VERT_SIZE_POSITION;
 			vertOffset = Shader.VERT_OFFSET_POSITION;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		} else if(attribName === Shader.ATTRIB_NAME_NORMAL) {
 			vertSize = Shader.VERT_SIZE_NORMAL;
 			vertOffset = Shader.VERT_OFFSET_NORMAL;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		} else if(attribName === Shader.ATTRIB_NAME_TANGENT) {
 			vertSize = Shader.VERT_SIZE_TANGENT;
 			vertOffset = Shader.VERT_OFFSET_TANGENT;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		} else if(attribName === Shader.ATTRIB_NAME_BITANGENT) {
 			vertSize = Shader.VERT_SIZE_BITANGENT;
 			vertOffset = Shader.VERT_OFFSET_BITANGENT;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		} else if(attribName === Shader.ATTRIB_NAME_TEXCOORDS) {
 			vertSize = Shader.VERT_SIZE_TEXCOORDS;
 			vertOffset = Shader.VERT_OFFSET_TEXCOORDS;
+			gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
 		} else if(attribName === Shader.ATTRIB_NAME_COLOR) {
 			vertSize = Shader.VERT_SIZE_COLOR;
 			vertOffset = Shader.VERT_OFFSET_COLOR;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		}
 		gl.enableVertexAttribArray(this.vertexAttribs[attribName]);
 		gl.vertexAttribPointer(this.vertexAttribs[attribName], vertSize,
-			gl.FLOAT, false, Shader.VERTEX_SIZE_BYTES, vertOffset);
+			gl.FLOAT, false, Shader.VERTEX_SIZE_BYTES, 0);
 	}
 }
 

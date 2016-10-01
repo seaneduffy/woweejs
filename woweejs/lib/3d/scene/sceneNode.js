@@ -210,7 +210,7 @@ SceneNode.prototype.updateWorldTransform = function(t) {
 	this.updateTransform();
 	
 };
-var c = 0;
+
 SceneNode.prototype.updateTransform = function() {
 	
 	mat4.fromRotationTranslation(this.localTransform, this.rotationQuat, this.translationVec);

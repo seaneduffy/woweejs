@@ -153,62 +153,6 @@ DisplayObject3D.prototype.initTexture = function(src) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 };
 
-/*
-gl.viewport(0, 0, rttFramebuffer.width, rttFramebuffer.height);
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-mat4.perspective(45, laptopScreenAspectRatio, 0.1, 100.0, pMatrix);
-gl.uniform1i(shaderProgram.showSpecularHighlightsUniform, false);
-gl.uniform3f(shaderProgram.ambientLightingColorUniform, 0.2, 0.2, 0.2);
-gl.uniform3f(shaderProgram.pointLightingLocationUniform, 0, 0, -5);
-gl.uniform3f(shaderProgram.pointLightingDiffuseColorUniform, 0.8, 0.8, 0.8);
-gl.uniform1i(shaderProgram.showSpecularHighlightsUniform, false);
-gl.uniform1i(shaderProgram.useTexturesUniform, true);
-gl.uniform3f(shaderProgram.materialAmbientColorUniform, 1.0, 1.0, 1.0);
-gl.uniform3f(shaderProgram.materialDiffuseColorUniform, 1.0, 1.0, 1.0);
-gl.uniform3f(shaderProgram.materialSpecularColorUniform, 0.0, 0.0, 0.0);
-gl.uniform1f(shaderProgram.materialShininessUniform, 0);
-gl.uniform3f(shaderProgram.materialEmissiveColorUniform, 0.0, 0.0, 0.0);
-mat4.identity(mvMatrix);
-mat4.translate(mvMatrix, [0, 0, -5]);
-mat4.rotate(mvMatrix, degToRad(30), [1, 0, 0]);
-mvPushMatrix();
-mat4.rotate(mvMatrix, degToRad(moonAngle), [0, 1, 0]);
-mat4.translate(mvMatrix, [2, 0, 0]);
-gl.activeTexture(gl.TEXTURE0);
-gl.bindTexture(gl.TEXTURE_2D, moonTexture);
-gl.uniform1i(shaderProgram.samplerUniform, 0);
-gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexPositionBuffer);
-gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, moonVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexTextureCoordBuffer);
-gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, moonVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.bindBuffer(gl.ARRAY_BUFFER, moonVertexNormalBuffer);
-gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, moonVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, moonVertexIndexBuffer);
-setMatrixUniforms();
-gl.drawElements(gl.TRIANGLES, moonVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-mvPopMatrix();
-mvPushMatrix();
-mat4.rotate(mvMatrix, degToRad(cubeAngle), [0, 1, 0]);
-mat4.translate(mvMatrix, [1.25, 0, 0]);
-gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexNormalBuffer);
-gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, cubeVertexNormalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexTextureCoordBuffer);
-gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, cubeVertexTextureCoordBuffer.itemSize, gl.FLOAT, false, 0, 0);
-gl.activeTexture(gl.TEXTURE0);
-gl.bindTexture(gl.TEXTURE_2D, crateTexture);
-gl.uniform1i(shaderProgram.samplerUniform, 0);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
-setMatrixUniforms();
-gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-mvPopMatrix();
-gl.bindTexture(gl.TEXTURE_2D, rttTexture);
-gl.generateMipmap(gl.TEXTURE_2D);
-gl.bindTexture(gl.TEXTURE_2D, null);
-*/
-
-
 DisplayObject3D.prototype.initFramebuffer = function(src) {
 
 	if(typeof this.texture === 'undefined') {
@@ -220,7 +164,11 @@ DisplayObject3D.prototype.initFramebuffer = function(src) {
 	this.renderbuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
     if(!!this.textureImage) {
-    	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.textureImage.width, this.textureImage.height);
+    	gl.renderbufferStorage(
+    		gl.RENDERBUFFER, 
+    		gl.DEPTH_COMPONENT16, 
+    		this.textureImage.width, 
+    		this.textureImage.height);
     } else {
     	gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 512, 512);
     }
@@ -245,23 +193,25 @@ DisplayObject3D.prototype.render = function(camera){
 	}
 
 	gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-	
-
-	if(!!this.mesh.textureBuffer && !!this.texture) {
-		gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.textureBuffer);
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	}
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.mesh.vertexBuffer);
 
 	mat4.mul(this.mvpMat4, camera.pvMatrix, this.transform);
+
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
 	
 	mat4.invert(this.invModelMat4, this.transform);
 
-	this.material.apply(this.mvpMat4, this.transform, this.invModelMat4, camera.pvMatrix);
+	this.material.apply(
+		this.mvpMat4, 
+		this.transform, 
+		this.invModelMat4, 
+		camera.pvMatrix, 
+		this.mesh.vertexBuffer, 
+		this.mesh.textureBuffer);
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.mesh.indexBuffer);
+	if(!!this.texture) {
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	}
 	
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 

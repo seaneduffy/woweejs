@@ -1,6 +1,8 @@
 'use strict';
 
-let viewport = require('../../3d/scene/viewport').getViewport(),
+let glm = require('gl-matrix'),
+	mat4 = glm.mat4,
+	viewport = require('../../3d/scene/viewport').getViewport(),
 	gl = viewport.gl,
 	DisplayObject3D = require('../../3d/display/displayObject3D'),
 	Log = require('../../log');
@@ -14,54 +16,42 @@ Graphics.prototype = Object.create(DisplayObject3D.prototype);
 
 Graphics.prototype.constructor = Graphics;
 
-Graphics.prototype.drawLine = function(points, shader){
+Graphics.prototype.draw = function(points, method){
 	
-	let graphicsObj = {
-		vertexBuffer : gl.createBuffer(),
-		indexBuffer : gl.createBuffer(),
-		texelsBuffer : gl.createBuffer(),
-		vertices : [],
-		vertexIndices : [],
-		shader: shader
-	};
-
-	this.graphics.push(graphicsObj);
+	this.vertexBuffer = gl.createBuffer();
+	this.indexBuffer = gl.createBuffer();
+	this.vertexes = [];
+	this.vertexIndexes = [];
+	this.method = method;
 
 	points.forEach( (point, index) => {
 		point.forEach( v => {
-			graphicsObj.vertices.push(v);
+			this.vertexes.push(v);
 		});
-		graphicsObj.vertexIndices.push(index);
+		this.vertexIndexes.push(index);
 	});
-	gl.bindBuffer(gl.ARRAY_BUFFER, graphicsObj.vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(graphicsObj.vertices), gl.STATIC_DRAW);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, graphicsObj.indexBuffer);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(graphicsObj.vertexIndices), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertexes), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.vertexIndexes), gl.STATIC_DRAW);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 };
 
 Graphics.prototype.render = function(camera){
-
-	this.graphics.forEach( graphic => {
-
-		gl.enableVertexAttribArray(graphic.shader.vertexPositionAttribute);
-
-		gl.useProgram(graphic.shader.program);
-
-		gl.bindBuffer(gl.ARRAY_BUFFER, graphic.vertexBuffer);
-		gl.vertexAttribPointer(graphic.shader.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-		gl.uniform1f(gl.getUniformLocation(graphic.shader.program, "uSampler"), 0);
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, graphic.indexBuffer);
-
-		var pUniform = gl.getUniformLocation(graphic.shader.program, "uPMatrix");
-		gl.uniformMatrix4fv(pUniform, false, new Float32Array(camera.pvMatrix));
-
-		var mvUniform = gl.getUniformLocation(graphic.shader.program, "uMVMatrix");
-		gl.uniformMatrix4fv(mvUniform, false, new Float32Array(this.transform));
-		gl.drawArrays(graphic.shader.shapes, 0, graphic.vertexIndices.length);
-
-		gl.disableVertexAttribArray(graphic.shader.vertexPositionAttribute);
-	});
-
+	if(typeof this.material === 'undefined' 
+		|| this.vertexBuffer === 'undefined' 
+		|| this.indexBuffer === 'undefined') {
+		return ;
+	}
+	mat4.mul(this.mvpMat4, camera.pvMatrix, this.transform);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	mat4.invert(this.invModelMat4, this.transform);
+	this.material.apply(this.mvpMat4, this.transform, this.invModelMat4, camera.pvMatrix, this.vertexBuffer, null);
+	gl.drawArrays(this.method, 0, this.vertexIndexes.length);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	this.material.remove();
 };
 
 

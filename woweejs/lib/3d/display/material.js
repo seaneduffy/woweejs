@@ -27,21 +27,26 @@ Object.defineProperties(Material.prototype, {
 	}
 });
 
-Material.prototype.apply = function(mvpMat4, modelMat4, invModelMat4, eyePosition){
+Material.prototype.apply = function(mvpMat4, modelMat4, invModelMat4, eyePosition, vertexBuffer, textureBuffer){
 
-	this.shader.bind();
+	this.shader.bind(vertexBuffer, textureBuffer);
 
-	if(!!this.diffuseColor && this.shader.hasUniform('u_mtr_diffuse')) {
+	if(this.shader.hasUniform('u_mtr_diffuse')) {
+		let diffuseColor = this.diffuseColor || [1, 1, 1, 1];
 		this.shader.setUniformVec4('u_mtr_diffuse', this.diffuseColor);
 	}
 	if(!!this.specularColor && this.shader.hasUniform("u_mtr_specular")) {
-		shader.setUniformVec4("u_mtr_specular", this.specularColor);
+		this.shader.setUniformVec4("u_mtr_specular", this.specularColor);
 	}
 	if(!!this.ambientColor && this.shader.hasUniform("u_mtr_ambient")) {
-		shader.setUniformVec4("u_mtr_ambient", this.ambientColor);
+		this.shader.setUniformVec4("u_mtr_ambient", this.ambientColor);
 	}
 	if(!!this.shininess && this.shader.hasUniform("u_mtr_shininess")) {
 		this.shader.setUniform1f("u_mtr_shininess", this.shininess);
+	}
+	if(this.shader.hasUniform("u_stroke")) {
+		let strokeSize = this.strokeSize || 1.0;
+		this.shader.setUniform1f("u_stroke", strokeSize);
 	}
 	if(this.shader.hasUniform("u_diffuse_texture")) {
 		this.shader.setUniform1i("u_diffuse_texture", Material.DIFFUSE_MAP_TMU);

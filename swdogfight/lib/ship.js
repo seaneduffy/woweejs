@@ -16,9 +16,9 @@ function Ship() {
 	this.thrustAmount = 0;
 	this.acceleration = .3;
 	this.turnSpeed = Math.PI / 180 * -10;
-	this.rollSpeed = Math.PI / 180 * 14;
+	this.rollSpeed = Math.PI / 180 * 4;
 	this.barrelSpeed = 200;
-	this.barrelRollSpeed = Math.PI / 180 * 30;
+	this.barrelRollSpeed = Math.PI / 180 * 10;
 
 
 	this.displayObject = new DisplayObject3D();
