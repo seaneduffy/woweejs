@@ -14,8 +14,6 @@ window.wowee = (function(){
 		Cycle = require('./lib/animation/cycle'),
 		Log = require('./lib/log'),
 		Texture = require('./lib/3d/display/texture'),
-		TextureShader = require('./lib/3d/display/shaders/texture'),
-		ColorShader = require('./lib/3d/display/shaders/color'),
 		Material = require('./lib/3d/display/material'),
 		Shader = require('./lib/3d/display/shader');
 
@@ -45,9 +43,7 @@ window.wowee = (function(){
 		Viewport : Viewport,
 		Cycle : Cycle,
 		Log : Log,
-		TextureShader : TextureShader,
 		Texture : Texture,
-		ColorShader : ColorShader,
 		Shader: Shader,
 		Material: Material,
 		init: init

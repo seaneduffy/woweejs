@@ -18,6 +18,7 @@
 	Shader = wowee.Shader,
 	Material = wowee.Material,
 	gl = viewport.gl,
+	camera = new Camera(),
 
 	Controller = require('./lib/controller'),
 	Ship = require('./lib/ship'),
@@ -76,21 +77,19 @@
 		planet.scale = 300;
 		vec3.set(planet.translationVec, -500, 0, 500);
 		viewport.addChild(planet);
-
-		let camera = new Camera(1080, 720);
 		
 		initController();
 		
 		viewport.camera = camera;
 		camera.followDistance = 5;
-		camera.followSpeed = .2;
+		camera.followSpeed = .3;
 		camera.follow(tie.displayObject);
 		
 		let starfield = new Starfield();
 		starfield.create(tintShader);
-		
-		viewport.render();
-		
+			
+		//viewport.render();
+
 		Cycle.start();
 	});
 
@@ -108,9 +107,11 @@
 			tie.yaw(0);
 		});
 		Controller.on(Controller.THRUST, function(){
+			camera.followDistance = 10;
 			tie.thrust(1);
 		});
 		Controller.on(Controller.THRUST_OFF, function(){
+			camera.followDistance = 5;
 			tie.thrust(0);
 		});
 		Controller.on(Controller.BRAKE, function(){

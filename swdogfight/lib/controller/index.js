@@ -124,22 +124,26 @@ document.body.addEventListener( 'mousemove', event => {
 });
 
 document.body.addEventListener( 'keydown', event => {
-	if(event.code === 'KeyW') {
+	if(event.code === 'KeyQ') {
+		controls[BARREL].activate(-1);
+	} else if(event.code === 'KeyE') {
+		controls[BARREL].activate(1);
+	} else if(event.code === 'KeyW') {
 		controls[THRUST].activate();
 	} else if(event.code === 'KeyS') {
 		controls[BRAKE].activate();
 	} else if(event.code === 'KeyA') {
-		if(barrelReadyLeft) {
+		/*if(barrelReadyLeft) {
 			controls[BARREL].activate(-1);
-		} else {
+		} else {*/
 			controls[ROLL].activate(-1);
-		}
+		//}
 	} else if(event.code === 'KeyD') {
-		if(barrelReadyRight) {
+		/*if(barrelReadyRight) {
 			controls[BARREL].activate(1);
-		} else {
+		} else {*/
 			controls[ROLL].activate(1);
-		}
+		//}
 	} else if(event.code === 'Space') {
 		controls[FIRE].activate();
 	}
